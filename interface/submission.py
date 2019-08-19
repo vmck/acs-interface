@@ -1,10 +1,12 @@
-import logging
-from django.conf import settings
+from .settings import base_dir, VMCK_API_URL
 from tempfile import TemporaryDirectory
 from .minio_api import MinioAPI
 from zipfile import ZipFile
 from pathlib import Path
 from shutil import copy
+
+import logging
+import subprocess
 
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
@@ -18,7 +20,9 @@ def handle_submission(file):
     storage.upload(file)
     with TemporaryDirectory() as _tmp:
         tmp = Path(str(_tmp))
-        log.debug(f'Temporary directory at {tmp}')
         storage.download(file.name, tmp / 'archive.zip')
-        copy(settings.base_dir / 'vagrant' / 'Vagrantfile', tmp)
+        copy(base_dir / 'vagrant' / 'Vagrantfile', tmp)
+        proc = subprocess.Popen(f'docker run --env VMCK_URL={VMCK_API_URL} --network="host" -it --rm --volume $(pwd):/homework  vmck/vagrant-vmck:latest /bin/bash -c "cd /homework; vagrant up; vagrant destroy -f"', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, cwd=tmp)  # noqa: E501
+        while proc.poll() is None:
+                print(''.join(proc.stdout.readline().decode('utf-8').strip()))  # noqa: E501
 

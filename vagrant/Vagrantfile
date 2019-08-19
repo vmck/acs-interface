@@ -10,7 +10,7 @@
 
    config.nfs.functional = false
 
-   config.vm.provision 'shell', inline: "cd /vagrant; ls -al"
+   config.vm.provision 'shell', inline: "cd /vagrant; unzip archive.zip; ls -al"
 
    config.vm.provider :vmck do |vmck|
     vmck.image_path = 'cluster-master.qcow2.tar.gz'

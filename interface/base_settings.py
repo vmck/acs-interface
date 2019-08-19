@@ -24,8 +24,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'interface.urls'
 
-MEDIA_ROOT = base_dir / 'data' / 'uploads'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
