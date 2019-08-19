@@ -25,8 +25,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'interface.urls'
 
 MEDIA_ROOT = base_dir / 'data' / 'uploads'
-FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o731
-FILE_UPLOAD_PERMISSIONS = 0o666
 
 TEMPLATES = [
     {
@@ -49,7 +47,7 @@ WSGI_APPLICATION = 'interface.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(base_dir / 'data' /  'db.sqlite3'),
+        'NAME': str(base_dir / 'data' / 'db.sqlite3'),
     }
 }
 
