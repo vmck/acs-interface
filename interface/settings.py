@@ -1,6 +1,7 @@
-import os
 from .base_settings import * # noqa
 from .base_settings import base_dir
+
+import os
 
 SECRET_KEY = 'changeme'
 
