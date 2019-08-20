@@ -1,7 +1,6 @@
 from .settings import base_dir, VMCK_API_URL
 from tempfile import TemporaryDirectory
 from .minio_api import MinioAPI
-from zipfile import ZipFile
 from pathlib import Path
 from shutil import copy
 
@@ -15,7 +14,7 @@ log.setLevel(log_level)
 
 def handle_submission(file):
     log.debug(f'Submission {file.name} received')
-    storage =  MinioAPI.getInstance()
+    storage = MinioAPI.getInstance()
 
     storage.upload(file)
     with TemporaryDirectory() as _tmp:
@@ -25,4 +24,3 @@ def handle_submission(file):
         proc = subprocess.Popen(f'docker run --env VMCK_URL={VMCK_API_URL} --network="host" -it --rm --volume $(pwd):/homework  vmck/vagrant-vmck:latest /bin/bash -c "cd /homework; vagrant up; vagrant destroy -f"', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, cwd=tmp)  # noqa: E501
         while proc.poll() is None:
                 print(''.join(proc.stdout.readline().decode('utf-8').strip()))  # noqa: E501
-
