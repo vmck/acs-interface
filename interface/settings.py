@@ -10,6 +10,10 @@ _hostname = os.environ.get('HOSTNAME')
 if _hostname:
     ALLOWED_HOSTS = [_hostname]
 
+AUTHENTICATION_BACKENDS = [
+    'interface.backend.auth.VmckAuthBackend',
+]
+
 VMCK_API_URL = os.environ.get('VMCK_API_URL', 'http://localhost:8000')
 
 MINIO_ADDRESS = os.environ.get('MINIO_ADDRESS', 'localhost:9000')
