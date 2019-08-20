@@ -1,6 +1,6 @@
-from .settings import base_dir, VMCK_API_URL
 from tempfile import TemporaryDirectory
-from .minio_api import MinioAPI
+from ..settings import base_dir, VMCK_API_URL
+from ..minio_api import MinioAPI
 from pathlib import Path
 from shutil import copy
 
@@ -12,11 +12,13 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def handle_submission(file):
+def handle_submission(request):
+    file = request.FILES['file']
     log.debug(f'Submission {file.name} received')
-    storage = MinioAPI.getInstance()
 
+    storage = MinioAPI.getInstance()
     storage.upload(file)
+
     with TemporaryDirectory() as _tmp:
         tmp = Path(str(_tmp))
         storage.download(file.name, tmp / 'archive.zip')
