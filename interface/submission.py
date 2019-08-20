@@ -23,4 +23,4 @@ def handle_submission(file):
         copy(base_dir / 'vagrant' / 'Vagrantfile', tmp)
         proc = subprocess.Popen(f'docker run --env VMCK_URL={VMCK_API_URL} --network="host" -it --rm --volume $(pwd):/homework  vmck/vagrant-vmck:latest /bin/bash -c "cd /homework; vagrant up; vagrant destroy -f"', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, cwd=tmp)  # noqa: E501
         while proc.poll() is None:
-                print(''.join(proc.stdout.readline().decode('utf-8').strip()))  # noqa: E501
+            print(''.join(proc.stdout.readline().decode('utf-8').strip()))  # noqa: E501
