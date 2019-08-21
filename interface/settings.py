@@ -75,3 +75,4 @@ VMCK_API_URL = os.environ.get('VMCK_API_URL', 'http://localhost:8000')
 MINIO_ADDRESS = os.environ.get('MINIO_ADDRESS', 'localhost:9000')
 MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', "changeme")
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', "changemetoo")
+MINIO_BUCKET = 'test'
