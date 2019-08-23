@@ -1,5 +1,6 @@
 from minio import Minio, ResponseError
 from django.conf import settings
+from datetime import timedelta
 
 import io
 
@@ -9,11 +10,11 @@ _client = Minio(settings.MINIO_ADDRESS,
                 secure=False)
 
 
-def upload(file):
+def upload(filename, filedata):
     _client.put_object(settings.MINIO_BUCKET,
-                       file.name,
-                       io.BytesIO(file.read()),
-                       file.size,
+                       filename,
+                       io.BytesIO(filedata),
+                       len(filedata),
                        content_type='application/zip')
 
 
@@ -22,6 +23,12 @@ def download(filename, path):
         data = _client.get_object(settings.MINIO_BUCKET, filename)
         for chunck in data.stream(32*1024):
             file.write(chunck)
+
+
+def get_link(filename):
+    return _client.presigned_get_object(settings.MINIO_BUCKET,
+                                        filename,
+                                        expires=timedelta(hours=1))
 
 
 def exists(filename):
