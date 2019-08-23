@@ -1,11 +1,11 @@
 from tempfile import TemporaryDirectory
-from django.conf import settings
+from zipfile import ZipFile
 from pathlib import Path
-from shutil import copy
+from django.conf import settings
 
 import interface.backend.minio_api as storage
+import requests
 import logging
-import subprocess
 
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
@@ -16,12 +16,15 @@ def handle_submission(request):
     file = request.FILES['file']
     log.debug(f'Submission {file.name} received')
 
-    storage.upload(file)
-
     with TemporaryDirectory() as _tmp:
         tmp = Path(str(_tmp))
-        storage.download(file.name, tmp / 'archive.zip')
-        copy(settings.BASE_DIR / 'vagrant' / 'Vagrantfile', tmp)
-        proc = subprocess.Popen(f'docker run --env VMCK_URL={settings.VMCK_API_URL} --network="host" -it --rm --volume $(pwd):/homework  vmck/vagrant-vmck:0.2.0 /bin/bash -c "cd /homework; vagrant up; vagrant destroy -f"', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, cwd=tmp)  # noqa: E501
-        while proc.poll() is None:
-            print(''.join(proc.stdout.readline().decode('utf-8').strip()))  # noqa: E501
+        submission_arch = ZipFile(tmp / file.name, mode='x')
+        submission_arch.writestr('submission.zip', data=file.read())
+        submission_arch.write(settings.BASE_DIR / 'vagrant' / 'Vagrantfile', 'Vagrantfile')
+        submission_arch.close()
+
+        with open(tmp / file.name, 'rb') as data:
+            print(dir(data.read()))
+            storage.upload(file.name, data.read())
+
+    url = storage.get_link(file.name)
