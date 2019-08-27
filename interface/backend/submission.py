@@ -2,6 +2,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 from pathlib import Path
 from django.conf import settings
+from interface.utils import random_code
 
 import interface.backend.minio_api as storage
 import requests
@@ -29,7 +30,8 @@ def isNumber(string):
 
 
 def build_vagrantfile(config):
-    confing_str = 'vmck.vmck_url = ENV["VMCK_URL"]\n'
+    confing_str = ('vmck.vmck_url = ENV["VMCK_URL"]\n'
+                   f'vmck.token = "{random_code(128)}"\n')
 
     with open(settings.VAGRANTFILE) as vagrantfile:
         for key, value in config.items():
