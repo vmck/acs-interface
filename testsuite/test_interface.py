@@ -7,7 +7,7 @@ import pytest
 pytestmark = [pytest.mark.django_db]
 
 
-def test_uploading_archive(client):
+def test_submission(client):
     filepath = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
     with open(filepath, 'rb') as file:

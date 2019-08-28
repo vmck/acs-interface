@@ -1,6 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from interface.forms import UploadFileForm, LoginForm
 from interface.backend.submission import handle_submission
+from interface import models
+
+import json
 
 
 def homepage(request):
@@ -23,3 +26,13 @@ def upload(request):
         form = UploadFileForm()
 
     return render(request, 'interface/upload.html', {'form': form})
+
+
+def done(request):
+    # NOTE: make it safe, some form of authentication
+    #       we don't want stundets updating their score.
+    options = json.loads(request.body) if request.body else {}  # TODO validate
+
+    submission = get_object_or_404(models.Submission, id=options['id'])
+    submission.score = options['score']
+    submission.save()
