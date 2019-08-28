@@ -29,9 +29,12 @@ def isNumber(string):
         return False
 
 
+def create_token():
+    return random_code(settings.TOKEN_SIZE)
+
+
 def build_vagrantfile(config):
-    confing_str = ('vmck.vmck_url = ENV["VMCK_URL"]\n'
-                   f'vmck.token = "{random_code(128)}"\n')
+    confing_str = 'vmck.vmck_url = ENV["VMCK_URL"]\n'
 
     with open(settings.VAGRANTFILE) as vagrantfile:
         for key, value in config.items():
@@ -54,6 +57,8 @@ def handle_submission(request):
         tmp = Path(str(_tmp))
 
         config = get_config('pc.ini')
+        config['token'] = create_token()
+
         vagrantfile = build_vagrantfile(config)
 
         submission_arch = ZipFile(tmp / file.name, mode='x')
