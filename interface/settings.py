@@ -77,5 +77,6 @@ MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', "changeme")
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', "changemetoo")
 MINIO_BUCKET = 'test'
 
+TOKEN_SIZE = 128
 CONFIG_DIR = BASE_DIR / 'config'
 VAGRANTFILE = BASE_DIR / 'vagrant' / 'Vagrantfile'

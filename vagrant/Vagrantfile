@@ -10,7 +10,7 @@
 
    config.nfs.functional = false
 
-   config.vm.provision 'shell', inline: "cd /vagrant; unzip archive.zip"
+   config.vm.provision 'shell', inline: "cd /vagrant; unzip submission.zip"
 
    config.vm.provider :vmck do |vmck|
     !CONFIGUARATION!
