@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from interface.forms import UploadFileForm, LoginForm
 from interface.backend.submission import handle_submission
+from django.http import JsonResponse
 from interface import models
 
 import json
@@ -36,3 +37,7 @@ def done(request):
     submission = get_object_or_404(models.Submission, id=options['id'])
     submission.score = options['score']
     submission.save()
+
+
+def alive(request):
+    return JsonResponse({'alive': True})

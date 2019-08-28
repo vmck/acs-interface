@@ -73,9 +73,9 @@ if _hostname:
 VMCK_API_URL = os.environ.get('VMCK_API_URL', 'http://localhost:8000/v0/')
 
 MINIO_ADDRESS = os.environ.get('MINIO_ADDRESS', 'localhost:9000')
-MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', "changeme")
-MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', "changemetoo")
-MINIO_BUCKET = 'test'
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', 'changeme')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', 'changemetoo')
+MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
 TOKEN_SIZE = 128
 CONFIG_DIR = BASE_DIR / 'assignment'
