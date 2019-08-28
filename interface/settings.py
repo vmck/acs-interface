@@ -80,3 +80,6 @@ MINIO_BUCKET = 'test'
 TOKEN_SIZE = 128
 CONFIG_DIR = BASE_DIR / 'config'
 VAGRANTFILE = BASE_DIR / 'vagrant' / 'Vagrantfile'
+
+MANAGER_MEMORY = 50
+MANAGER_MHZ = 30

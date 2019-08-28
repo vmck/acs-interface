@@ -30,7 +30,7 @@ add your variabiles. The following example is enough to start you:
 #DEBUG=True
 MINIO_ACCESS_KEY=1234
 MINIO_SECRET_KEY=123456789
-VMCK_API_URL=http://www.example.com
+VMCK_API_URL=http://www.example.com/v0/
 ```
 Please add it to your `.env` file
 Now run:
