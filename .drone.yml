@@ -25,7 +25,7 @@ steps:
 - name: docker push branch ${DRONE_COMMIT_BRANCH}
   image: plugins/docker
   settings:
-    repo: vmck/interface
+    repo: vmck/acs-interface
     tags: ${DRONE_COMMIT_BRANCH}
     username:
       from_secret: docker_username
@@ -38,7 +38,7 @@ steps:
 - name: docker push autotag + latest
   image: plugins/docker
   settings:
-    repo: vmck/interface
+    repo: vmck/acs-interface
     auto_tag: true
     username:
       from_secret: docker_username

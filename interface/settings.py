@@ -1,3 +1,4 @@
+from interface.utils import is_true
 from pathlib import Path
 
 import os
@@ -64,7 +65,7 @@ STATIC_URL = '/static/'
 
 SECRET_KEY = 'changeme'
 
-DEBUG = True
+DEBUG = is_true(os.environ.get('DEBUG'))
 
 _hostname = os.environ.get('HOSTNAME')
 if _hostname:
