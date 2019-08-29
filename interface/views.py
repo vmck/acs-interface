@@ -5,6 +5,12 @@ from django.http import JsonResponse
 from interface import models
 
 import json
+import logging
+
+
+log_level = logging.DEBUG
+log = logging.getLogger(__name__)
+log.setLevel(log_level)
 
 
 def homepage(request):
@@ -35,7 +41,10 @@ def done(request):
     options = json.loads(request.body) if request.body else {}  # TODO validate
 
     submission = get_object_or_404(models.Submission, id=options['id'])
-    submission.score = options['score']
+    submission.score = 0
+
+    log.debug(f'Submission #{submission.id} has the output:\n{options["output"]}')  # noqa: E501
+
     submission.save()
 
 

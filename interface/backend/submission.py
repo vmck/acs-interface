@@ -67,6 +67,7 @@ def handle_submission(request):
     options['manager']['archive'] = storage.get_link(file.name)
     options['manager']['memory'] = settings.MANAGER_MEMORY
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
+    options['manager']['vmck_api'] = settings.VMCK_API_URL
 
     submission = Submission.objects.create()
     submission.token = config['token']
