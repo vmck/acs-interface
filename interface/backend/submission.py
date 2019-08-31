@@ -74,6 +74,7 @@ def handle_submission(request):
     submission.username = request.user.username if request.user.id is None else 'anonymous'  # noqa: E501
     submission.url = options['manager']['archive']
     submission.assignment_id = assignment_id
+    submission.max_score = 100
 
     options['manager']['id'] = submission.id
 
