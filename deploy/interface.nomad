@@ -1,9 +1,9 @@
-job "interface" {
+job "acs-interface" {
   datacenters = ["dc1"]
   type = "service"
 
-  group "interface" {
-    task "interface" {
+  group "acs-interface" {
+    task "acs-interface" {
       constraint {
         attribute = "${meta.volumes}"
         operator  = "is_set"
@@ -13,7 +13,7 @@ job "interface" {
         image = "vmck/acs-interface:interface"
         dns_servers = ["${attr.unique.network.ip-address}"]
         volumes = [
-          "${meta.volumes}/interface:/opt/interface/data",
+          "${meta.volumes}/acs-interface:/opt/interface/data",
         ]
         port_map {
           http = 8100
@@ -51,10 +51,10 @@ job "interface" {
         }
       }
       service {
-        name = "interface"
+        name = "acs-interface"
         port = "http"
         check {
-          name = "interface alive on http"
+          name = "acs-interface alive on http"
           initial_status = "critical"
           type = "http"
           path = "/alive"
