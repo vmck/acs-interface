@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 from pathlib import Path
 from django.conf import settings
-from interface.utils import random_code, is_number
+from interface.utils import is_number
 from interface.models import Submission
 from urllib.parse import urljoin
 
@@ -49,7 +49,6 @@ def handle_submission(request):
         tmp = Path(str(_tmp))
 
         config = read_config(f'{assignment_id}.ini')
-        config['token'] = random_code(settings.TOKEN_SIZE)
 
         vagrantfile = build_vagrantfile(config)
 
@@ -70,7 +69,6 @@ def handle_submission(request):
     options['manager']['vmck_api'] = settings.VMCK_API_URL
 
     submission = Submission.objects.create()
-    submission.token = config['token']
     submission.username = request.user.username if request.user.id is None else 'anonymous'  # noqa: E501
     submission.url = options['manager']['archive']
     submission.assignment_id = assignment_id
