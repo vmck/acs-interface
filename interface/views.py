@@ -54,10 +54,11 @@ def done(request):
     submission = get_object_or_404(models.Submission,
                                    url=options['token'],
                                    score=-1)
-    submission.score = int(options['output'].split('\n')[-1].split('/')[0])
-    submission.max_score = int(options['output'].split('\n')[-1].split('/')[1])
-    submission.message = str(''.join(options['output'].split('\n')[:-1]))
 
+    submission.score = int(options['output'][-2].split('/')[0])
+    submission.max_score = int(options['output'][-2].split('/')[1])
+    submission.message = str('\n'.join(options['output'][:-2]))
+    log.debug(submission.message)
     log.debug(f'Submission #{submission.id} has the output:\n{options["output"]}')  # noqa: E501
 
     submission.save()
