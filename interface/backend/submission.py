@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 from pathlib import Path
 from django.conf import settings
-from interface.utils import is_number
+from interface.utils import is_number, random_code
 from interface.models import Submission
 from urllib.parse import urljoin
 
@@ -44,6 +44,7 @@ def handle_submission(request):
     log.debug(f'Submission {file.name} received')
     # stub just for now, in the end we will get it from `request`
     assignment_id = 'pc'
+    archive_name = f'{file.name}-{random_code(16)}.zip'
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(str(_tmp))
@@ -60,10 +61,10 @@ def handle_submission(request):
         submission_arch.close()
 
         with open(tmp / file.name, 'rb') as data:
-            storage.upload(file.name, data.read())
+            storage.upload(archive_name, data.read())
 
     options = {'vm': dict(config), 'manager': {}}
-    options['manager']['archive'] = storage.get_link(file.name)
+    options['manager']['archive'] = storage.get_link(archive_name)
     options['manager']['memory'] = settings.MANAGER_MEMORY
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
     options['manager']['vmck_api'] = settings.VMCK_API_URL
