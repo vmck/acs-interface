@@ -30,6 +30,7 @@ def handle_submission(request):
 
     storage.upload(f'{submission.id}.zip', file.read())
 
+    submission.archive_size = file.size >> 10
     submission.username = request.user.username
     submission.assignment_id = request.POST['assignment_id']
     submission.max_score = 100
