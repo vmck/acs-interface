@@ -1,3 +1,5 @@
+import interface.backend.minio_api as storage
+
 from django.db import models
 
 
@@ -17,11 +19,18 @@ class Submission(models.Model):
 
     username = models.CharField(max_length=64, default='none')
     assignment_id = models.CharField(max_length=64, default='none')
-    url = models.CharField(max_length=256, default='none')
+    _url = models.CharField(max_length=256, default='none')
     message = models.CharField(max_length=4096, default='none')
 
     score = models.IntegerField(default=-1)
     max_score = models.IntegerField(default=-1)
+
+    @property
+    def url(self):
+        if self._url is 'none':
+            self._url = storage.get_link(f'{self.id}.zip')
+
+        return self._url
 
     def __str__(self):
         return f"{self.id}"

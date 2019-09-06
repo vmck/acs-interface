@@ -67,13 +67,16 @@ def done(request):
     submission = get_object_or_404(models.Submission,
                                    url=options['token'],
                                    score=-1)
-    options['output'] = str(base64.decodestring(bytes(options['output'], encoding='latin-1')), encoding='latin-1').split('\n')  # noqa: E501
 
-    submission.score = int(options['output'][-2].split('/')[0])
-    submission.max_score = int(options['output'][-2].split('/')[1])
-    submission.message = str('\n'.join(options['output'][:-2]))
+    decoded_message = base64.decodestring(bytes(options['output'],
+                                                encoding='latin-1'))
+    message_lines = str(decoded_message, encoding='latin-1').split('\n')
 
-    log.debug(f'Submission #{submission.id} has the output:\n{options["output"]}')  # noqa: E501
+    submission.score = int(message_lines[-2].split('/')[0])
+    submission.max_score = int(message_lines[-2].split('/')[1])
+    submission.message = '\n'.join(message_lines[:-2])
+
+    log.debug(f'Submission #{submission.id} has the output:\n{submission.message}')  # noqa: E501
 
     submission.save()
 
