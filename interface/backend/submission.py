@@ -2,7 +2,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 from pathlib import Path
 from django.conf import settings
-from interface.utils import is_number, random_code
+from interface.utils import is_number
 from interface.models import Submission
 from urllib.parse import urljoin
 

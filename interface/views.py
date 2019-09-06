@@ -8,6 +8,7 @@ from interface import models
 
 import json
 import logging
+import base64
 
 
 log_level = logging.DEBUG
@@ -59,17 +60,18 @@ def submission(request, pk):
 def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
-    log.debug(request.body)
-    options = json.loads(request.body, strict=False) if request.body else {}
+
+    options = json.loads(request.body) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
                                    url=options['token'],
                                    score=-1)
+    options['output'] = base64.b64decode(options['output']).split('\n')
 
-    submission.score = int(options['output'][-2].split('/')[0])
-    submission.max_score = int(options['output'][-2].split('/')[1])
-    submission.message = str('\n'.join(options['output'][:-2]))
-    log.debug(submission.message)
+    submission.score = int(options['output'][-1].split('/')[0])
+    submission.max_score = int(options['output'][-1].split('/')[1])
+    submission.message = str('\n'.join(options['output'][:-1]))
+
     log.debug(f'Submission #{submission.id} has the output:\n{options["output"]}')  # noqa: E501
 
     submission.save()
