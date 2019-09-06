@@ -31,6 +31,11 @@ def get_link(filename):
                                         expires=timedelta(hours=1))
 
 
+def create_bucket(bucket_name):
+    if not _client.bucket_exists(bucket_name):
+        _client.make_bucket(bucket_name)
+
+
 def exists(filename):
     try:
         _client.stat_object(settings.MINIO_BUCKET, filename)
