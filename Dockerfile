@@ -10,9 +10,6 @@ COPY manage.py runinterface README.md Pipfile Pipfile.lock ./
 RUN pipenv install
 
 ADD interface ./interface
-ADD vagrant ./vagrant
-ADD assignment ./assignment
-
 
 VOLUME /opt/interface/data
 EXPOSE 8100

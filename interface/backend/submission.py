@@ -1,8 +1,4 @@
-from tempfile import TemporaryDirectory
-from zipfile import ZipFile
-from pathlib import Path
 from django.conf import settings
-from interface.utils import is_number
 from interface.models import Submission
 from urllib.parse import urljoin
 
@@ -16,64 +12,39 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def read_config(config_file):
+def get_config(branch):
+    branch_url = urljoin(settings.BASE_ASSIGNMENT_URL, branch+'/')
+    config_data = requests.get(urljoin(branch_url, 'config.ini'))
+
     config = configparser.ConfigParser()
-    config.read(settings.CONFIG_DIR / config_file)
+    config.read_string(config_data.text)
 
     return config['VMCK']
-
-
-def build_vagrantfile(config):
-    confing_str = ''
-
-    with open(settings.VAGRANTFILE) as vagrantfile:
-        for key, value in config.items():
-            if not is_number(value):
-                value = f'"{value}"'
-            confing_str = confing_str + f'vmck.{key} = {value}\n'
-
-        new_vagrantfile = vagrantfile.read()
-        new_vagrantfile = new_vagrantfile.replace('!CONFIGUARATION!',
-                                                  confing_str)
-
-        return new_vagrantfile
 
 
 def handle_submission(request):
     file = request.FILES['file']
     log.debug(f'Submission {file.name} received')
-    # stub just for now, in the end we will get it from `request`
-    assignment_id = 'pc'
+
     submission = Submission.objects.create()
-    archive_name = f'{submission.id}.zip'
 
-    with TemporaryDirectory() as _tmp:
-        tmp = Path(str(_tmp))
+    storage.upload(f'{submission.id}.zip', file.read())
 
-        config = read_config(f'{assignment_id}.ini')
+    submission.username = request.user.username
+    submission.assignment_id = request.POST['assignment_id']
+    submission.max_score = 100
 
-        vagrantfile = build_vagrantfile(config)
+    branch_url = urljoin(settings.BASE_ASSIGNMENT_URL,
+                         submission.assignment_id+'/')
+    config_url = urljoin(branch_url, 'checker.sh')
 
-        submission_arch = ZipFile(tmp / file.name, mode='x')
-        submission_arch.writestr('submission.zip', data=file.read())
-        submission_arch.writestr('Vagrantfile', data=vagrantfile)
-        submission_arch.write(settings.CONFIG_DIR / f'{assignment_id}.sh',
-                              'checker.sh')
-        submission_arch.close()
-
-        with open(tmp / file.name, 'rb') as data:
-            storage.upload(archive_name, data.read())
-
-    options = {'vm': dict(config), 'manager': {}}
+    options = {'vm': dict(get_config(submission.assignment_id)),
+               'manager': {}}
     options['manager']['archive'] = submission.url
+    options['manager']['script'] = config_url
     options['manager']['memory'] = settings.MANAGER_MEMORY
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
     options['manager']['vmck_api'] = settings.VMCK_API_URL
-
-    submission.username = request.user.username
-    submission.assignment_id = assignment_id
-    submission.max_score = 100
-
     options['manager']['id'] = submission.id
 
     requests.post(urljoin(settings.VMCK_API_URL, 'submission'), json=options)

@@ -78,9 +78,8 @@ MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', 'changeme')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', 'changemetoo')
 MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
-TOKEN_SIZE = 128
-CONFIG_DIR = BASE_DIR / 'assignment'
-VAGRANTFILE = BASE_DIR / 'vagrant' / 'Vagrantfile'
+BASE_ASSIGNMENT_URL = os.environ.get('BASE_ASSIGNMENT_URL', 'https://raw.githubusercontent.com/vmck/assignment/')  # noqa: E501
+SETUP_ASSIGNMENT_URL = os.environ.get('SETUP_ASSIGNMENT_URL', 'https://raw.githubusercontent.com/vmck/assignment/master/setup.ini')  # noqa: E501
 
 MANAGER_MEMORY = 50
 MANAGER_MHZ = 30
