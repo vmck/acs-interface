@@ -1,6 +1,6 @@
-import interface.backend.minio_api as storage
-
 from django.db import models
+
+import interface.backend.minio_api as storage
 
 
 class Submission(models.Model):

@@ -69,7 +69,6 @@ def done(request):
 
     decoded_message = base64.decodestring(bytes(options['output'],
                                                 encoding='latin-1'))
-
     message_lines = str(decoded_message, encoding='latin-1').split('\n')
 
     submission.score = int(message_lines[-2].split('/')[0])
