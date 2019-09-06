@@ -16,6 +16,7 @@ class Submission(models.Model):
     score -- the score of the submission given by the checker
     review_score - score set by the assignment reviwer
     max_score -- the maximum score for the submission
+    archive_size -- archive, sent to server, size in KB
     '''
 
     username = models.CharField(max_length=64, default='none')
@@ -26,6 +27,7 @@ class Submission(models.Model):
     score = models.IntegerField(null=True)
     review_score = models.IntegerField(null=True)
     max_score = models.IntegerField(null=True)
+    archive_size = models.IntegerField(null=True)
 
     @property
     def url(self):
