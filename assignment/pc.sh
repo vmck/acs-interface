@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ls -al
+./check.sh
 echo "IT is done NOW"
 echo "OUTPUT me"
 echo 100/100

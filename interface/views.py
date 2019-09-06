@@ -19,7 +19,7 @@ def homepage(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            return redirect(submission)
+            return redirect(submission_list)
     else:
         form = LoginForm()
 
@@ -27,22 +27,32 @@ def homepage(request):
 
 
 def upload(request):
-    if request.method == 'POST'and request.FILES:
+    if request.POST:
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             handle_submission(request)
-            return redirect(submission)
+            return redirect(submission_list)
     else:
         form = UploadFileForm()
 
     return render(request, 'interface/upload.html', {'form': form})
 
 
-def submission(request):
-    sub = Submission.objects.latest('pk')
+def submission_list(request):
+    submissions = Submission.objects.all()[::-1]
+
+    return render(request, 'interface/submission_list.html',
+                  {'subs': submissions,
+                   'sub_base_url': redirect(submission_list).url})
+
+
+def submission(request, pk):
+    sub = get_object_or_404(models.Submission, pk=pk)
 
     return render(request, 'interface/submission.html',
-                  {'sub': sub, 'upload_url': redirect(upload).url})
+                  {'sub': sub,
+                   'upload_url': redirect(upload).url,
+                   'submission_list_url': redirect(submission_list).url})
 
 
 @csrf_exempt
@@ -50,7 +60,7 @@ def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
     log.debug(request.body)
-    options = json.loads(request.body, strict=False) if request.body else {}  # noqa: E501
+    options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
                                    url=options['token'],
