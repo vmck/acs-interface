@@ -65,7 +65,7 @@ def handle_submission(request):
             storage.upload(archive_name, data.read())
 
     options = {'vm': dict(config), 'manager': {}}
-    options['manager']['archive'] = storage.get_link(archive_name)
+    options['manager']['archive'] = submission.url
     options['manager']['memory'] = settings.MANAGER_MEMORY
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
     options['manager']['vmck_api'] = settings.VMCK_API_URL
