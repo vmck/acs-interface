@@ -1,0 +1,24 @@
+<body>
+    <table>
+        <tr>
+            <th>User id</th>
+            <th>Submission id</th>
+            <th>Homework id</th>
+            <th>Archive size</th>
+            <th>Download archive</th>
+            <th>Score</th>
+            <th>Status</th>
+        </tr>
+        {% for sub in subs %}
+            <tr>
+                <td>{{ sub.username }}</td>
+                <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
+                <td>{{ sub.assignment_id }}</td>
+                <td>TODO SIZE</td>
+                <td>{{ sub.url }}</td>
+                <td>{{ sub.score }}/{{ sub.max_score }}</td>
+                <td>TODO STATUS</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>

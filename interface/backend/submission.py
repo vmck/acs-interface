@@ -44,7 +44,8 @@ def handle_submission(request):
     log.debug(f'Submission {file.name} received')
     # stub just for now, in the end we will get it from `request`
     assignment_id = 'pc'
-    archive_name = f'{file.name}-{random_code(16)}.zip'
+    submission = Submission.objects.create()
+    archive_name = f'{submission.id}.zip'
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(str(_tmp))
@@ -69,8 +70,7 @@ def handle_submission(request):
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
     options['manager']['vmck_api'] = settings.VMCK_API_URL
 
-    submission = Submission.objects.create()
-    submission.username = request.user.username if request.user.id is None else 'anonymous'  # noqa: E501
+    submission.username = request.user.username
     submission.url = options['manager']['archive']
     submission.assignment_id = assignment_id
     submission.max_score = 100
