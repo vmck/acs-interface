@@ -44,6 +44,7 @@ def submission_list(request):
 
     return render(request, 'interface/submission_list.html',
                   {'subs': submissions,
+                   'upload_url': redirect(upload).url,
                    'sub_base_url': redirect(submission_list).url})
 
 
@@ -61,16 +62,16 @@ def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
 
-    options = json.loads(request.body) if request.body else {}
+    options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
                                    url=options['token'],
                                    score=-1)
-    options['output'] = base64.b64decode(options['output']).split('\n')
+    options['output'] = str(base64.decodestring(bytes(options['output'], encoding='latin-1')), encoding='latin-1').split('\n')  # noqa: E501
 
-    submission.score = int(options['output'][-1].split('/')[0])
-    submission.max_score = int(options['output'][-1].split('/')[1])
-    submission.message = str('\n'.join(options['output'][:-1]))
+    submission.score = int(options['output'][-2].split('/')[0])
+    submission.max_score = int(options['output'][-2].split('/')[1])
+    submission.message = str('\n'.join(options['output'][:-2]))
 
     log.debug(f'Submission #{submission.id} has the output:\n{options["output"]}')  # noqa: E501
 
