@@ -31,6 +31,7 @@ class Submission(models.Model):
     def url(self):
         if self._url == 'none':
             self._url = storage.get_link(f'{self.id}.zip')
+            self.save()
 
         return self._url
 

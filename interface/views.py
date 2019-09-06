@@ -61,7 +61,6 @@ def submission(request, pk):
 def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
-
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
@@ -70,6 +69,7 @@ def done(request):
 
     decoded_message = base64.decodestring(bytes(options['output'],
                                                 encoding='latin-1'))
+
     message_lines = str(decoded_message, encoding='latin-1').split('\n')
 
     submission.score = int(message_lines[-2].split('/')[0])
