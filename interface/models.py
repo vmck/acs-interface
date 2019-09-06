@@ -10,10 +10,11 @@ class Submission(models.Model):
     username -- the user id provided by the LDAP
     assignment_id -- class specific, will have the form
                      `{course_name}_{homework_id}` for example pc_00
-    url -- signed url to download the homework archive along with the
-           correctly rendered `Vagrantfile` from the blob storage
+    _url -- signed url to download the homework archive along with the
+            correctly rendered `Vagrantfile` from the blob storage
     message -- the output message of the checker
     score -- the score of the submission given by the checker
+    review_score - score set by the assignment reviwer
     max_score -- the maximum score for the submission
     '''
 
@@ -22,12 +23,13 @@ class Submission(models.Model):
     _url = models.CharField(max_length=256, default='none')
     message = models.CharField(max_length=4096, default='none')
 
-    score = models.IntegerField(default=-1)
-    max_score = models.IntegerField(default=-1)
+    score = models.IntegerField(null=True)
+    review_score = models.IntegerField(null=True)
+    max_score = models.IntegerField(null=True)
 
     @property
     def url(self):
-        if self._url is 'none':
+        if self._url == 'none':
             self._url = storage.get_link(f'{self.id}.zip')
 
         return self._url

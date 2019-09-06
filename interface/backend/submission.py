@@ -71,7 +71,6 @@ def handle_submission(request):
     options['manager']['vmck_api'] = settings.VMCK_API_URL
 
     submission.username = request.user.username
-    submission.url = options['manager']['archive']
     submission.assignment_id = assignment_id
     submission.max_score = 100
 
