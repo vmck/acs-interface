@@ -75,7 +75,7 @@ job "acs-interface" {
           DEBUG = true
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
-          ACS_INTERFACE_ADDRESS = "${attr.unique.network.ip-address}"
+          ACS_INTERFACE_ADDRESS = "${attr.unique.network.ip-address}:10002"
           MINIO_ACCESS_KEY = "1234"
           MINIO_SECRET_KEY = "123456789"
           MINIO_BUCKET = "test"
@@ -92,8 +92,8 @@ job "acs-interface" {
             MINIO_ADDRESS = "{{.Address}}:{{.Port}}"
           {{- end }}
           EOF
-          destination = "local/vmck-api.env"
           env = true
+          destination = "local/vmck-api.env"
       }
       template {
         data = <<-EOF
