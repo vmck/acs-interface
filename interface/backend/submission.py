@@ -46,6 +46,7 @@ def handle_submission(request):
     options['manager']['memory'] = settings.MANAGER_MEMORY
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
     options['manager']['vmck_api'] = settings.VMCK_API_URL
+    options['manager']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
     options['manager']['id'] = submission.id
 
     requests.post(urljoin(settings.VMCK_API_URL, 'submission'), json=options)

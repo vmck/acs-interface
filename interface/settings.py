@@ -81,7 +81,7 @@ MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 BASE_ASSIGNMENT_URL = os.environ.get('BASE_ASSIGNMENT_URL', 'https://raw.githubusercontent.com/vmck/assignment/')  # noqa: E501
 SETUP_ASSIGNMENT_URL = os.environ.get('SETUP_ASSIGNMENT_URL', 'https://raw.githubusercontent.com/vmck/assignment/master/setup.ini')  # noqa: E501
 
-ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')
+ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')  # noqa: E501
 
 MANAGER_MEMORY = 50
 MANAGER_MHZ = 30
