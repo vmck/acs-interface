@@ -49,7 +49,10 @@ def handle_submission(request):
     options['manager']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
     options['manager']['id'] = submission.id
 
-    requests.post(urljoin(settings.VMCK_API_URL, 'submission'), json=options)
+    response = requests.post(urljoin(settings.VMCK_API_URL, 'submission'),
+                             json=options)
+
+    submission.vmck_id = response.json()['id'].split('-')[1]
 
     log.debug(f'Submission #{submission.id} sent to VMCK')
     submission.save()

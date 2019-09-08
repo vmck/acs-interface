@@ -1,6 +1,9 @@
 from django.db import models
+from urllib.parse import urljoin
+from django.conf import settings
 
 import interface.backend.minio_api as storage
+import requests
 
 
 class Submission(models.Model):
@@ -19,15 +22,29 @@ class Submission(models.Model):
     archive_size -- archive, sent to server, size in KB
     '''
 
+    STATE_NEW = 'new'
+    STATE_RUNNING = 'running'
+    STATE_DONE = 'done'
+
+    STATE_CHOICES = [
+        (STATE_NEW, 'New'),
+        (STATE_RUNNING, 'Running'),
+        (STATE_DONE, 'Done'),
+    ]
+
     username = models.CharField(max_length=64, default='none')
     assignment_id = models.CharField(max_length=64, default='none')
     _url = models.CharField(max_length=256, default='none')
     message = models.CharField(max_length=4096, default='none')
+    state = models.CharField(max_length=32,
+                             choices=STATE_CHOICES,
+                             default=STATE_NEW)
 
     score = models.IntegerField(null=True)
     review_score = models.IntegerField(null=True)
     max_score = models.IntegerField(null=True)
     archive_size = models.IntegerField(null=True)
+    vmck_id = models.IntegerField(null=True)
 
     @property
     def url(self):
@@ -36,6 +53,14 @@ class Submission(models.Model):
             self.save()
 
         return self._url
+
+    def update_state(self):
+        if self.state is not self.STATE_DONE and self.vmck_id is not None:
+            response = requests.get(urljoin(settings.VMCK_API_URL,
+                                            f'jobs/{self.vmck_id}'))
+
+            self.state = response.json()['state']
+            self.save()
 
     def __str__(self):
         return f"{self.id}"

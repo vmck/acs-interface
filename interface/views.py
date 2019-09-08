@@ -42,6 +42,9 @@ def upload(request):
 def submission_list(request):
     submissions = Submission.objects.all()[::-1]
 
+    for sub in submissions:
+        sub.update_state()
+
     return render(request, 'interface/submission_list.html',
                   {'subs': submissions,
                    'upload_url': redirect(upload).url,
