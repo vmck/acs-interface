@@ -12,11 +12,13 @@
     </head>
 
     <body>
-        <button onclick="location.href='{{ upload_url }}'" type="button">Upload submission</button>
-        <button onclick="location.href='{{ submission_list_url }}'" type="button">List submissions</button>
-        <p>Submission id: {{ sub.id }}</p>
-        <p>Your score is: {{ sub.score }}/{{ sub.max_score }}</p>
-        <p>The output is:</p>
-        <samp>{{ sub.message }}</samp>
+        <div class="container">
+            <a class="btn btn-primary" href='{{ upload_url }}'>Upload submission</a>
+            <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
+            <p>Submission id: {{ sub.id }}</p>
+            <p>Your score is: {{ sub.score }}/{{ sub.max_score }}</p>
+            <p>The output is:</p>
+            <pre><samp>{{ sub.message }}</samp></pre>
+        </div>
     </body>
 </html>
