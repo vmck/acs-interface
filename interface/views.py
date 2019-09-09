@@ -4,6 +4,7 @@ from interface.forms import UploadFileForm, LoginForm
 from django.views.decorators.csrf import csrf_exempt
 from interface.models import Submission
 from django.http import JsonResponse
+from django.conf import settings
 from interface import models
 
 import json
@@ -40,7 +41,16 @@ def upload(request):
 
 
 def submission_list(request):
-    submissions = Submission.objects.all()[::-1]
+    page = 1
+    per_page = settings.SUBMISSIONS_PER_PAGE
+
+    if request.GET:
+        page = int(request.GET['page'])
+
+    lower = (page-1) * per_page
+    upper = page * per_page
+
+    submissions = Submission.objects.all()[::-1][lower:upper]
 
     for sub in submissions:
         sub.update_state()

@@ -21,7 +21,7 @@ def get_assignments():
 
 class UploadFileForm(forms.Form):
     assignment_id = forms.CharField(label='',
-                                    widget=forms.Select(choices=get_assignments()))  # noqa: E501
+                                    widget=forms.Select(choices=get_assignments(), attrs={'class': 'custom-select'}))  # noqa: E501
     file = forms.FileField(label='Select archive',
                            widget=forms.FileInput(attrs={'accept': 'application/zip'}))  # noqa: E501
 

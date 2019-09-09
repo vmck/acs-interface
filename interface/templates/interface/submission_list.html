@@ -1,25 +1,50 @@
-<body>
-    <a href="{{ upload_url }}">Upload submission</a>
-    <table>
-        <tr>
-            <th>User id</th>
-            <th>Submission id</th>
-            <th>Homework id</th>
-            <th>Archive size</th>
-            <th>Download archive</th>
-            <th>Score</th>
-            <th>Status</th>
-        </tr>
-        {% for sub in subs %}
-            <tr>
-                <td>{{ sub.username }}</td>
-                <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
-                <td>{{ sub.assignment_id }}</td>
-                <td>{{ sub.archive_size }} KB</td>
-                <td><a href="{{ sub.url }}">Download</a></td>
-                <td>{{ sub.score }}/{{ sub.max_score }}</td>
-                <td>{{ sub.state }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-</body>
+<!doctype html>
+<html lang='en'>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <title>VMCK</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+                <a class="btn btn-primary" href='{{ upload_url }}'>Upload submission</a>
+            </div>
+            <div class="row">
+                <table class="table table-striped table-bordered table-sm">
+                    <caption>Submission list</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">User id</th>
+                            <th scope="col">Submission id</th>
+                            <th scope="col">Homework id</th>
+                            <th scope="col">Archive size</th>
+                            <th scope="col">Download archive</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for sub in subs %}
+                        <tr>
+                            <td>{{ sub.username }}</td>
+                            <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
+                            <td>{{ sub.assignment_id }}</td>
+                            <td>{{ sub.archive_size }} KB</td>
+                            <td><a href="{{ sub.url }}">Download</a></td>
+                            <td>{{ sub.score }}/{{ sub.max_score }}</td>
+                            <td>{{ sub.state }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
