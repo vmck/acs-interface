@@ -52,7 +52,6 @@ def handle_submission(request):
     options['env']['script'] = config_url
     options['env']['memory'] = settings.MANAGER_MEMORY
     options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-    options['env']['vmck_api'] = settings.VMCK_API_URL
     options['env']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
     options['env']['id'] = submission.id
 
