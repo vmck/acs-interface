@@ -45,15 +45,15 @@ def handle_submission(request):
     config_url = urljoin(settings.BASE_ASSIGNMENT_URL,
                          f'{submission.assignment_id}/checker.sh')
 
-    options = {'vm': get_config(submission.assignment_id),
-               'manager': {}}
-    options['manager']['archive'] = submission.url
-    options['manager']['script'] = config_url
-    options['manager']['memory'] = settings.MANAGER_MEMORY
-    options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
-    options['manager']['vmck_api'] = settings.VMCK_API_URL
-    options['manager']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
-    options['manager']['id'] = submission.id
+    options = get_config(submission.assignment_id)
+    options['env'] = {}
+    options['env']['archive'] = submission.url
+    options['env']['script'] = config_url
+    options['env']['memory'] = settings.MANAGER_MEMORY
+    options['env']['cpu_mhz'] = settings.MANAGER_MHZ
+    options['env']['vmck_api'] = settings.VMCK_API_URL
+    options['env']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
+    options['env']['id'] = submission.id
 
     response = requests.post(urljoin(settings.VMCK_API_URL, 'submission'),
                              json=options)
