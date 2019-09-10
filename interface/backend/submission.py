@@ -55,7 +55,7 @@ def handle_submission(request):
     options['env']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
     options['env']['id'] = submission.id
 
-    response = requests.post(urljoin(settings.VMCK_API_URL, 'submission'),
+    response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
 
     submission.vmck_id = response.json()['id']
