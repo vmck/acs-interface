@@ -74,6 +74,7 @@ def submission(request, pk):
 def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
+    log.debug(request.body)
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,

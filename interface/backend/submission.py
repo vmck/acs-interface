@@ -46,6 +46,7 @@ def handle_submission(request):
                          f'{submission.assignment_id}/checker.sh')
 
     options = get_config(submission.assignment_id)
+    options['name'] = f'{submission.assignment_id} submission #{submission.id}'
     options['env'] = {}
     options['env']['archive'] = submission.url
     options['env']['script'] = config_url
