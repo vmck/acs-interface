@@ -1,11 +1,12 @@
 from django.conf import settings
-from interface.models import Submission
 from urllib.parse import urljoin
+from interface.models import Submission
+from interface.utils import is_number
 
 import interface.backend.minio_api as storage
+import configparser
 import requests
 import logging
-import configparser
 
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
@@ -13,13 +14,19 @@ log.setLevel(log_level)
 
 
 def get_config(branch):
-    branch_url = urljoin(settings.BASE_ASSIGNMENT_URL, branch+'/')
-    config_data = requests.get(urljoin(branch_url, 'config.ini'))
+    config_data = requests.get(urljoin(settings.BASE_ASSIGNMENT_URL,
+                                       f'{branch}/config.ini'))
 
     config = configparser.ConfigParser()
     config.read_string(config_data.text)
 
-    return config['VMCK']
+    config_dict = dict(config['VMCK'])
+
+    for key, value in config_dict.items():
+        if is_number(value):
+            config_dict[key] = int(value)
+
+    return config_dict
 
 
 def handle_submission(request):
@@ -35,11 +42,10 @@ def handle_submission(request):
     submission.assignment_id = request.POST['assignment_id']
     submission.max_score = 100
 
-    branch_url = urljoin(settings.BASE_ASSIGNMENT_URL,
-                         submission.assignment_id+'/')
-    config_url = urljoin(branch_url, 'checker.sh')
+    config_url = urljoin(settings.BASE_ASSIGNMENT_URL,
+                         f'{submission.assignment_id}/checker.sh')
 
-    options = {'vm': dict(get_config(submission.assignment_id)),
+    options = {'vm': get_config(submission.assignment_id),
                'manager': {}}
     options['manager']['archive'] = submission.url
     options['manager']['script'] = config_url
@@ -52,7 +58,7 @@ def handle_submission(request):
     response = requests.post(urljoin(settings.VMCK_API_URL, 'submission'),
                              json=options)
 
-    submission.vmck_id = response.json()['id'].split('-')[1]
+    submission.vmck_id = response.json()['id']
 
-    log.debug(f'Submission #{submission.id} sent to VMCK')
+    log.debug(f'Submission #{submission.id} sent to VMCK as #{submission.vmck_id}')  # noqa: E501
     submission.save()
