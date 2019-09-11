@@ -58,7 +58,7 @@ def submission_list(request):
     else:
         next_url = redirect(submission_list).url + f'?page={page}'
 
-    if page is 1:
+    if page == 1:
         prev_url = redirect(submission_list).url + f'?page={page}'
     else:
         prev_url = redirect(submission_list).url + f'?page={page - 1}'
