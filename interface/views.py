@@ -41,27 +41,37 @@ def upload(request):
 
 
 def submission_list(request):
-    page = 1
-    per_page = settings.SUBMISSIONS_PER_PAGE
+    page = int(request.GET.get('page', 1))
 
-    if request.GET:
-        page = int(request.GET['page'])
+    lower_id = (page-1) * settings.SUBMISSIONS_PER_PAGE
+    upper_id = page * settings.SUBMISSIONS_PER_PAGE
 
-    lower = (page-1) * per_page
-    upper = page * per_page
-
-    submissions = Submission.objects.all()[::-1][lower:upper]
+    submissions = Submission.objects.all()[::-1][lower_id:upper_id]
 
     for sub in submissions:
         sub.update_state()
 
+    first_id = submissions[0].id
+
+    if first_id > settings.SUBMISSIONS_PER_PAGE:
+        next_url = redirect(submission_list).url + f'?page={page + 1}'
+    else:
+        next_url = redirect(submission_list).url + f'?page={page}'
+
+    if page == 1:
+        prev_url = redirect(submission_list).url + f'?page={page}'
+    else:
+        prev_url = redirect(submission_list).url + f'?page={page - 1}'
+
     return render(request, 'interface/submission_list.html',
                   {'subs': submissions,
                    'upload_url': redirect(upload).url,
-                   'sub_base_url': redirect(submission_list).url})
+                   'sub_base_url': redirect(submission_list).url,
+                   'next_url': next_url,
+                   'prev_url': prev_url})
 
 
-def submission(request, pk):
+def submission_result(request, pk):
     sub = get_object_or_404(models.Submission, pk=pk)
 
     return render(request, 'interface/submission.html',
@@ -74,7 +84,7 @@ def submission(request, pk):
 def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
-    log.debug(request.body)
+
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
