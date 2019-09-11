@@ -7,6 +7,7 @@ urlpatterns = [
     path('upload/', views.upload),
     path('submission/', views.submission_list),
     path('submission/<int:pk>', views.submission_result),
+    path('review/<int:pk>', views.review),
     path('done/', views.done),
     path('alive/', views.alive),
     path('', views.homepage),

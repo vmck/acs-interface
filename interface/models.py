@@ -62,5 +62,8 @@ class Submission(models.Model):
             self.state = response.json()['state']
             self.save()
 
+    def download(self, path):
+        storage.download(f'{self.id}.zip', path)
+
     def __str__(self):
         return f"{self.id}"
