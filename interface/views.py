@@ -6,10 +6,14 @@ from interface.models import Submission
 from django.http import JsonResponse
 from django.conf import settings
 from interface import models
+from tempfile import TemporaryDirectory
+from pathlib import Path
+from zipfile import ZipFile
 
 import json
 import logging
 import base64
+import os
 
 
 log_level = logging.DEBUG
@@ -58,7 +62,7 @@ def submission_list(request):
     else:
         next_url = redirect(submission_list).url + f'?page={page}'
 
-    if page is 1:
+    if page == 1:
         prev_url = redirect(submission_list).url + f'?page={page}'
     else:
         prev_url = redirect(submission_list).url + f'?page={page - 1}'
@@ -72,12 +76,28 @@ def submission_list(request):
 
 
 def submission_result(request, pk):
-    sub = get_object_or_404(models.Submission, pk=pk)
+    sub = get_object_or_404(Submission, pk=pk)
 
-    return render(request, 'interface/submission.html',
+    return render(request, 'interface/submission_result.html',
                   {'sub': sub,
                    'upload_url': redirect(upload).url,
                    'submission_list_url': redirect(submission_list).url})
+
+
+def review(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+
+    with TemporaryDirectory() as _tmpdir:
+        tmpdir = Path(_tmpdir)
+        submission.download(tmpdir / 'archive.zip')
+
+        with ZipFile(tmpdir / 'archive.zip') as zipfile:
+            zipfile.extractall(tmpdir)
+
+        for _, d, f in os.walk(tmpdir):
+                    print(d, *f)
+
+    return render(request, 'interface/review.html')
 
 
 @csrf_exempt
