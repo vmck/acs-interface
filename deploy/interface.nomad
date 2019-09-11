@@ -88,9 +88,6 @@ job "acs-interface" {
           {{- range service "vmck" -}}
             VMCK_API_URL = "http://{{.Address}}:{{.Port}}/v0/"
           {{- end }}
-          {{- range service "storage-minio" -}}
-            MINIO_ADDRESS = "{{.Address}}:{{.Port}}"
-          {{- end }}
           EOF
           env = true
           destination = "local/vmck-api.env"
