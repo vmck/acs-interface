@@ -6,6 +6,7 @@ from interface.models import Submission
 from django.http import JsonResponse
 from django.conf import settings
 from interface import models
+from interface import utils
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from zipfile import ZipFile
@@ -55,17 +56,9 @@ def submission_list(request):
     for sub in submissions:
         sub.update_state()
 
-    first_id = submissions[0].id
-
-    if first_id > settings.SUBMISSIONS_PER_PAGE:
-        next_url = redirect(submission_list).url + f'?page={page + 1}'
-    else:
-        next_url = redirect(submission_list).url + f'?page={page}'
-
-    if page == 1:
-        prev_url = redirect(submission_list).url + f'?page={page}'
-    else:
-        prev_url = redirect(submission_list).url + f'?page={page - 1}'
+    next_url, prev_url = utils.get_table_next_prev(submissions,
+                                                   redirect(submission_list).url,  # noqa: E501
+                                                   page)
 
     return render(request, 'interface/submission_list.html',
                   {'subs': submissions,
@@ -94,8 +87,8 @@ def review(request, pk):
         with ZipFile(tmpdir / 'archive.zip') as zipfile:
             zipfile.extractall(tmpdir)
 
-        for _, d, f in os.walk(tmpdir):
-                    print(d, *f)
+        for r, d, f in os.walk(tmpdir):
+            print(r)
 
     return render(request, 'interface/review.html')
 
