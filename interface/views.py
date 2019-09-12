@@ -49,8 +49,9 @@ def upload(request):
 def homepage(request):
     data = []
 
-    for a in Assignment.objects.all():
-        data.append((redirect(upload).url+f'?assignment_id={a.code}', a.name))
+    for assignment in Assignment.objects.all():
+        data.append((redirect(upload).url+f'?assignment_id={assignment.code}',
+                     assignment.name))
 
     return render(request, 'interface/homepage.html', {'data': data})
 
@@ -72,7 +73,7 @@ def submission_list(request):
 
     return render(request, 'interface/submission_list.html',
                   {'subs': submissions,
-                   'upload_url': redirect(upload).url,
+                   'upload_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url,
                    'next_url': next_url,
                    'prev_url': prev_url})
@@ -112,7 +113,7 @@ def review(request, pk):
 def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
-
+    log.debug(request.body)
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
