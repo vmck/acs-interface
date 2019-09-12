@@ -36,7 +36,7 @@
                             <td>{{ sub.username }}</td>
                             <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
                             <td>{{ sub.assignment_id }}</td>
-                            <td>{{ sub.archive_size }} KB</td>
+                            <td>{{ sub.archive_size|filesizeformat }}</td>
                             <td><a href="{{ sub.get_url }}">Download</a></td>
                             <td>{{ sub.score }}/{{ sub.max_score }}</td>
                             <td>{{ sub.state }}</td>
