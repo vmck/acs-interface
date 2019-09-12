@@ -13,8 +13,6 @@ class Submission(models.Model):
     username -- the user id provided by the LDAP
     assignment_id -- class specific, will have the form
                      `{course_name}_{homework_id}` for example pc_00
-    _url -- signed url to download the homework archive along with the
-            correctly rendered `Vagrantfile` from the blob storage
     message -- the output message of the checker
     score -- the score of the submission given by the checker
     review_score - score set by the assignment reviwer
@@ -34,7 +32,6 @@ class Submission(models.Model):
 
     username = models.CharField(max_length=64, default='none')
     assignment_id = models.CharField(max_length=64, default='none')
-    _url = models.CharField(max_length=256, default='none')
     message = models.CharField(max_length=4096, default='none')
     state = models.CharField(max_length=32,
                              choices=STATE_CHOICES,
@@ -46,13 +43,8 @@ class Submission(models.Model):
     archive_size = models.IntegerField(null=True)
     vmck_id = models.IntegerField(null=True)
 
-    @property
-    def url(self):
-        if self._url == 'none':
-            self._url = storage.get_link(f'{self.id}.zip')
-            self.save()
-
-        return self._url
+    def get_url(self):
+        return storage.get_link(f'{self.id}.zip')
 
     def update_state(self):
         if self.state is not self.STATE_DONE and self.vmck_id is not None:
@@ -67,3 +59,14 @@ class Submission(models.Model):
 
     def __str__(self):
         return f"{self.id}"
+
+
+class Assignment(models.Model):
+    url = models.CharField(max_length=256, default='none')
+    branch = models.CharField(max_length=64, default='none')
+    name = models.CharField(max_length=256, default='none')
+    assignment_id = models.CharField(max_length=64, default='none')
+
+
+class Class(models.Model):
+    name = models.CharField(max_length=256, default='none')

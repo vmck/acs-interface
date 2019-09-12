@@ -48,12 +48,12 @@ def handle_submission(request):
     options = get_config(submission.assignment_id)
     options['name'] = f'{submission.assignment_id} submission #{submission.id}'
     options['env'] = {}
-    options['env']['archive'] = submission.url
+    options['env']['archive'] = submission.get_url()
     options['env']['script'] = config_url
     options['env']['memory'] = settings.MANAGER_MEMORY
     options['env']['cpu_mhz'] = settings.MANAGER_MHZ
     options['env']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
-    options['env']['id'] = submission.id
+    options['env']['id'] = str(submission.id)
 
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
