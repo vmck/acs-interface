@@ -84,7 +84,7 @@ def submission_result(request, pk):
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
-                   'upload_url': redirect(upload).url,
+                   'upload_url': redirect(homepage).url,
                    'submission_list_url': redirect(submission_list).url})
 
 
@@ -113,7 +113,6 @@ def review(request, pk):
 def done(request):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
-    log.debug(request.body)
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
@@ -126,9 +125,9 @@ def done(request):
 
     submission.score = int(message_lines[-2].split('/')[0])
     submission.max_score = int(message_lines[-2].split('/')[1])
-    submission.message = '\n'.join(message_lines[:-2])
+    submission.output = '\n'.join(message_lines[:-2])
 
-    log.debug(f'Submission #{submission.id} has the output:\n{submission.message}')  # noqa: E501
+    log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
 
     submission.save()
 
