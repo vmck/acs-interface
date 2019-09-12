@@ -50,8 +50,10 @@ def handle_submission(request):
 
     options = get_config(submission.assignment_id)
     options['name'] = f'{submission.assignment_id} submission #{submission.id}'
+    options['manager'] = True
     options['env'] = {}
     options['env']['archive'] = submission.get_url()
+    options['env']['vagrant_tag'] = 'submission'
     options['env']['script'] = config_url
     options['env']['memory'] = settings.MANAGER_MEMORY
     options['env']['cpu_mhz'] = settings.MANAGER_MHZ
