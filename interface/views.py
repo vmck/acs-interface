@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Assignment
+from interface.models import Submission, Assignment, Course
 from interface import models
 from interface import utils
 
@@ -43,13 +43,16 @@ def upload(request):
 
 
 def homepage(request):
-    data = []
+    d = []
 
-    for assignment in Assignment.objects.all():
-        data.append((redirect(upload).url+f'?assignment_id={assignment.code}',
-                     assignment.name))
-
-    return render(request, 'interface/homepage.html', {'data': data})
+    for course in Course.objects.all():
+        data = []
+        for assignment in Assignment.objects.filter(course=course):
+            data.append((redirect(upload).url+f'?assignment_id={assignment.code}',
+                         assignment.name))
+        d.append((course.name, data))
+    print(d)
+    return render(request, 'interface/homepage.html', {'d': d})
 
 
 def submission_list(request):

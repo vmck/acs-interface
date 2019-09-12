@@ -13,8 +13,13 @@
 
     <body>
         <div class="container">
-            {% for url, name in data %}
-                <a href="{{ url }}">{{ name }} </a>
+            {% for subject, data in d %}
+                <h2>{{ subject }}</h2>
+                <ul>
+                    {% for url, name in data %}
+                        <a href="{{ url }}">{{ name }} </a>
+                    {% endfor %}
+                </ul>
             {% endfor %}
         </div>
     </body>
