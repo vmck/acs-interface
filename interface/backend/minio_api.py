@@ -1,5 +1,6 @@
 from minio import Minio, ResponseError
 from django.conf import settings
+from datetime import timedelta
 
 import io
 
@@ -26,7 +27,8 @@ def download(filename, path):
 
 def get_link(filename):
     return _client.presigned_get_object(settings.MINIO_BUCKET,
-                                        filename)
+                                        filename,
+                                        expires=timedelta(hours=1))
 
 
 def create_bucket(bucket_name):

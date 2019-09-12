@@ -106,7 +106,7 @@ def done(request):
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
-                                   _url=options['token'],
+                                   pk=int(options['token']),
                                    score__isnull=True)
 
     decoded_message = base64.decodestring(bytes(options['output'],
