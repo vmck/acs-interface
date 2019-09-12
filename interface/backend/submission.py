@@ -22,7 +22,7 @@ def vmck_config(submission):
     m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
                  submission.assignment.repo_url)
     url_base = ('https://raw.githubusercontent.com'
-                '/{org}/{repo}/'.format(**m.groups()))
+                '/{0}/{1}/'.format(*list(m.groups())))
 
     config_data = requests.get(
                     urljoin(
@@ -47,7 +47,7 @@ def handle_submission(request):
     log.debug(f'Submission {file.name} received')
 
     assignment = get_object_or_404(Assignment.objects,
-                                   pk=request.POST['assignment_id'])
+                                   code=request.POST['assignment_id'])
     # if not assignment.is_open_for(request.uesr):
     #     return render('ești bou.html')
 
@@ -56,17 +56,23 @@ def handle_submission(request):
 
     submission = Submission.objects.create(
         archive_size=file.size,
-        username=request.user.username,
-        assignment_id=request.POST['assignment_id'],
+        user=request.user,
+        assignment=assignment,
     )
 
     storage.upload(f'{submission.id}.zip', file.read())
 
-    config_url = urljoin(settings.BASE_ASSIGNMENT_URL,
-                         f'{submission.assignment_id}/checker.sh')
+    m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
+                 submission.assignment.repo_url)
 
-    options = vmck_config(submission.assignment_id)
-    options['name'] = f'{submission.assignment_id} submission #{submission.id}'
+    url_base = ('https://raw.githubusercontent.com/'
+                '{0}/{1}/'.format(*list(m.groups())))
+
+    config_url = urljoin(url_base,
+                         f'{submission.assignment.repo_branch}/checker.sh')
+
+    options = vmck_config(submission)
+    options['name'] = f'{assignment.code} submission #{submission.id}'
     options['manager'] = True
     options['env'] = {}
     options['env']['archive'] = submission.get_url()
@@ -83,5 +89,5 @@ def handle_submission(request):
     submission.vmck_job_id = response.json()['id']
 
     log.debug(f'Submission #{submission.id} sent to VMCK '
-              f'as #{submission.vmck_id}')
+              f'as #{submission.vmck_job_id}')
     submission.save()
