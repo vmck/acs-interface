@@ -13,7 +13,9 @@
 
     <body>
         <div class="container">
-
+            {% for url, name in data %}
+                <a href="{{ url }}">{{ name }} </a>
+            {% endfor %}
         </div>
     </body>
 </html>
