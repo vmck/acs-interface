@@ -6,9 +6,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('upload/', views.upload),
     path('submission/', views.submission_list),
+    path('homepage/', views.homepage),
     path('submission/<int:pk>', views.submission_result),
     path('review/<int:pk>', views.review),
     path('done/', views.done),
     path('alive/', views.alive),
-    path('', views.homepage),
+    path('', views.login),
 ]

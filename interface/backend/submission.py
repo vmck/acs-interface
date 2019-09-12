@@ -47,7 +47,7 @@ def handle_submission(request):
     log.debug(f'Submission {file.name} received')
 
     assignment = get_object_or_404(Assignment.objects,
-                                   code=request.POST['assignment_id'])
+                                   code=request.GET['assignment_id'])
     # if not assignment.is_open_for(request.uesr):
     #     return render('ești bou.html')
 
