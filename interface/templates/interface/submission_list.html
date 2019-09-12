@@ -38,7 +38,7 @@
                             <td>{{ sub.assignment.code }}</td>
                             <td>{{ sub.archive_size|filesizeformat }}</td>
                             <td><a href="{{ sub.get_url }}">Download</a></td>
-                            <td>{{ sub.score }}/{{ sub.max_score }}</td>
+                            <td>{{ sub.score }}/{{ sub.assignment.max_score }}</td>
                             <td>{{ sub.state }}</td>
                         </tr>
                     {% endfor %}
