@@ -13,10 +13,10 @@
 
     <body>
         <div class="container">
-            {% for subject, data in d %}
+            {% for subject, assignment in data %}
                 <h2>{{ subject }}</h2>
                 <ul>
-                    {% for url, name in data %}
+                    {% for url, name in assignment %}
                         <a href="{{ url }}">{{ name }} </a>
                     {% endfor %}
                 </ul>

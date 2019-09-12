@@ -43,16 +43,17 @@ def upload(request):
 
 
 def homepage(request):
-    d = []
+    data = []
 
     for course in Course.objects.all():
-        data = []
+        assignment_data = []
         for assignment in Assignment.objects.filter(course=course):
-            data.append((redirect(upload).url+f'?assignment_id={assignment.code}',
-                         assignment.name))
-        d.append((course.name, data))
-    print(d)
-    return render(request, 'interface/homepage.html', {'d': d})
+            assignment_data.append((redirect(upload).url
+                                    + f'?assignment_id={assignment.code}',
+                                    assignment.name))
+        data.append((course.name, assignment_data))
+    print(data)
+    return render(request, 'interface/homepage.html', {'data': data})
 
 
 def submission_list(request):
