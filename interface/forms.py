@@ -1,20 +1,13 @@
-from django.conf import settings
 from django import forms
 
-import requests
-import configparser
+from interface.models import Assignment
 
 
 def get_assignments():
-    setup_data = requests.get(settings.SETUP_ASSIGNMENT_URL)
-
-    config = configparser.ConfigParser()
-    config.read_string(setup_data.text)
-
     choices = []
 
-    for assignment in config.sections():
-        choices.append((assignment, config[assignment]['name']))
+    for assignment in Assignment.objects.all():
+        choices.append((assignment.code, assignment.name))
 
     return choices
 

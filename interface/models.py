@@ -1,29 +1,29 @@
+import requests
 from collections import OrderedDict
+from urllib.parse import urljoin
 
 from django.contrib.auth.models import User
 from django.db import models
-from urllib.parse import urljoin
 from django.conf import settings
 
 import interface.backend.minio_api as storage
-import requests
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=256)
-    code = models.CharField(max_length=64)
+    name = models.CharField(max_length=256, blank=True)
+    code = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
         return f"{self.name}"
 
 
 class Assignment(models.Model):
-    course = models.ForeignKey(Course)
-    code = models.CharField(max_length=64)
-    name = models.CharField(max_length=256)
+    course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
+    code = models.CharField(max_length=64, blank=True)
+    name = models.CharField(max_length=256, blank=True)
     max_score = models.IntegerField(default=100)
 
-    repo_url = models.CharField(max_length=256)
+    repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
 
     @property
@@ -58,8 +58,10 @@ class Submission(models.Model):
         (STATE_DONE, 'Done'),
     ])
 
-    assignment = models.ForeignKey(Assignment)
-    user = models.ForeignKey(User)
+    assignment = models.ForeignKey(Assignment,
+                                   on_delete=models.PROTECT,
+                                   null=True)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
     output = models.CharField(max_length=4096, default='none')
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
@@ -74,9 +76,9 @@ class Submission(models.Model):
         return storage.get_link(f'{self.id}.zip')
 
     def update_state(self):
-        if self.state is not self.STATE_DONE and self.vmck_id is not None:
+        if self.state is not self.STATE_DONE and self.vmck_job_id is not None:
             response = requests.get(urljoin(settings.VMCK_API_URL,
-                                            f'jobs/{self.vmck_id}'))
+                                            f'jobs/{self.vmck_job_id}'))
 
             self.state = response.json()['state']
             self.save()

@@ -1,12 +1,17 @@
-from django.conf import settings
 from urllib.parse import urljoin
-from interface.models import Submission
-from interface.utils import is_number
+import configparser
+import logging
+import re
+
+from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.conf import settings
+import requests
 
 import interface.backend.minio_api as storage
-import configparser
-import requests
-import logging
+from interface.utils import is_number
+from interface.models import Submission, Assignment
+
 
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
@@ -14,8 +19,16 @@ log.setLevel(log_level)
 
 
 def vmck_config(submission):
-    config_data = requests.get(urljoin(settings.BASE_ASSIGNMENT_URL,
-                                       f'{branch}/config.ini'))
+    m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
+                 submission.assignment.repo_url)
+    url_base = ('https://raw.githubusercontent.com'
+                '/{org}/{repo}/'.format(**m.groups()))
+
+    config_data = requests.get(
+                    urljoin(
+                        url_base,
+                        f'{submission.assignment.repo_branch}/config.ini')
+                        )
 
     config = configparser.ConfigParser()
     config.read_string(config_data.text)
@@ -33,14 +46,18 @@ def handle_submission(request):
     file = request.FILES['file']
     log.debug(f'Submission {file.name} received')
 
-    # assignment = get_object_or_404(Assignment.objects, pk=request.POST['assignment_id'])
+    assignment = get_object_or_404(Assignment.objects,
+                                   pk=request.POST['assignment_id'])
     # if not assignment.is_open_for(request.uesr):
     #     return render('ești bou.html')
+
+    if not assignment:
+        return Http404()
 
     submission = Submission.objects.create(
         archive_size=file.size,
         username=request.user.username,
-        # assignment_id=request.POST['assignment_id'],
+        assignment_id=request.POST['assignment_id'],
     )
 
     storage.upload(f'{submission.id}.zip', file.read())
@@ -48,7 +65,7 @@ def handle_submission(request):
     config_url = urljoin(settings.BASE_ASSIGNMENT_URL,
                          f'{submission.assignment_id}/checker.sh')
 
-    options = get_config(submission.assignment_id)
+    options = vmck_config(submission.assignment_id)
     options['name'] = f'{submission.assignment_id} submission #{submission.id}'
     options['manager'] = True
     options['env'] = {}
@@ -63,7 +80,7 @@ def handle_submission(request):
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
 
-    submission.vmck_id = response.json()['id']
+    submission.vmck_job_id = response.json()['id']
 
     log.debug(f'Submission #{submission.id} sent to VMCK '
               f'as #{submission.vmck_id}')
