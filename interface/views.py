@@ -1,20 +1,21 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from interface.backend.submission import handle_submission
-from interface.forms import UploadFileForm, LoginForm
-from django.views.decorators.csrf import csrf_exempt
-from interface.models import Submission
-from django.http import JsonResponse
-from django.conf import settings
-from interface import models
-from interface import utils
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from zipfile import ZipFile
-
 import json
 import logging
 import base64
 import os
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+
+from interface.backend.submission import handle_submission
+from interface.forms import UploadFileForm, LoginForm
+from interface.models import Submission, Assignment
+from interface import models
+from interface import utils
 
 
 log_level = logging.DEBUG
@@ -26,7 +27,7 @@ def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            return redirect(submission_list)
+            return redirect(homepage)
     else:
         form = LoginForm()
 
@@ -46,7 +47,12 @@ def upload(request):
 
 
 def homepage(request):
-    return render(request, 'interface/homepage.html')
+    data = []
+
+    for a in Assignment.objects.all():
+        data.append((redirect(upload).url+f'?assignment_id={a.code}', a.name))
+
+    return render(request, 'interface/homepage.html', {'data': data})
 
 
 def submission_list(request):
