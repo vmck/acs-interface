@@ -10,10 +10,13 @@
 
         <title>VMCK</title>
     </head>
-
     <body>
-        <div class="container">
+        <p>WELCOME TO VMCK</p>
 
-        </div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">Login</button>
+        </form>
     </body>
 </html>

@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def homepage(request):
+def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -30,7 +30,7 @@ def homepage(request):
     else:
         form = LoginForm()
 
-    return render(request, 'interface/homepage.html', {'form': form})
+    return render(request, 'interface/login.html', {'form': form})
 
 
 def upload(request):
@@ -43,6 +43,10 @@ def upload(request):
         form = UploadFileForm()
 
     return render(request, 'interface/upload.html', {'form': form})
+
+
+def homepage(request):
+    return render(request, 'interface/homepage.html')
 
 
 def submission_list(request):
