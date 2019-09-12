@@ -1,10 +1,6 @@
-from tempfile import TemporaryDirectory
-from pathlib import Path
-from zipfile import ZipFile
 import json
 import logging
 import base64
-import os
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
@@ -86,27 +82,6 @@ def submission_result(request, pk):
                   {'sub': sub,
                    'upload_url': redirect(homepage).url,
                    'submission_list_url': redirect(submission_list).url})
-
-
-def review(request, pk):
-    submission = get_object_or_404(Submission, pk=pk)
-    files = []
-
-    with TemporaryDirectory() as _tmpdir:
-        tmpdir = Path(_tmpdir)
-        submission.download(tmpdir / 'archive.zip')
-
-        with ZipFile(tmpdir / 'archive.zip') as zipfile:
-            zipfile.extractall(tmpdir)
-
-        for r, d, f in os.walk(tmpdir):
-            for file in f:
-                if not file.endswith(('.in', '.out', '.ok', '.cmd',
-                                      '.sh', '.json')):
-                    files.append(file)
-
-    return render(request, 'interface/review.html',
-                  {'files': files})
 
 
 @csrf_exempt
