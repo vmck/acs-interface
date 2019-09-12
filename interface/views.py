@@ -79,6 +79,7 @@ def submission_result(request, pk):
 
 def review(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
+    files = []
 
     with TemporaryDirectory() as _tmpdir:
         tmpdir = Path(_tmpdir)
@@ -88,9 +89,13 @@ def review(request, pk):
             zipfile.extractall(tmpdir)
 
         for r, d, f in os.walk(tmpdir):
-            print(r)
+            for file in f:
+                if not file.endswith(('.in', '.out', '.ok', '.cmd',
+                                      '.sh', '.json')):
+                    files.append(file)
 
-    return render(request, 'interface/review.html')
+    return render(request, 'interface/review.html',
+                  {'files': files})
 
 
 @csrf_exempt
