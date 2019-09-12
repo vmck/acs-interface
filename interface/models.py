@@ -1,9 +1,37 @@
+from collections import OrderedDict
+
+from django.contrib.auth.models import User
 from django.db import models
 from urllib.parse import urljoin
 from django.conf import settings
 
 import interface.backend.minio_api as storage
 import requests
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=256)
+    code = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class Assignment(models.Model):
+    course = models.ForeignKey(Course)
+    code = models.CharField(max_length=64)
+    name = models.CharField(max_length=256)
+    max_score = models.IntegerField(default=100)
+
+    repo_url = models.CharField(max_length=256)
+    repo_branch = models.CharField(max_length=256, blank=True)
+
+    @property
+    def full_code(self):
+        return f'{self.course.code}-{self.code}'
+
+    def __str__(self):
+        return f"{self.full_code} {self.name}"
 
 
 class Submission(models.Model):
@@ -24,24 +52,23 @@ class Submission(models.Model):
     STATE_RUNNING = 'running'
     STATE_DONE = 'done'
 
-    STATE_CHOICES = [
+    STATE_CHOICES = OrderedDict([
         (STATE_NEW, 'New'),
         (STATE_RUNNING, 'Running'),
         (STATE_DONE, 'Done'),
-    ]
+    ])
 
-    username = models.CharField(max_length=64, default='none')
-    assignment_id = models.CharField(max_length=64, default='none')
-    message = models.CharField(max_length=4096, default='none')
+    assignment = models.ForeignKey(Assignment)
+    user = models.ForeignKey(User)
+    output = models.CharField(max_length=4096, default='none')
     state = models.CharField(max_length=32,
-                             choices=STATE_CHOICES,
+                             choices=list(STATE_CHOICES.items()),
                              default=STATE_NEW)
 
     score = models.IntegerField(null=True)
     review_score = models.IntegerField(null=True)
-    max_score = models.IntegerField(null=True)
     archive_size = models.IntegerField(null=True)
-    vmck_id = models.IntegerField(null=True)
+    vmck_job_id = models.IntegerField(null=True)
 
     def get_url(self):
         return storage.get_link(f'{self.id}.zip')
@@ -58,15 +85,8 @@ class Submission(models.Model):
         storage.download(f'{self.id}.zip', path)
 
     def __str__(self):
-        return f"{self.id}"
+        return f"{self.assignment} {self.id}"
 
-
-class Assignment(models.Model):
-    url = models.CharField(max_length=256, default='none')
-    branch = models.CharField(max_length=64, default='none')
-    name = models.CharField(max_length=256, default='none')
-    assignment_id = models.CharField(max_length=64, default='none')
-
-
-class Class(models.Model):
-    name = models.CharField(max_length=256, default='none')
+    @property
+    def state_label(self):
+        return self.STATE_CHOICES[self.state]

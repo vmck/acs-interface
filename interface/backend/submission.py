@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def get_config(branch):
+def vmck_config(submission):
     config_data = requests.get(urljoin(settings.BASE_ASSIGNMENT_URL,
                                        f'{branch}/config.ini'))
 
@@ -33,14 +33,17 @@ def handle_submission(request):
     file = request.FILES['file']
     log.debug(f'Submission {file.name} received')
 
-    submission = Submission.objects.create()
+    # assignment = get_object_or_404(Assignment.objects, pk=request.POST['assignment_id'])
+    # if not assignment.is_open_for(request.uesr):
+    #     return render('ești bou.html')
+
+    submission = Submission.objects.create(
+        archive_size=file.size,
+        username=request.user.username,
+        # assignment_id=request.POST['assignment_id'],
+    )
 
     storage.upload(f'{submission.id}.zip', file.read())
-
-    submission.archive_size = file.size >> 10
-    submission.username = request.user.username
-    submission.assignment_id = request.POST['assignment_id']
-    submission.max_score = 100
 
     config_url = urljoin(settings.BASE_ASSIGNMENT_URL,
                          f'{submission.assignment_id}/checker.sh')
@@ -60,5 +63,6 @@ def handle_submission(request):
 
     submission.vmck_id = response.json()['id']
 
-    log.debug(f'Submission #{submission.id} sent to VMCK as #{submission.vmck_id}')  # noqa: E501
+    log.debug(f'Submission #{submission.id} sent to VMCK '
+              f'as #{submission.vmck_id}')
     submission.save()
