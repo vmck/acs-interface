@@ -52,7 +52,7 @@ def homepage(request):
                                     + f'?assignment_id={assignment.code}',
                                     assignment.name))
         data.append((course.name, assignment_data))
-    print(data)
+
     return render(request, 'interface/homepage.html', {'data': data})
 
 
