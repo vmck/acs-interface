@@ -57,15 +57,14 @@ def homepage(request):
 
 
 def submission_list(request):
-    submissions = Submission.objects.all()
-
-    for submission in submissions:
-        submission.update_state()
-
+    submissions = Submission.objects.all()[::-1]
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
 
     page = request.GET.get('page', '1')
     subs = paginator.get_page(page)
+
+    for submission in subs:
+        submission.update_state()
 
     return render(request, 'interface/submission_list.html',
                   {'subs': subs,
