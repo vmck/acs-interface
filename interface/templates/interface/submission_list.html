@@ -33,7 +33,7 @@
                     <tbody>
                     {% for sub in subs %}
                         <tr>
-                            <td>{{ sub.username }}</td>
+                            <td>{{ sub.user.username }}</td>
                             <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
                             <td>{{ sub.assignment.code }}</td>
                             <td>{{ sub.archive_size|filesizeformat }}</td>
@@ -46,7 +46,7 @@
                 </table>
             </div>
             {% if subs %}
-                <div class="row text-center">
+                <div class="rowf text-center">
                     {% if subs.has_previous %}
                         <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
                     {% endif %}
