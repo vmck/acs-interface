@@ -3,15 +3,15 @@ import logging
 import base64
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
 
 from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Assignment, Course
 from interface import models
-from interface import utils
 
 
 log_level = logging.DEBUG
@@ -57,26 +57,20 @@ def homepage(request):
 
 
 def submission_list(request):
-    page = int(request.GET.get('page', 1))
+    submissions = Submission.objects.all()
 
-    lower_id = (page-1) * settings.SUBMISSIONS_PER_PAGE
-    upper_id = page * settings.SUBMISSIONS_PER_PAGE
+    for submission in submissions:
+        submission.update_state()
 
-    submissions = Submission.objects.all()[::-1][lower_id:upper_id]
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
 
-    for sub in submissions:
-        sub.update_state()
-
-    next_url, prev_url = utils.get_table_next_prev(submissions,
-                                                   redirect(submission_list).url,  # noqa: E501
-                                                   page)
+    page = request.GET.get('page', '1')
+    subs = paginator.get_page(page)
 
     return render(request, 'interface/submission_list.html',
-                  {'subs': submissions,
+                  {'subs': subs,
                    'upload_url': redirect(homepage).url,
-                   'sub_base_url': redirect(submission_list).url,
-                   'next_url': next_url,
-                   'prev_url': prev_url})
+                   'sub_base_url': redirect(submission_list).url})
 
 
 def submission_result(request, pk):
