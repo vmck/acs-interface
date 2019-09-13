@@ -46,9 +46,15 @@
                 </table>
             </div>
             {% if subs %}
-                <div class="rowf text-center">
-                    <a class="btn btn-primary" href='{{ prev_url }}'>Prev</a>
-                    <a class="btn btn-primary" href='{{ next_url }}'>Next</a>
+                <div class="row text-center">
+                    {% if subs.has_previous %}
+                        <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
+                    {% endif %}
+
+                    {% if subs.has_next %}
+                        <a class="btn btn-primary" href='{{ subs.next_page_number }}'>Next</a>
+                    {% endif %}
+
                 </div>
             {% endif %}
         </div>
