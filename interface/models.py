@@ -76,7 +76,7 @@ class Submission(models.Model):
         return storage.get_link(f'{self.id}.zip')
 
     def update_state(self):
-        if self.state is not self.STATE_DONE and self.vmck_job_id is not None:
+        if self.state != self.STATE_DONE and self.vmck_job_id is not None:
             response = requests.get(urljoin(settings.VMCK_API_URL,
                                             f'jobs/{self.vmck_job_id}'))
 
