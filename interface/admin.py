@@ -21,8 +21,8 @@ class AssignmentAdmin(admin.ModelAdmin):
         ta_group = ta_user.groups.all()[0].name
 
         submissions = Submission.objects.filter(
-                    assignment=assignment,
-                    user__groups__name=ta_group).exclude(user=ta_user)
+                            assignment=assignment,
+                            user__groups__name=ta_group).exclude(user=ta_user)
 
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
@@ -30,7 +30,8 @@ class AssignmentAdmin(admin.ModelAdmin):
             with TarFile(tmp / 'review.tar', 'x') as tar:
                 for submission in submissions:
                     submission.download(tmp / f'{submission.id}.zip')
-                    tar.add(tmp / f'{submission.id}.zip', f'{submission.id}.zip')
+                    tar.add(tmp / f'{submission.id}.zip',
+                            f'{submission.id}.zip')
 
             with open(tmp / 'review.tar', 'rb') as tar:
                 response = HttpResponse(tar.read(),
