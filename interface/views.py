@@ -96,7 +96,6 @@ def done(request):
     message_lines = str(decoded_message, encoding='latin-1').split('\n')
 
     submission.score = int(message_lines[-2].split('/')[0])
-    submission.max_score = int(message_lines[-2].split('/')[1])
     submission.output = '\n'.join(message_lines[:-2])
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
