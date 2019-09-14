@@ -15,8 +15,14 @@ admin.site.register(Submission)
 class AssignmentAdmin(admin.ModelAdmin):
     actions = ['download_submissions']
 
-    def download_submissions(self, request, queryset):
-        submissions = Submission.objects.all()
+    def download_submissions(self, request, _assignment):
+        assignment = _assignment[0]
+        ta_user = request.user
+        ta_group = ta_user.groups.all()[0].name
+
+        submissions = Submission.objects.filter(
+                    assignment=assignment,
+                    user__groups__name=ta_group).exclude(user=ta_user)
 
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
@@ -34,4 +40,4 @@ class AssignmentAdmin(admin.ModelAdmin):
 
         return response
 
-    download_submissions.short_description = 'Donwload submissions for review'
+    download_submissions.short_description = 'Download submissions for review'
