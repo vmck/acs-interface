@@ -7,6 +7,13 @@ steps:
   commands:
   - flake8
 
+- name: pytest
+  image: vmck/vagrant-vmck:0.2.1
+  commands:
+  - export VMCK_URL=http://$VMCK_IP:$VMCK_PORT
+  - export VMCK_NAME="drone $DRONE_REPO:$DRONE_BRANCH#$DRONE_BUILD_NUMBER"
+  - ./ci/deploy-acs-interface.sh
+
 ---
 kind: pipeline
 name: publish
