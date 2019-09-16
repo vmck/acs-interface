@@ -19,4 +19,5 @@ mkdir data
 touch data/db.sqlite3
 
 sudo pipenv install
-sudo nohup pipenv run ./runvmck
+sudo pipenv run ./manage.py migrate
+sudo nohup pipenv run python ./server.py
