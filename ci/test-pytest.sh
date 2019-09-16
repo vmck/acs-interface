@@ -14,4 +14,5 @@ echo 'Starting minio...'
 
 echo 'Run pytest...'
 sudo pipenv install
+sudo pipenv run env
 exec pipenv run pytest

@@ -14,7 +14,7 @@ def test_submission(client):
         upload = SimpleUploadedFile(filepath.name,
                                     file.read(),
                                     content_type='application/zip')
-        client.post('/upload/',
+        client.post('/upload/?assignment_id=pc-00',
                     data={'name': filepath.name, 'file': upload},
                     format='multipart')
 
