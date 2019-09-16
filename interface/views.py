@@ -82,13 +82,13 @@ def submission_result(request, pk):
 
 
 @csrf_exempt
-def done(request):
+def done(request, pk):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
-                                   pk=int(options['token']),
+                                   pk=pk,
                                    score__isnull=True)
 
     decoded_message = base64.decodestring(bytes(options['output'],
