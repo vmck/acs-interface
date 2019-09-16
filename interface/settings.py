@@ -76,8 +76,8 @@ if _hostname:
 VMCK_API_URL = os.environ.get('VMCK_API_URL', 'http://localhost:8000/v0/')
 
 MINIO_ADDRESS = os.environ.get('MINIO_ADDRESS', 'localhost:9000')
-MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', 'changeme')
-MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', 'changemetoo')
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', '1234')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', '123456789')
 MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
 ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')  # noqa: E501
