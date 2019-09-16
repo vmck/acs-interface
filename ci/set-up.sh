@@ -15,5 +15,8 @@ echo "BACKEND=qemu" >> .env
 echo "QEMU_CPU_MHZ=3000" >> .env
 echo "QEMU_IMAGE_PATH_PREFIX=http://10.42.1.1:10001" >> .env
 
+mkdir data
+touch data/db.sqlite3
+
 sudo pipenv install
 sudo nohup pipenv run ./runvmck
