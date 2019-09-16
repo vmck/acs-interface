@@ -10,7 +10,7 @@ echo "MINIO_ADDRESS=localhost:9000" >> .env
 echo "VMCK_API_URL=http://localhost:8000/v0" >> .env
 
 echo 'Starting minio...'
-./examples/minio.sh
+sudo pipenv run ./examples/minio.sh
 
 echo 'Run pytest...'
 sudo pipenv install
