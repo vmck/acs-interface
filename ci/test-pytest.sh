@@ -13,6 +13,9 @@ echo 'Starting minio...'
 sudo pipenv run ./examples/minio.sh
 
 echo 'Run pytest...'
+mkdir data
+touch data/db.sqlite3
+
 sudo pipenv install
-sudo pipenv run env
+sudo pipenv run ./manage.py storage_setup
 exec pipenv run pytest
