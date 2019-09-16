@@ -76,7 +76,7 @@ def handle_submission(request):
     options['manager'] = True
     options['env'] = {}
     options['env']['archive'] = submission.get_url()
-    options['env']['vagrant_tag'] = 'submission'
+    options['env']['vagrant_tag'] = settings.MANAGER_TAG
     options['env']['script'] = config_url
     options['env']['memory'] = settings.MANAGER_MEMORY
     options['env']['cpu_mhz'] = settings.MANAGER_MHZ

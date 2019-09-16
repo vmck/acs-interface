@@ -82,7 +82,8 @@ MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
 ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')  # noqa: E501
 
-MANAGER_MEMORY = 50
-MANAGER_MHZ = 30
+MANAGER_MEMORY = int(os.environ.get('MANAGER_MEMORY', 50))
+MANAGER_MHZ = int(os.environ.get('MANAGER_MHZ', 30))
+MANAGER_TAG = os.environ.get('MANAGER_TAG', '0.3.0')
 
 SUBMISSIONS_PER_PAGE = 20
