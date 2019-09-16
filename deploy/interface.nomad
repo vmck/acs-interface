@@ -75,7 +75,7 @@ job "acs-interface" {
           DEBUG = true
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
-          ACS_INTERFACE_ADDRESS = "http://${env["NOMAD_ADDR_http"]}"
+          ACS_INTERFACE_ADDRESS = "http://${NOMAD_ADDR_http}"
           MINIO_ACCESS_KEY = "1234"
           MINIO_SECRET_KEY = "123456789"
           MINIO_BUCKET = "test"
