@@ -1,5 +1,6 @@
 import string
 import secrets
+import base64
 
 vocabulary_64 = string.ascii_letters + string.digits + '.+'
 
@@ -10,6 +11,13 @@ def is_number(string):
         return True
     except ValueError:
         return False
+
+
+def decode(message):
+    decoded_message = base64.decodestring(bytes(message,
+                                                encoding='latin-1'))
+
+    return str(decoded_message, encoding='latin-1')
 
 
 def random_code(length, vocabulary=vocabulary_64):
