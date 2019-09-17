@@ -91,7 +91,7 @@ def done(request, pk):
                                    pk=pk,
                                    score__isnull=True)
 
-    decoded_message = base64.decodestring(bytes(options['output'],
+    decoded_message = base64.decodestring(bytes(options['stdout'],
                                                 encoding='latin-1'))
     message_lines = str(decoded_message, encoding='latin-1').split('\n')
 
