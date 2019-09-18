@@ -13,13 +13,16 @@
 
     <body>
         <div class="container">
+            <div class='row'>
+                <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
+            </div>
             {% for subject, assignment in data %}
-                <h2>{{ subject }}</h2>
-                <ul>
+                <h3>{{ subject }}</h3>
+                <div class="list-group" style="width: 300px; padding-left: 40px">
                     {% for url, name in assignment %}
-                        <a href="{{ url }}">{{ name }} </a>
+                        <a href="{{ url }}" class="list-group-item list-group-item-action">{{ name }} </a>
                     {% endfor %}
-                </ul>
+                </div>
             {% endfor %}
         </div>
     </body>

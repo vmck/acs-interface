@@ -53,7 +53,9 @@ def homepage(request):
                                     assignment.name))
         data.append((course.name, assignment_data))
 
-    return render(request, 'interface/homepage.html', {'data': data})
+    return render(request, 'interface/homepage.html',
+                  {'data': data,
+                   'submission_list_url': redirect(submission_list).url})
 
 
 def submission_list(request):
@@ -68,7 +70,7 @@ def submission_list(request):
 
     return render(request, 'interface/submission_list.html',
                   {'subs': subs,
-                   'upload_url': redirect(homepage).url,
+                   'homepage_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url})
 
 
@@ -77,7 +79,7 @@ def submission_result(request, pk):
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
-                   'upload_url': redirect(homepage).url,
+                   'homepage_url': redirect(homepage).url,
                    'submission_list_url': redirect(submission_list).url})
 
 
