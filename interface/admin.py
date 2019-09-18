@@ -1,4 +1,4 @@
-from tarfile import TarFile
+from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
@@ -27,17 +27,17 @@ class AssignmentAdmin(admin.ModelAdmin):
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
 
-            with TarFile(tmp / 'review.tar', 'x') as tar:
+            with ZipFile(tmp / 'review.zip', 'x') as zipfile:
                 for submission in submissions:
                     submission.download(tmp / f'{submission.id}.zip')
-                    tar.add(tmp / f'{submission.id}.zip',
-                            f'{submission.id}.zip')
+                    zipfile.write(tmp / f'{submission.id}.zip',
+                                  f'{submission.id}.zip')
 
-            with open(tmp / 'review.tar', 'rb') as tar:
-                response = HttpResponse(tar.read(),
-                                        content_type='application/x-tar')
+            with open(tmp / 'review.zip', 'rb') as zipfile:
+                response = HttpResponse(zipfile.read(),
+                                        content_type='application/zip')
             response['Content-Disposition'] = ('attachment;'
-                                               'filename="review.tar"')
+                                               'filename="review.zip"')
 
         return response
 
