@@ -1,12 +1,11 @@
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-
-import interface.backend.minio_api as storage
 import pytest
 
-pytestmark = [pytest.mark.django_db]
+import interface.backend.minio_api as storage
 
 
+@pytest.mark.django_db
 def test_submission(client):
     filepath = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
@@ -18,4 +17,4 @@ def test_submission(client):
                     data={'name': filepath.name, 'file': upload},
                     format='multipart')
 
-    assert storage.exists(filepath.name)
+    assert storage.exists('1.zip')
