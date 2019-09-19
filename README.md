@@ -12,6 +12,7 @@ pip3 install --user pipenv
 
 To install dependencies:
 ```shell
+sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev
 pipenv install
 ```
 
