@@ -31,7 +31,7 @@ class AssignmentAdmin(admin.ModelAdmin):
                 for submission in submissions:
                     submission.download(tmp / f'{submission.id}.zip')
                     zipfile.write(tmp / f'{submission.id}.zip',
-                                  f'{submission.id}.zip')
+                                  f'{submission.user.username}.zip')
 
             with open(tmp / 'review.zip', 'rb') as zipfile:
                 response = HttpResponse(zipfile.read(),
