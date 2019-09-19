@@ -66,6 +66,7 @@ class Submission(models.Model):
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
                              default=STATE_NEW)
+    timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
     score = models.IntegerField(null=True)
     review_score = models.IntegerField(null=True)
