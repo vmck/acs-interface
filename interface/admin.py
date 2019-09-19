@@ -19,14 +19,19 @@ class AssignmentAdmin(admin.ModelAdmin):
     def download_submissions(self, request, _assignment):
         assignment = _assignment[0]
 
-        submissions = Submission.objects.filter(
-                        assignment=assignment).order_by(F('timestamp').asc())
+        subs = Submission.objects.filter(
+                assignment=assignment).order_by(F('timestamp').asc())
+
+        submissions = {}
+
+        for submission in subs:
+            submissions[submission.user.username] = submission
 
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
 
             with ZipFile(tmp / 'review.zip', 'x') as zipfile:
-                for submission in submissions:
+                for _, submission in submissions.items():
                     submission.download(tmp / f'{submission.id}.zip')
                     zipfile.write(
                         tmp / f'{submission.id}.zip',
