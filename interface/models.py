@@ -22,6 +22,7 @@ class Assignment(models.Model):
     code = models.CharField(max_length=64, blank=True)
     name = models.CharField(max_length=256, blank=True)
     max_score = models.IntegerField(default=100)
+    deadline = models.DateTimeField(null=True)
 
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
