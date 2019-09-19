@@ -87,6 +87,8 @@ def handle_submission(request):
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
 
+    log.debug(response)
+
     submission.vmck_job_id = response.json()['id']
 
     log.debug(f'Submission #{submission.id} sent to VMCK '
