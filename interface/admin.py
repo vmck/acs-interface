@@ -22,7 +22,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 
         submissions = Submission.objects.filter(
                             assignment=assignment,
-                            user__groups__name=ta_group)
+                            user__groups__name=ta_group).exclude(user=ta_user)
 
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
