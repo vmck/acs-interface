@@ -8,7 +8,7 @@ urlpatterns = [
     path('submission/', views.submission_list),
     path('homepage/', views.homepage),
     path('submission/<int:pk>', views.submission_result),
-    path('done/', views.done),
+    path('submission/<int:pk>/done', views.done),
     path('alive/', views.alive),
     path('', views.login),
 ]

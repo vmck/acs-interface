@@ -1,6 +1,5 @@
 import json
 import logging
-import base64
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -12,6 +11,7 @@ from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Assignment, Course
 from interface import models
+from interface import utils
 
 
 log_level = logging.DEBUG
@@ -53,7 +53,9 @@ def homepage(request):
                                     assignment.name))
         data.append((course.name, assignment_data))
 
-    return render(request, 'interface/homepage.html', {'data': data})
+    return render(request, 'interface/homepage.html',
+                  {'data': data,
+                   'submission_list_url': redirect(submission_list).url})
 
 
 def submission_list(request):
@@ -77,29 +79,32 @@ def submission_result(request, pk):
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
-                   'upload_url': redirect(homepage).url,
+                   'homepage_url': redirect(homepage).url,
                    'submission_list_url': redirect(submission_list).url})
 
 
 @csrf_exempt
-def done(request):
+def done(request, pk):
     # NOTE: make it safe, some form of authentication
     #       we don't want stundets updating their score.
+    log.debug(request.body)
+
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
-                                   pk=int(options['token']),
+                                   pk=pk,
                                    score__isnull=True)
 
-    decoded_message = base64.decodestring(bytes(options['output'],
-                                                encoding='latin-1'))
-    message_lines = str(decoded_message, encoding='latin-1').split('\n')
+    stdout = utils.decode(options['stdout']).split('\n')
+    stderr = utils.decode(options['stderr'])
+    exit_code = int(options['exit_code'])
 
-    submission.score = int(message_lines[-2].split('/')[0])
-    submission.max_score = int(message_lines[-2].split('/')[1])
-    submission.output = '\n'.join(message_lines[:-2])
+    submission.score = int(stdout[-2].split('/')[0])
+    submission.output = '\n'.join(stdout[:-2])
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
+    log.debug(f'Stderr:\n{stderr}')
+    log.debug(f'Exit code:\n{exit_code}')
 
     submission.save()
 

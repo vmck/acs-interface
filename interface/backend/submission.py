@@ -76,15 +76,18 @@ def handle_submission(request):
     options['manager'] = True
     options['env'] = {}
     options['env']['archive'] = submission.get_url()
-    options['env']['vagrant_tag'] = 'submission'
+    options['env']['vagrant_tag'] = settings.MANAGER_TAG
     options['env']['script'] = config_url
     options['env']['memory'] = settings.MANAGER_MEMORY
     options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-    options['env']['interface_address'] = settings.ACS_INTERFACE_ADDRESS
-    options['env']['id'] = str(submission.id)
+    options['env']['callback_url'] = urljoin(
+                                        settings.ACS_INTERFACE_ADDRESS,
+                                        f'submission/{submission.id}/done')
 
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
+
+    log.debug(response)
 
     submission.vmck_job_id = response.json()['id']
 
