@@ -77,6 +77,9 @@ class Submission(models.Model):
     def get_url(self):
         return storage.get_link(f'{self.id}.zip')
 
+    def get_score(self):
+        return self.score + self.review_score
+
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
             response = requests.get(urljoin(settings.VMCK_API_URL,
