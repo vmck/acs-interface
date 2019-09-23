@@ -4,7 +4,7 @@ from pathlib import Path
 
 from django.contrib import admin
 from django.db.models import F
-from django.http import HttpResponse
+from django.http import FileResponse
 
 from interface.models import Course, Assignment, Submission
 
@@ -17,6 +17,9 @@ class AssignmentAdmin(admin.ModelAdmin):
     actions = ['download_submissions']
 
     def download_submissions(self, request, _assignment):
+        if _assignment.count() != 1:
+            raise RuntimeError('Only one assignment can be selected')
+
         assignment = _assignment[0]
 
         subs = Submission.objects.filter(
@@ -24,6 +27,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 
         submissions = {}
 
+        # we only want the last submission of every user
         for submission in subs:
             submissions[submission.user.username] = submission
 
@@ -37,12 +41,9 @@ class AssignmentAdmin(admin.ModelAdmin):
                         tmp / f'{submission.id}.zip',
                         f'{submission.user.username}-{submission.id}.zip')
 
-            with open(tmp / 'review.zip', 'rb') as zipfile:
-                response = HttpResponse(zipfile.read(),
-                                        content_type='application/zip')
-            response['Content-Disposition'] = ('attachment;'
-                                               'filename="review.zip"')
+            review_zip = (tmp / 'review.zip').open('rb')
+            response = FileResponse(review_zip)
 
-        return response
+            return response
 
     download_submissions.short_description = 'Download submissions for review'
