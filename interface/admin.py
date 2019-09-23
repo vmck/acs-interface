@@ -2,7 +2,7 @@ from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.http import FileResponse
 
 from interface.models import Course, Assignment, Submission
@@ -17,7 +17,8 @@ class AssignmentAdmin(admin.ModelAdmin):
 
     def download_submissions(self, request, queryset):
         if queryset.count() != 1:
-            raise RuntimeError('Only one assignment can be selected')
+            messages.warning(request, 'Only one assignment can be selected')
+            return request
 
         assignment = queryset[0]
         submission_set = assignment.submission_set.order_by('timestamp')
