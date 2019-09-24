@@ -18,7 +18,7 @@ class AssignmentAdmin(admin.ModelAdmin):
     def download_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.warning(request, 'Only one assignment can be selected')
-            return request
+            return
 
         assignment = queryset[0]
         submission_set = assignment.submission_set.order_by('timestamp')
@@ -37,8 +37,8 @@ class AssignmentAdmin(admin.ModelAdmin):
                     submission.download(tmp / f'{submission.id}.zip')
                     zipfile.write(
                         tmp / f'{submission.id}.zip',
-                        f'{submission.user.username}-{submission.id}.zip'
-                        )
+                        f'{submission.user.username}-{submission.id}.zip',
+                    )
 
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
