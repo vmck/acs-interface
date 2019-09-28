@@ -30,6 +30,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'interface.urls'
+LOGIN_URL = '/'
 
 AUTH_LDAP_SERVER_URI = os.getenv('LDAP_SERVER_URI')
 AUTH_LDAP_BIND_DN = os.getenv('LDAP_BIND_DN')

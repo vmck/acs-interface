@@ -3,7 +3,8 @@ import logging
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.conf import settings
@@ -21,13 +22,14 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def login(request):
+def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(username=form.data['username'],
                                 password=form.data['password'])
             if user:
+                login(request, user)
                 return redirect(homepage)
     else:
         form = LoginForm()
@@ -35,6 +37,7 @@ def login(request):
     return render(request, 'interface/login.html', {'form': form})
 
 
+@login_required
 def upload(request):
     if request.POST:
         form = UploadFileForm(request.POST, request.FILES)
@@ -47,6 +50,7 @@ def upload(request):
     return render(request, 'interface/upload.html', {'form': form})
 
 
+@login_required
 def homepage(request):
     data = []
 
@@ -63,6 +67,7 @@ def homepage(request):
                    'submission_list_url': redirect(submission_list).url})
 
 
+@login_required
 def submission_list(request):
     submissions = Submission.objects.all()[::-1]
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
@@ -79,6 +84,7 @@ def submission_list(request):
                    'sub_base_url': redirect(submission_list).url})
 
 
+@login_required
 def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
 
