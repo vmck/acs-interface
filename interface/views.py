@@ -3,9 +3,11 @@ import logging
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.conf import settings
+
 
 from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
@@ -23,7 +25,10 @@ def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            return redirect(homepage)
+            user = authenticate(username=form.data['username'],
+                                password=form.data['password'])
+            if user:
+                return redirect(homepage)
     else:
         form = LoginForm()
 
