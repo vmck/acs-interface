@@ -51,6 +51,7 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 AUTHENTICATION_BACKENDS = [
     'django_auth_ldap.backend.LDAPBackend',
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 TEMPLATES = [
