@@ -37,7 +37,13 @@
                             <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
                             <td>{{ sub.assignment.full_code }}</td>
                             <td>{{ sub.archive_size|filesizeformat }}</td>
-                            <td><a href="{{ sub.get_url }}">Download</a></td>
+                            <td>
+                                {% if sub.user == current_user %}
+                                    <a href="{{ sub.get_url }}">Download</a>
+                                {% else %}
+                                    <p>Download</p>
+                                {% endif %}
+                            </td>
                             <td>{{ sub.score }}/{{ sub.assignment.max_score }}</td>
                             <td>{{ sub.state }}</td>
                         </tr>

@@ -81,7 +81,8 @@ def submission_list(request):
     return render(request, 'interface/submission_list.html',
                   {'subs': subs,
                    'homepage_url': redirect(homepage).url,
-                   'sub_base_url': redirect(submission_list).url})
+                   'sub_base_url': redirect(submission_list).url,
+                   'current_user': request.user})
 
 
 @login_required
