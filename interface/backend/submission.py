@@ -80,9 +80,9 @@ def handle_submission(request):
     options['env']['script'] = config_url
     options['env']['memory'] = settings.MANAGER_MEMORY
     options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-    options['env']['callback_url'] = urljoin(
-                                        settings.ACS_INTERFACE_ADDRESS,
-                                        f'submission/{submission.id}/done')
+    options['env']['callback'] = urljoin(
+                                    settings.ACS_INTERFACE_ADDRESS,
+                                    f'submission/{submission.id}/done')
 
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)

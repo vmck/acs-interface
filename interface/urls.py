@@ -10,5 +10,5 @@ urlpatterns = [
     path('submission/<int:pk>', views.submission_result),
     path('submission/<int:pk>/done', views.done),
     path('alive/', views.alive),
-    path('', views.login),
+    path('', views.login_view),
 ]

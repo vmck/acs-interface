@@ -1,7 +1,10 @@
+import os
+
+import ldap
+from django_auth_ldap.config import LDAPSearch
 from interface.utils import is_true
 from pathlib import Path
 
-import os
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -27,6 +30,30 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'interface.urls'
+LOGIN_URL = '/'
+
+AUTH_LDAP_SERVER_URI = os.getenv('LDAP_SERVER_URI')
+AUTH_LDAP_BIND_DN = os.getenv('LDAP_BIND_DN')
+AUTH_LDAP_BIND_PASSWORD = os.getenv('LDAP_BIND_PASSWORD')
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    os.getenv('LDAP_USER_TREE'),
+    ldap.SCOPE_SUBTREE,
+    os.getenv('LDAP_USER_FILTER'),
+)
+AUTH_LDAP_USER_ATTR_MAP = {
+    'first_name': 'givenName',
+    'last_name': 'sn',
+    'email': 'mail',
+}
+
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 TEMPLATES = [
     {
