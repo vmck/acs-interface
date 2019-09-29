@@ -80,9 +80,6 @@ job "acs-interface" {
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
           ACS_INTERFACE_ADDRESS = "http://{{ env "NOMAD_ADDR_http" }}"
-          MINIO_ACCESS_KEY = "1234"
-          MINIO_SECRET_KEY = "123456789"
-          MINIO_BUCKET = "test"
           EOF
           destination = "local/interface.env"
           env = true
@@ -103,6 +100,17 @@ job "acs-interface" {
           {{- end }}
           EOF
           destination = "local/minio-api.env"
+          env = true
+      }
+      template {
+        data = <<-EOF
+          {{- with secret "kv/minio" -}}
+            MINIO_ACCESS_KEY = "{{ .Data.access_key }}"
+            MINIO_SECRET_KEY = "{{ .Data.secret_key }}"
+            MINIO_BUCKET = "test"
+          {{- end -}}
+          EOF
+          destination = "local/minio.env"
           env = true
       }
       template {
