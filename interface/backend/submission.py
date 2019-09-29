@@ -72,7 +72,7 @@ def handle_submission(request):
                          f'{submission.assignment.repo_branch}/checker.sh')
 
     options = vmck_config(submission)
-    options['name'] = f'{assignment.code} submission #{submission.id}'
+    options['name'] = f'{assignment.full_code} submission #{submission.id}'
     options['manager'] = True
     options['env'] = {}
     options['env']['archive'] = submission.get_url()

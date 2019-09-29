@@ -63,6 +63,10 @@ job "acs-interface" {
       config {
         image = "vmck/acs-interface:interface"
         dns_servers = ["${attr.unique.network.ip-address}"]
+        command = "/bin/bash"
+        args = [
+          "-c", "echo 10.42.1.13 $LDAP_SERVER_URL >> /etc/hosts; ./runinterface"
+        ]
         volumes = [
           "${meta.volumes}/acs-interface:/opt/interface/data",
         ]
@@ -99,6 +103,20 @@ job "acs-interface" {
           {{- end }}
           EOF
           destination = "local/minio-api.env"
+          env = true
+      }
+      template {
+        data = <<-EOF
+          {{- with secret "kv/ldap" -}}
+            LDAP_SERVER_URL = "{{ .Data.server_address }}"
+            LDAP_SERVER_URI = "ldaps://{{ .Data.server_address }}:{{ .Data.server_port }}"
+            LDAP_BIND_DN = "{{ .Data.bind_dn }}"
+            LDAP_BIND_PASSWORD = "{{ .Data.bind_password }}"
+            LDAP_USER_TREE = "{{ .Data.user_tree }}"
+            LDAP_USER_FILTER = "{{ .Data.user_filter }}"
+          {{- end -}}
+          EOF
+          destination = "local/ldap.env"
           env = true
       }
       resources {
