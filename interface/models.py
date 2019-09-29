@@ -30,10 +30,6 @@ class Assignment(models.Model):
     def full_code(self):
         return f'{self.course.code}-{self.code}'
 
-    @property
-    def submission_set(self):
-        return Submission.objects.filter(assignment=self)
-
     def __str__(self):
         return f"{self.full_code} {self.name}"
 
