@@ -17,7 +17,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 
     def download_submissions(self, request, queryset):
         if queryset.count() != 1:
-            messages.warning(request, 'Only one assignment can be selected')
+            messages.error(request, 'Only one assignment can be selected')
             return
 
         assignment = queryset[0]
