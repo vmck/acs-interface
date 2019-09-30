@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang='en'>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <title>VMCK</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class='row'>
+                <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
+                <a class="btn btn-primary" href='{{ logout_url }}'>Logout</a>
+            </div>
+            {% for subject, assignment in data %}
+                <h3>{{ subject }}</h3>
+                <div class="list-group" style="width: 300px; padding-left: 40px">
+                    {% for url, name in assignment %}
+                        <a href="{{ url }}" class="list-group-item list-group-item-action">{{ name }} </a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

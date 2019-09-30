@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+
+pipenv run ./manage.py migrate
+pipenv run ./manage.py storage_setup
+exec pipenv run ./manage.py waitress
