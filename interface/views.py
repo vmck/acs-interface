@@ -4,7 +4,7 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.conf import settings
@@ -37,6 +37,11 @@ def login_view(request):
     return render(request, 'interface/login.html', {'form': form})
 
 
+def logout_view(request):
+    logout(request)
+    return redirect(login_view)
+
+
 @login_required
 def upload(request):
     if request.POST:
@@ -64,7 +69,8 @@ def homepage(request):
 
     return render(request, 'interface/homepage.html',
                   {'data': data,
-                   'submission_list_url': redirect(submission_list).url})
+                   'submission_list_url': redirect(submission_list).url,
+                   'logout_url': redirect(logout_view).url})
 
 
 @login_required
@@ -82,7 +88,8 @@ def submission_list(request):
                   {'subs': subs,
                    'homepage_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url,
-                   'current_user': request.user})
+                   'current_user': request.user,
+                   'logout_url': redirect(logout_view).url})
 
 
 @login_required
