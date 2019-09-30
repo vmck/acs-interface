@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder "..", "/opt/acs-interface", type: "rsync"
 
-  config.vm.provision 'hello', type: 'shell', path: "set-up.sh"
+  config.vm.provision 'hello', type: 'shell', path: "ci/set-up.sh"
 
   config.vm.provider :vmck do |vmck|
     vmck.image_path = 'imgbuild-cluster.qcow2.tar.gz'
