@@ -26,11 +26,11 @@ job "acs-interface" {
           {{- with secret "kv/minio" -}}
             MINIO_ACCESS_KEY = "{{ .Data.access_key }}"
             MINIO_SECRET_KEY = "{{ .Data.secret_key }}"
-            MINIO_BROWSER = "on"
           {{- end -}}
-          EOF
-          destination = "local/config.env"
-          env = true
+            MINIO_BROWSER = "on"
+        EOF
+        destination = "local/config.env"
+        env = true
       }
       resources {
         memory = 200

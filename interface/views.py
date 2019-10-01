@@ -121,6 +121,8 @@ def done(request, pk):
 
     score = re.search(r'.*TOTAL: (\d+)/(\d+)', stdout, re.MULTILINE)
     points = score.group(1) if score else 0
+    if not score:
+        log.warning('Score is None')
 
     submission.score = points
     submission.output = stdout + '\n' + stderr

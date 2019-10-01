@@ -1,3 +1,5 @@
+import re
+import logging
 import requests
 from collections import OrderedDict
 from urllib.parse import urljoin
@@ -7,6 +9,12 @@ from django.db import models
 from django.conf import settings
 
 import interface.backend.minio_api as storage
+from interface.utils import vmck_config
+
+
+log_level = logging.DEBUG
+log = logging.getLogger(__name__)
+log.setLevel(log_level)
 
 
 class Course(models.Model):
@@ -97,3 +105,34 @@ class Submission(models.Model):
     @property
     def state_label(self):
         return self.STATE_CHOICES[self.state]
+
+    def evaluate(self):
+        m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
+                     self.assignment.repo_url)
+
+        url_base = ('https://raw.githubusercontent.com/'
+                    '{0}/{1}/'.format(*list(m.groups())))
+
+        config_url = urljoin(url_base,
+                             f'{self.assignment.repo_branch}/checker.sh')
+
+        options = vmck_config(self)
+        options['name'] = f'{self.assignment.full_code} submission #{self.id}'
+        options['manager'] = True
+        options['env'] = {}
+        options['env']['archive'] = self.get_url()
+        options['env']['vagrant_tag'] = settings.MANAGER_TAG
+        options['env']['script'] = config_url
+        options['env']['memory'] = settings.MANAGER_MEMORY
+        options['env']['cpu_mhz'] = settings.MANAGER_MHZ
+        options['env']['callback'] = urljoin(
+                                        settings.ACS_INTERFACE_ADDRESS,
+                                        f'submission/{self.id}/done')
+
+        response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
+                                 json=options)
+
+        log.debug(response)
+
+        self.vmck_job_id = response.json()['id']
+        self.save()
