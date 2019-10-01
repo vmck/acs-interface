@@ -1,6 +1,6 @@
 # interface
 UI for Vmchecker
-[![Build Status](https://jenkins.liquiddemo.org/api/badges/vmck/interface/status.svg)](https://jenkins.liquiddemo.org/vmck/interface)
+[![Build Status](https://jenkins.liquiddemo.org/api/badges/vmck/acs-interface/status.svg)](https://jenkins.liquiddemo.org/vmck/interface)
 
 ## Installation
 
