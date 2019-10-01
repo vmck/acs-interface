@@ -61,7 +61,7 @@ job "acs-interface" {
       }
       driver = "docker"
       config {
-        image = "vmck/acs-interface:interface"
+        image = "vmck/acs-interface"
         dns_servers = ["${attr.unique.network.ip-address}"]
         command = "/bin/bash"
         args = [
@@ -80,6 +80,7 @@ job "acs-interface" {
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
           ACS_INTERFACE_ADDRESS = "http://{{ env "NOMAD_ADDR_http" }}"
+          ACS_USER_WHITELIST = '{{ key "acs_interface/whitelist" }}'
           EOF
           destination = "local/interface.env"
           env = true
