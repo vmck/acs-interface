@@ -108,7 +108,8 @@ MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', '123456789')
 MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
 ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')  # noqa: E501
-ACS_USER_WHITELIST = os.getenv('ACS_USER_WHITELIST', ',').split(',')
+_acs_user_whitelist = os.getenv('ACS_USER_WHITELIST', None)
+ACS_USER_WHITELIST = _acs_user_whitelist.split(',') if _acs_user_whitelist else []  # noqa: E501
 
 MANAGER_MEMORY = int(os.environ.get('MANAGER_MEMORY', 50))
 MANAGER_MHZ = int(os.environ.get('MANAGER_MHZ', 30))
