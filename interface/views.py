@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 
@@ -114,12 +115,15 @@ def done(request, pk):
                                    pk=pk,
                                    score__isnull=True)
 
-    stdout = utils.decode(options['stdout']).split('\n')
+    stdout = utils.decode(options['stdout'])
     stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
 
-    submission.score = int(stdout[-2].split('/')[0])
-    submission.output = '\n'.join(stdout[:-2]) + '\n' + stderr
+    score = re.search(r'.*TOTAL: (\d+)/(\d+)', stdout, re.MULTILINE)
+    points = score.group(1) if score else 0
+
+    submission.score = points
+    submission.output = stdout + '\n' + stderr
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')
