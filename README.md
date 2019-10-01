@@ -18,12 +18,13 @@ pipenv install
 
 You need a running vmck instance. You may use [vmck/vmck](https://github.com/vmck/vmck)
 as a starting ground. Please refer to it on how to set it up.
+Also a Nomad-Consul-Vault cluster is required [liquidinvestigations/cluster](https://github.com/liquidinvestigations/cluster) to run both `Vmck` and `ACS-Interface` along with the user submissions.
 
 ## Run
 
 ### Locally
 
-You need to set up some enviromental vars. For that you can
+You need to set up some enviromental vars. For that, you can
 create the file `.env` at the root of this project  where you
 add your variabiles. The following example is enough to start you:
 
@@ -46,3 +47,26 @@ blob storage server at `localhost:9000`.
 
 To stop `CTRL-C` in the terminal where you started to stop `vmck/interface`
 and `docker stop storage` to stop the minio server.
+
+### Deploy on cluster
+
+You must have the following `KV` pairs in your `Vault`:
+
+#### For minio in `kv/minio`
+    * access_key
+    * secret_key
+
+#### If you plan on using a LDAP add the following in `kv/ldap`
+    * server_address
+    * server_port
+    * bind_dn
+    * bind_password
+    * user_tree
+    * user_filter
+
+#### To deploy it on the cluster:
+
+```shell
+export NOMAD_URL="http://${nomad_address}:${nomad_port}"
+./deploy/cluster.py
+```
