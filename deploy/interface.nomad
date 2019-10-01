@@ -23,9 +23,11 @@ job "acs-interface" {
       }
       template {
         data = <<-EOF
-          MINIO_ACCESS_KEY = "1234"
-          MINIO_SECRET_KEY = "123456789"
-          MINIO_BROWSER = "on"
+          {{- with secret "kv/minio" -}}
+            MINIO_ACCESS_KEY = "{{ .Data.access_key }}"
+            MINIO_SECRET_KEY = "{{ .Data.secret_key }}"
+            MINIO_BROWSER = "on"
+          {{- end -}}
           EOF
           destination = "local/config.env"
           env = true
