@@ -142,6 +142,10 @@ job "acs-interface" {
       service {
         name = "acs-interface"
         port = "http"
+        tags = [
+          "traefik.enable=true",
+          "traefik.frontend.rule=Host:vmchecker.liquiddemo.org",
+        ]
         check {
           name = "acs-interface alive on http"
           initial_status = "critical"

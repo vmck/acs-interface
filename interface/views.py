@@ -119,7 +119,7 @@ def done(request, pk):
     exit_code = int(options['exit_code'])
 
     submission.score = int(stdout[-2].split('/')[0])
-    submission.output = '\n'.join(stdout[:-2])
+    submission.output = '\n'.join(stdout[:-2]) + '\n' + stderr
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')
