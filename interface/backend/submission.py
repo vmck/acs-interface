@@ -42,26 +42,7 @@ def vmck_config(submission):
     return config_dict
 
 
-def handle_submission(request):
-    file = request.FILES['file']
-    log.debug(f'Submission {file.name} received')
-
-    assignment = get_object_or_404(Assignment.objects,
-                                   code=request.GET['assignment_id'])
-    # if not assignment.is_open_for(request.uesr):
-    #     return render('ești bou.html')
-
-    if not assignment:
-        return Http404()
-
-    submission = Submission.objects.create(
-        archive_size=file.size,
-        user=request.user,
-        assignment=assignment,
-    )
-
-    storage.upload(f'{submission.id}.zip', file.read())
-
+def deploy_submission(submission, assignment):
     m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
                  submission.assignment.repo_url)
 
@@ -90,6 +71,29 @@ def handle_submission(request):
     log.debug(response)
 
     submission.vmck_job_id = response.json()['id']
+
+
+def handle_submission(request):
+    file = request.FILES['file']
+    log.debug(f'Submission {file.name} received')
+
+    assignment = get_object_or_404(Assignment.objects,
+                                   code=request.GET['assignment_id'])
+    # if not assignment.is_open_for(request.uesr):
+    #     return render('ești bou.html')
+
+    if not assignment:
+        return Http404()
+
+    submission = Submission.objects.create(
+        archive_size=file.size,
+        user=request.user,
+        assignment=assignment,
+    )
+
+    storage.upload(f'{submission.id}.zip', file.read())
+
+    deploy_submission(submission, assignment)
 
     log.debug(f'Submission #{submission.id} sent to VMCK '
               f'as #{submission.vmck_job_id}')

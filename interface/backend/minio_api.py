@@ -18,6 +18,12 @@ def upload(filename, filedata):
                        content_type='application/zip')
 
 
+def copy(source_file, destination_file):
+    _client.copy_object(settings.MINIO_BUCKET,
+                        destination_file,
+                        f'/{settings.MINIO_BUCKET}/{source_file}')
+
+
 def download(filename, path):
     with open(path, 'wb') as file:
         data = _client.get_object(settings.MINIO_BUCKET, filename)
