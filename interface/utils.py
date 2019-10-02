@@ -19,8 +19,9 @@ def vmck_config(submission):
     config_data = requests.get(
                     urljoin(
                         url_base,
-                        f'{submission.assignment.repo_branch}/config.ini')
-                        )
+                        f'{submission.assignment.repo_branch}/config.ini',
+                    )
+                  )
 
     config = configparser.ConfigParser()
     config.read_string(config_data.text)

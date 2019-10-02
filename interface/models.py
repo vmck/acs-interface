@@ -85,8 +85,12 @@ class Submission(models.Model):
     def get_url(self):
         return storage.get_link(f'{self.id}.zip')
 
-    def get_score(self):
-        return self.score + self.review_score
+    @property
+    def total_score(self):
+        score = self.score if self.score else 0
+        review_score = self.review_score if self.review_score else 0
+
+        return score + review_score
 
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
