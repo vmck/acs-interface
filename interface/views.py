@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 
@@ -28,7 +29,7 @@ def login_view(request):
         if form.is_valid():
             user = authenticate(username=form.data['username'],
                                 password=form.data['password'])
-            if user:
+            if user and user.username in settings.ACS_USER_WHITELIST:
                 login(request, user)
                 return redirect(homepage)
     else:
@@ -114,12 +115,17 @@ def done(request, pk):
                                    pk=pk,
                                    score__isnull=True)
 
-    stdout = utils.decode(options['stdout']).split('\n')
+    stdout = utils.decode(options['stdout'])
     stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
 
-    submission.score = int(stdout[-2].split('/')[0])
-    submission.output = '\n'.join(stdout[:-2])
+    score = re.search(r'.*TOTAL: (\d+)/(\d+)', stdout, re.MULTILINE)
+    points = score.group(1) if score else 0
+    if not score:
+        log.warning('Score is None')
+
+    submission.score = points
+    submission.output = stdout + '\n' + stderr
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')

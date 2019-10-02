@@ -7,8 +7,8 @@ from django.http import FileResponse
 
 from interface.models import Course, Assignment, Submission
 
+
 admin.site.register(Course)
-admin.site.register(Submission)
 
 
 @admin.register(Assignment)
@@ -44,3 +44,14 @@ class AssignmentAdmin(admin.ModelAdmin):
             return FileResponse(review_zip)
 
     download_submissions.short_description = 'Download submissions for review'
+
+
+@admin.register(Submission)
+class SubmissionAdmin(admin.ModelAdmin):
+    actions = ['rerun_submissions']
+
+    def rerun_submissions(self, request, submissions):
+        for submission in submissions:
+            submission.evaluate()
+
+    rerun_submissions.short_description = 'Re-run submissions'

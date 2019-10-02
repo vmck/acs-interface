@@ -23,12 +23,14 @@ job "acs-interface" {
       }
       template {
         data = <<-EOF
-          MINIO_ACCESS_KEY = "1234"
-          MINIO_SECRET_KEY = "123456789"
-          MINIO_BROWSER = "on"
-          EOF
-          destination = "local/config.env"
-          env = true
+          {{- with secret "kv/minio" -}}
+            MINIO_ACCESS_KEY = "{{ .Data.access_key }}"
+            MINIO_SECRET_KEY = "{{ .Data.secret_key }}"
+          {{- end -}}
+            MINIO_BROWSER = "on"
+        EOF
+        destination = "local/config.env"
+        env = true
       }
       resources {
         memory = 200
@@ -61,7 +63,7 @@ job "acs-interface" {
       }
       driver = "docker"
       config {
-        image = "vmck/acs-interface:interface"
+        image = "vmck/acs-interface"
         dns_servers = ["${attr.unique.network.ip-address}"]
         command = "/bin/bash"
         args = [
@@ -80,6 +82,7 @@ job "acs-interface" {
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
           ACS_INTERFACE_ADDRESS = "http://{{ env "NOMAD_ADDR_http" }}"
+          ACS_USER_WHITELIST = '{{ key "acs_interface/whitelist" }}'
           EOF
           destination = "local/interface.env"
           env = true
@@ -139,6 +142,10 @@ job "acs-interface" {
       service {
         name = "acs-interface"
         port = "http"
+        tags = [
+          "traefik.enable=true",
+          "traefik.frontend.rule=Host:vmchecker.liquiddemo.org",
+        ]
         check {
           name = "acs-interface alive on http"
           initial_status = "critical"
