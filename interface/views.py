@@ -75,6 +75,15 @@ def homepage(request):
 
 
 @login_required
+@csrf_exempt
+def review(request, pk):
+    if request.POST and request.user.is_staff:
+        log.debug(pk)
+        log.debug(request.POST)
+    return redirect(submission_list)
+
+
+@login_required
 def submission_list(request):
     submissions = Submission.objects.all()[::-1]
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)

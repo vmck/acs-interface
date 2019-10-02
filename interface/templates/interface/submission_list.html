@@ -13,6 +13,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+        {% include "interface/review_modal.html" %}
         <title>VMCK</title>
     </head>
 
@@ -52,7 +53,11 @@
                             </td>
                             <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
                             <td>{{ sub.state }}</td>
-                            <td>{% include "interface/review_button.html" %}</td>
+                            {% if current_user.is_staff %}
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+                                </td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>
