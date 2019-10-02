@@ -13,6 +13,7 @@ config.add(job)
 
 @cli.command()
 def deploy():
+    config.init()
     config.render()
     config.apply()
 

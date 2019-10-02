@@ -1,4 +1,5 @@
 import logging
+import subprocess
 
 from .templates import render
 
@@ -29,5 +30,10 @@ class Configuration:
                 'components': self.components,
             }))
 
+    def init(self):
+        log.debug(f"{self!r} init")
+        subprocess.run(['terraform', 'init'], cwd=self.path, check=True)
+
     def apply(self):
         log.debug(f"{self!r} applying")
+        subprocess.run(['terraform', 'apply'], cwd=self.path, check=True)
