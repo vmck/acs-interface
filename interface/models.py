@@ -78,8 +78,10 @@ class Submission(models.Model):
                              default=STATE_NEW)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
+    review_score = models.DecimalField(max_digits=5,
+                                       decimal_places=2,
+                                       null=True)
     score = models.IntegerField(null=True)
-    review_score = models.IntegerField(null=True)
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 

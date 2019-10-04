@@ -77,8 +77,20 @@ def homepage(request):
 @login_required
 def review(request, pk):
     if request.POST and request.user.is_staff:
-        log.debug(pk)
-        log.debug(request.POST)
+        marks = re.findall('^(\+|-[0-9]+\.[0-9]+):',  # noqa: W605
+                           request.POST['review-code'],
+                           re.MULTILINE)
+        log.debug('Marks found: ' + str(marks))
+
+        review_score = 0
+        for mark in marks:
+            review_score += float(mark)
+
+        submission = get_object_or_404(models.Submission, pk=pk)
+        submission.review_score = review_score
+        submission.review_message = request.POST['review-code']
+        submission.save()
+
     return redirect(submission_list)
 
 
