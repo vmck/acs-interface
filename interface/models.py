@@ -72,6 +72,7 @@ class Submission(models.Model):
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
     output = models.CharField(max_length=4096, default='none')
+    review_message = models.CharField(max_length=1024, default='none')
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
                              default=STATE_NEW)
