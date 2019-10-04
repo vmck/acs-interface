@@ -75,7 +75,6 @@ def homepage(request):
 
 
 @login_required
-@csrf_exempt
 def review(request, pk):
     if request.POST and request.user.is_staff:
         log.debug(pk)

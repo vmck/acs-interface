@@ -9,6 +9,7 @@
 
       <div class="modal-body">
         <form id="reviewForm" method="post" action="">
+          {% csrf_token %}
           <div class="form-group">
             <label for="message-text" class="col-form-label">Review details:</label>
             <textarea class="form-control" name='review-code' id="message-text"></textarea>
@@ -26,7 +27,7 @@
 </div>
 
 <!-- Data in modal -->
-<script>
+<script type='text/javascript'>
     $('#review').on('show.bs.modal', function (event)
     {
         var button = $(event.relatedTarget)
