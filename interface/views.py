@@ -82,9 +82,7 @@ def review(request, pk):
                            re.MULTILINE)
         log.debug('Marks found: ' + str(marks))
 
-        review_score = 0
-        for mark in marks:
-            review_score += float(mark)
+        review_score = sum[(float(mark) for mark in marks)]
 
         submission = get_object_or_404(models.Submission, pk=pk)
         submission.review_score = review_score
