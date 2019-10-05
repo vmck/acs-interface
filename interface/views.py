@@ -1,6 +1,7 @@
 import re
 import json
 import logging
+import decimal
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -77,12 +78,14 @@ def homepage(request):
 @login_required
 def review(request, pk):
     if request.POST and request.user.is_staff:
-        marks = re.findall('^(\+|-[0-9]+\.[0-9]+):',  # noqa: W605
-                           request.POST['review-code'],
-                           re.MULTILINE)
+        marks = re.findall(
+            r'^([+-]\d\.\d):',
+            request.POST['review-code'],
+            re.MULTILINE
+        )
         log.debug('Marks found: ' + str(marks))
 
-        review_score = sum[(float(mark) for mark in marks)]
+        review_score = sum([decimal.Decimal(mark) for mark in marks])
 
         submission = get_object_or_404(models.Submission, pk=pk)
         submission.review_score = review_score
