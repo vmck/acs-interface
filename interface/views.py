@@ -92,7 +92,7 @@ def review(request, pk):
         submission.review_message = request.POST['review-code']
         submission.save()
 
-    return redirect(submission_list)
+    return redirect(request.META['HTTP_REFERER'])
 
 
 @login_required
@@ -110,7 +110,6 @@ def submission_list(request):
                   {'subs': subs,
                    'homepage_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url,
-                   'current_user': request.user,
                    'logout_url': redirect(logout_view).url})
 
 
@@ -120,6 +119,7 @@ def submission_result(request, pk):
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
+                   'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
                    'submission_list_url': redirect(submission_list).url})
 

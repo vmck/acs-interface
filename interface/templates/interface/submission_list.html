@@ -8,13 +8,7 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
 
-        <!-- Holly Javascript -->
-        <script src="http://unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
-        <script src="https://unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
-
         <title>VMCK</title>
-
-        {% include "interface/review_modal.html" %}
     </head>
 
     <body>
@@ -54,11 +48,6 @@
                             </td>
                             <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
                             <td>{{ sub.state }}</td>
-                            {% if current_user.is_staff %}
-                                <td>
-                                    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-                                </td>
-                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>
