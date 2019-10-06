@@ -5,7 +5,9 @@ import decimal
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -76,21 +78,23 @@ def homepage(request):
 
 
 @login_required
+@staff_member_required
+@require_POST
 def review(request, pk):
-    if request.POST and request.user.is_staff:
-        marks = re.findall(
-            r'^([+-]\d\.\d):',
-            request.POST['review-code'],
-            re.MULTILINE
-        )
-        log.debug('Marks found: ' + str(marks))
+    submission = get_object_or_404(models.Submission, pk=pk)
 
-        review_score = sum([decimal.Decimal(mark) for mark in marks])
+    marks = re.findall(
+        r'^([+-]\d\.\d):',
+        request.POST['review-code'],
+        re.MULTILINE,
+    )
+    log.debug('Marks found: ' + str(marks))
 
-        submission = get_object_or_404(models.Submission, pk=pk)
-        submission.review_score = review_score
-        submission.review_message = request.POST['review-code']
-        submission.save()
+    review_score = sum([decimal.Decimal(mark) for mark in marks])
+
+    submission.review_score = review_score
+    submission.review_message = request.POST['review-code']
+    submission.save()
 
     return redirect(request.META['HTTP_REFERER'])
 

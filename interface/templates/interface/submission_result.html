@@ -13,8 +13,6 @@
         <script src="https://unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
 
         <title>VMCK</title>
-
-        {% include "interface/review_modal.html" %}
     </head>
 
     <body>
@@ -23,18 +21,19 @@
                 <a class="btn btn-primary mr-1" href='{{ homepage_url }}'>Homepage</a>
                 <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
             </div>
-            <div class="container">
-                <p>Submission id: {{ sub.id }}
-                {% if current_user.is_staff %}
-                    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-                {% endif %}
-                </p>
-                <p>Your score is: {{ sub.score }}/{{ sub.assignment.max_score }}</p>
-                <p>Review:</p>
-                <pre>{{ sub.review_message }}</pre>
-                <p>The output is:</p>
-                <pre><samp>{{ sub.output }}</samp></pre>
-            </div>
+
+            <p>Submission id: {{ sub.id }}
+            {% if current_user.is_staff %}
+                <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+            {% endif %}
+            </p>
+            <p>Your score is: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
+            <p>Review:</p>
+            <pre>{{ sub.review_message }}</pre>
+            <p>The output is:</p>
+            <pre><samp>{{ sub.output }}</samp></pre>
         </div>
+
+        {% include "interface/review_modal.html" %}
     </body>
 </html>
