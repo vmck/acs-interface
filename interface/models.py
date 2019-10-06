@@ -72,13 +72,16 @@ class Submission(models.Model):
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
     output = models.CharField(max_length=4096, default='none')
+    review_message = models.CharField(max_length=4096, default='none')
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
                              default=STATE_NEW)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
+    review_score = models.DecimalField(max_digits=5,
+                                       decimal_places=2,
+                                       null=True)
     score = models.IntegerField(null=True)
-    review_score = models.IntegerField(null=True)
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 

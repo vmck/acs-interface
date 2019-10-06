@@ -1,10 +1,13 @@
 import re
 import json
 import logging
+import decimal
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -75,6 +78,28 @@ def homepage(request):
 
 
 @login_required
+@staff_member_required
+@require_POST
+def review(request, pk):
+    submission = get_object_or_404(models.Submission, pk=pk)
+
+    marks = re.findall(
+        r'^([+-]\d\.\d):',
+        request.POST['review-code'],
+        re.MULTILINE,
+    )
+    log.debug('Marks found: ' + str(marks))
+
+    review_score = sum([decimal.Decimal(mark) for mark in marks])
+
+    submission.review_score = review_score
+    submission.review_message = request.POST['review-code']
+    submission.save()
+
+    return redirect(request.META['HTTP_REFERER'])
+
+
+@login_required
 def submission_list(request):
     submissions = Submission.objects.all()[::-1]
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
@@ -89,7 +114,6 @@ def submission_list(request):
                   {'subs': subs,
                    'homepage_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url,
-                   'current_user': request.user,
                    'logout_url': redirect(logout_view).url})
 
 
@@ -99,6 +123,7 @@ def submission_result(request, pk):
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
+                   'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
                    'submission_list_url': redirect(submission_list).url})
 

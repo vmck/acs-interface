@@ -1,0 +1,40 @@
+<!-- Modal -->
+<div class="modal fade" id="review" tabindex="-1" role="dialog" aria-labelledby="reviewLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="reviewLabel"> </h5>
+      </div>
+
+      <div class="modal-body">
+        <form id="reviewForm" method="post" action="">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">Review details:</label>
+            <textarea class="form-control" name='review-code' id="message-text"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" form="reviewForm">Finish review</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Data in modal -->
+<script type='text/javascript'>
+    $('#review').on('show.bs.modal', function (event)
+    {
+        var button = $(event.relatedTarget)
+        var recipient = button.data('id')
+
+        var modal = $(this)
+        modal.find(".modal-body form")[0].action = "{{ sub_base_url }}" + recipient + "/review"
+        modal.find(".modal-title")[0].innerText = "Review submission " + recipient
+    })
+</script>
