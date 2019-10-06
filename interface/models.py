@@ -114,14 +114,7 @@ class Submission(models.Model):
         return self.STATE_CHOICES[self.state]
 
     def evaluate(self):
-        m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
-                     self.assignment.repo_url)
-
-        url_base = ('https://raw.githubusercontent.com/'
-                    '{0}/{1}/'.format(*list(m.groups())))
-
-        config_url = urljoin(url_base,
-                             f'{self.assignment.repo_branch}/checker.sh')
+        config_url = get_config_url(self)
 
         options = vmck_config(self)
         options['name'] = f'{self.assignment.full_code} submission #{self.id}'
