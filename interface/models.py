@@ -4,6 +4,7 @@ import requests
 from collections import OrderedDict
 from urllib.parse import urljoin
 
+import jwt
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
@@ -132,6 +133,9 @@ class Submission(models.Model):
         options['env']['script'] = config_url
         options['env']['memory'] = settings.MANAGER_MEMORY
         options['env']['cpu_mhz'] = settings.MANAGER_MHZ
+        options['env']['auth'] = jwt.encode(str(self.id),
+                                            settings.SECRET_KEY,
+                                            algorithms=['HS256'])
         options['env']['callback'] = urljoin(
                                         settings.ACS_INTERFACE_ADDRESS,
                                         f'submission/{self.id}/done')

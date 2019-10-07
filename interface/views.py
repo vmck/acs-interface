@@ -3,6 +3,7 @@ import json
 import logging
 import decimal
 
+import jwt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -135,6 +136,12 @@ def done(request, pk):
     log.debug(request.body)
 
     options = json.loads(request.body, strict=False) if request.body else {}
+
+    auth_token = jwt.decode(options['auth'],
+                            settings.SECRET_KEY,
+                            algorithms=['HS256'])
+
+    assert auth_token == pk
 
     submission = get_object_or_404(models.Submission,
                                    pk=pk,
