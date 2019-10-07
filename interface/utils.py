@@ -51,16 +51,20 @@ def is_true(value):
     
 def get_url_base(link):
     m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
-                    link.assignment.repo_url)
+                 link.assignment.repo_url)
     url_base = ('https://raw.githubusercontent.com/'
                 '{0}/{1}/'.format(*list(m.groups())))
+    
     return url_base
 
-def get_config_url(link):
+
+def get_script_url(link):
     url_base = get_url_base(link)
-    config_url = urljoin(url_base,
-                             f'{link.assignment.repo_branch}/checker.sh')
-    return config_url
+    script_url = urljoin(url_base,
+                         f'{link.assignment.repo_branch}/checker.sh')
+    
+    return script_url
+
 
 def get_config_data(link):
     url_base = get_url_base(link)
@@ -70,7 +74,5 @@ def get_config_data(link):
                         f'{link.assignment.repo_branch}/config.ini',
                     )
                   )
+
     return config_data
-
-
-
