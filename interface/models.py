@@ -1,9 +1,9 @@
 import re
 import logging
-import requests
 from collections import OrderedDict
 from urllib.parse import urljoin
 
+import requests
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
@@ -93,7 +93,7 @@ class Submission(models.Model):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0
 
-        return score + review_score
+        return score + review_score - self.punishment_score()
 
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
@@ -106,8 +106,11 @@ class Submission(models.Model):
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
 
-    def __str__(self):
-        return f"{self.assignment} {self.id}"
+    def punishment_score(self):
+        deltatime = self.timestamp - self.assignment.deadline
+        days = (deltatime.days + 1) if deltatime.days > 0 else 0
+
+        return days*10
 
     @property
     def state_label(self):
@@ -143,3 +146,6 @@ class Submission(models.Model):
 
         self.vmck_job_id = response.json()['id']
         self.save()
+
+    def __str__(self):
+        return f"{self.assignment} {self.id}"
