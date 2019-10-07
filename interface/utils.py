@@ -9,12 +9,14 @@ import requests
 
 vocabulary_64 = string.ascii_letters + string.digits + '.+'
 
+def find_url_base(submission):
+    matched_submission = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
+                submission.assignment.repo_url)
+    return ('https://raw.githubusercontent.com' 
+                '/{0}/{1}/'.format(*list(m.groups())))
 
 def vmck_config(submission):
-    m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
-                 submission.assignment.repo_url)
-    url_base = ('https://raw.githubusercontent.com'
-                '/{0}/{1}/'.format(*list(m.groups())))
+    url_base =find_url_base(submission)
 
     config_data = requests.get(
                     urljoin(

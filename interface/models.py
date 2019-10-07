@@ -9,7 +9,7 @@ from django.db import models
 from django.conf import settings
 
 import interface.backend.minio_api as storage
-from interface.utils import vmck_config
+from interface.utils import vmck_config, find_url_base
 
 
 log_level = logging.DEBUG
@@ -114,12 +114,8 @@ class Submission(models.Model):
         return self.STATE_CHOICES[self.state]
 
     def evaluate(self):
-        m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
-                     self.assignment.repo_url)
-
-        url_base = ('https://raw.githubusercontent.com/'
-                    '{0}/{1}/'.format(*list(m.groups())))
-
+        url_base = find_url_base(self)
+                    
         config_url = urljoin(url_base,
                              f'{self.assignment.repo_branch}/checker.sh')
 
