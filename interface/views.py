@@ -3,7 +3,6 @@ import json
 import logging
 import decimal
 
-import jwt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -20,6 +19,7 @@ from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Assignment, Course
 from interface import models
 from interface import utils
+from interface import crypto
 
 
 log_level = logging.DEBUG
@@ -137,10 +137,7 @@ def done(request, pk):
 
     options = json.loads(request.body, strict=False) if request.body else {}
 
-    auth_token = jwt.decode(options['auth'],
-                            settings.SECRET_KEY,
-                            algorithms=['HS256'])
-
+    auth_token = crypto.decrypt(options['auth'])
     assert auth_token == pk
 
     submission = get_object_or_404(models.Submission,
