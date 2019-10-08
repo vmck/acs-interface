@@ -76,3 +76,4 @@ def get_config_data(link):
                   )
 
     return config_data
+
