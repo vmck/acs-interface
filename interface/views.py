@@ -19,7 +19,6 @@ from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Assignment, Course
 from interface import models
 from interface import utils
-from interface import crypto
 
 
 log_level = logging.DEBUG
@@ -137,12 +136,11 @@ def done(request, pk):
 
     options = json.loads(request.body, strict=False) if request.body else {}
 
-    auth_token = crypto.decrypt(options['auth'])
-    assert auth_token == pk
-
     submission = get_object_or_404(models.Submission,
                                    pk=pk,
                                    score__isnull=True)
+
+    assert submission.verify_jwt(request.GET.get('token'))
 
     stdout = utils.decode(options['stdout'])
     stderr = utils.decode(options['stderr'])
