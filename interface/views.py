@@ -114,6 +114,7 @@ def submission_list(request):
                   {'subs': subs,
                    'homepage_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url,
+                   'current_user': request.user,
                    'logout_url': redirect(logout_view).url})
 
 
