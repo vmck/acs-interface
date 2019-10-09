@@ -125,10 +125,10 @@ class Submission(models.Model):
         options['env']['script'] = script_url
         options['env']['memory'] = settings.MANAGER_MEMORY
         options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-        options['env']['auth'] = self.generate_jwt()
         options['env']['callback'] = urljoin(
-                                        settings.ACS_INTERFACE_ADDRESS,
-                                        f'submission/{self.id}/done')
+            settings.ACS_INTERFACE_ADDRESS,
+            f'submission/{self.id}/done?token={self.generate_jwt()}',
+        )
 
         response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                                  json=options)
