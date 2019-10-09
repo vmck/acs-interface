@@ -1,4 +1,3 @@
-import re
 import logging
 import requests
 from collections import OrderedDict
@@ -9,7 +8,7 @@ from django.db import models
 from django.conf import settings
 
 import interface.backend.minio_api as storage
-from interface.utils import vmck_config
+from interface.utils import vmck_config, get_script_url
 
 
 log_level = logging.DEBUG
