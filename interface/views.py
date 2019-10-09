@@ -141,6 +141,8 @@ def done(request, pk):
                                    pk=pk,
                                    score__isnull=True)
 
+    assert submission.verify_jwt(request.GET.get('token'))
+
     stdout = utils.decode(options['stdout'])
     stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
