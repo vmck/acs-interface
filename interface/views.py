@@ -2,6 +2,7 @@ import re
 import json
 import logging
 import decimal
+import pprint
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -133,7 +134,8 @@ def submission_result(request, pk):
 def done(request, pk):
     # NOTE: make it safe, some form of authentication
     #       we don't want students updating their score.
-    log.debug(request.body)
+    log.debug(f'URL: {request.get_full_path()}')
+    log.debug(pprint.pformat(request.body))
 
     options = json.loads(request.body, strict=False) if request.body else {}
 
