@@ -153,7 +153,7 @@ def done(request, pk):
         log.warning('Score is None')
 
     submission.score = points
-    submission.output = stdout 
+    submission.output = stdout
     submission.output_err = stderr
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
