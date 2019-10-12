@@ -26,7 +26,7 @@ class AssignmentAdmin(admin.ModelAdmin):
         return submission_set
 
     def download_submissions(self, request, queryset):
-        submission_set = self.get_submission_set(request, queryset);
+        submission_set = self.get_submission_set(request, queryset)
 
         submissions = {}
 
@@ -51,7 +51,7 @@ class AssignmentAdmin(admin.ModelAdmin):
     download_submissions.short_description = 'Download submissions for review'
 
     def download_all_submissions(self, request, queryset):
-        submission_set = self.get_submission_set(request, queryset);
+        submission_set = self.get_submission_set(request, queryset)
 
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
@@ -67,10 +67,8 @@ class AssignmentAdmin(admin.ModelAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
-    download_all_submissions.short_description = 'Download all submissions for review'
-
-
-
+    download_all_submissions.short_description = ('Download all submissions for'
+    'review')
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
