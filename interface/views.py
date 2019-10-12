@@ -32,7 +32,7 @@ def login_view(request):
         if form.is_valid():
             user = authenticate(username=form.data['username'],
                                 password=form.data['password'])
-            if user and user.username in settings.ACS_USER_WHITELIST:
+            if user and user.username:
                 login(request, user)
                 return redirect(homepage)
     else:
