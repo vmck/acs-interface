@@ -29,11 +29,11 @@ def handle_submission(request):
         user=request.user,
         assignment=assignment,
     )
-    log.debug("Salut")
+    log.debug(f'Submission #{submission.id} created')
 
     storage.upload(f'{submission.id}.zip', file.read())
+    log.debug(f"Submission's #{submission.id} zipfile was uploaded")
 
     submission.evaluate()
-
-    log.debug(f'Submission #{submission.id} sent to VMCK '
+    log.debug(f'Submission #{submission.id} was sent to VMCK '
               f'as #{submission.vmck_job_id}')
