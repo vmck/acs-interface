@@ -29,6 +29,7 @@ def handle_submission(request):
         user=request.user,
         assignment=assignment,
     )
+    log.debug("Salut")
 
     storage.upload(f'{submission.id}.zip', file.read())
 
