@@ -27,6 +27,10 @@ log.setLevel(log_level)
 
 
 def login_view(request):
+    if (request.user.is_authenticated):
+        return redirect(homepage)
+
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
