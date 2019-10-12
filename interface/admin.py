@@ -67,8 +67,9 @@ class AssignmentAdmin(admin.ModelAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
-    download_all_submissions.short_description = ('Download all submissions for'
-    'review')
+    download_all_submissions.short_description = ('Download all submissions'
+                                                 ' for review')
+
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
