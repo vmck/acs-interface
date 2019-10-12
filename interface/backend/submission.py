@@ -30,7 +30,7 @@ def handle_submission(request):
         assignment=assignment,
     )
     log.debug("Salut")
-
+    log.debug("Salut2")
     storage.upload(f'{submission.id}.zip', file.read())
 
     submission.evaluate()
