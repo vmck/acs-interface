@@ -67,7 +67,7 @@ job "acs-interface" {
         image = "postgres:12.0-alpine"
         dns_servers = ["${attr.unique.network.ip-address}"]
         volumes = [
-          ${meta.volumes}/database/postgres/data:/var/lib/postgresql/data",
+          "${meta.volumes}/database/postgres/data:/var/lib/postgresql/data",
         ]
         port_map {
           pg = 5432
