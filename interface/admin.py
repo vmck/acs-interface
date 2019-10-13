@@ -40,7 +40,6 @@ class AssignmentAdmin(admin.ModelAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
-
     def download_review_submissions(self, request, queryset):
         submission_set = self.get_submission_set(request, queryset)
 
@@ -60,8 +59,8 @@ class AssignmentAdmin(admin.ModelAdmin):
 
         return self.archive_submissions(submission_set)
 
-    download_all_submissions.short_description = ('Download all submissions'
-                                                  ' for review')
+    download_all_submissions.short_description = ('Download all submissions '
+                                                  'for review')
 
 
 @admin.register(Submission)
