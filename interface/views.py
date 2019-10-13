@@ -85,7 +85,7 @@ def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
     marks = re.findall(
-        r'^([+-]\d\.\d):',
+        r'^([+-]\d+\.*\d*):',
         request.POST['review-code'],
         re.MULTILINE,
     )
@@ -141,7 +141,7 @@ def done(request, pk):
 
     submission = get_object_or_404(models.Submission,
                                    pk=pk,
-                                   score__isnull=True)
+                                   state__startswith=Submission.STATE_RUNNING)
 
     assert submission.verify_jwt(request.GET.get('token'))
 
