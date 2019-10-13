@@ -13,7 +13,7 @@ admin.site.register(Course)
 
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
-    actions = ['download_submissions', 'download_all_submissions']
+    actions = ['download_review_submissions', 'download_all_submissions']
 
     def get_submission_set(self, request, queryset):
         if queryset.count() != 1:
@@ -25,7 +25,23 @@ class AssignmentAdmin(admin.ModelAdmin):
 
         return submission_set
 
-    def download_submissions(self, request, queryset):
+    def archive_submissions(self, submissions):
+        with TemporaryDirectory() as _tmp:
+            tmp = Path(_tmp)
+
+            with ZipFile(tmp / 'review.zip', 'x') as zipfile:
+                for submission in submissions:
+                    submission.download(tmp / f'{submission.id}.zip')
+                    zipfile.write(
+                        tmp / f'{submission.id}.zip',
+                        f'{submission.user.username}-{submission.id}.zip',
+                    )
+
+            review_zip = (tmp / 'review.zip').open('rb')
+            return FileResponse(review_zip)
+
+
+    def download_review_submissions(self, request, queryset):
         submission_set = self.get_submission_set(request, queryset)
 
         submissions = {}
@@ -34,38 +50,15 @@ class AssignmentAdmin(admin.ModelAdmin):
         for submission in submission_set:
             submissions[submission.user.username] = submission
 
-        with TemporaryDirectory() as _tmp:
-            tmp = Path(_tmp)
+        return self.archive_submissions(submissions.values())
 
-            with ZipFile(tmp / 'review.zip', 'x') as zipfile:
-                for submission in submissions.values():
-                    submission.download(tmp / f'{submission.id}.zip')
-                    zipfile.write(
-                        tmp / f'{submission.id}.zip',
-                        f'{submission.user.username}-{submission.id}.zip',
-                    )
-
-            review_zip = (tmp / 'review.zip').open('rb')
-            return FileResponse(review_zip)
-
-    download_submissions.short_description = 'Download submissions for review'
+    download_review_submissions.short_description = ('Download last '
+                                                     'submissions for review')
 
     def download_all_submissions(self, request, queryset):
         submission_set = self.get_submission_set(request, queryset)
 
-        with TemporaryDirectory() as _tmp:
-            tmp = Path(_tmp)
-
-            with ZipFile(tmp / 'review.zip', 'x') as zipfile:
-                for submission in submission_set:
-                    submission.download(tmp / f'{submission.id}.zip')
-                    zipfile.write(
-                        tmp / f'{submission.id}.zip',
-                        f'{submission.user.username}-{submission.id}.zip',
-                    )
-
-            review_zip = (tmp / 'review.zip').open('rb')
-            return FileResponse(review_zip)
+        return self.archive_submissions(submission_set)
 
     download_all_submissions.short_description = ('Download all submissions'
                                                   ' for review')
