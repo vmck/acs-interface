@@ -92,7 +92,7 @@ job "acs-interface" {
         }
       }
       service {
-        name = "database-postgres"
+        name = "database-postgres-interface"
         port = "pg"
         check {
           name = "tcp"
@@ -174,7 +174,7 @@ job "acs-interface" {
       }
       template {
         data = <<-EOF
-          {{- range service "database-postgres" -}}
+          {{- range service "database-postgres-interface" -}}
             POSTGRES_ADDRESS = "{{ .Address }}"
             POSTGRES_PORT = "{{ .Port }}"
           {{- end }}
