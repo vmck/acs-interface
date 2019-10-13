@@ -198,7 +198,7 @@ job "acs-interface" {
       }
       resources {
         memory = 300
-        cpu = 200
+        cpu = 400
         network {
           port "http" {
             static = 10002
