@@ -12,4 +12,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         app = WhiteNoise(application, root=STATIC_ROOT)
-        serve(app, port='8100')
+        serve(app, port='8100', threads=16)

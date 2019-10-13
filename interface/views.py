@@ -102,7 +102,7 @@ def review(request, pk):
 
 @login_required
 def submission_list(request):
-    submissions = Submission.objects.all()[::-1]
+    submissions = Submission.objects.all().order_by('-id')
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
 
     page = request.GET.get('page', '1')
