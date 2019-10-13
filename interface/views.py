@@ -127,6 +127,7 @@ def submission_result(request, pk):
                   {'sub': sub,
                    'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
+                   'submission_review_message': sub.review_message,
                    'submission_list_url': redirect(submission_list).url})
 
 
