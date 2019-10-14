@@ -3,6 +3,8 @@ import json
 import logging
 import decimal
 import pprint
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -11,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
 from django.conf import settings
 
 
@@ -61,6 +63,22 @@ def upload(request):
 
 
 @login_required
+def download(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+
+    if submission.user != request.user:
+        return Http404('You are not allowed!')
+
+    with TemporaryDirectory() as _tmp:
+        tmp = Path(_tmp)
+
+        submission.download(tmp / f'{submission.id}.zip')
+
+        review_zip = (tmp / f'{submission.id}.zip').open('rb')
+        return FileResponse(review_zip)
+
+
+@login_required
 def homepage(request):
     data = []
 
@@ -85,7 +103,7 @@ def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
     marks = re.findall(
-        r'^([+-]\d\.\d):',
+        r'^([+-]\d+\.*\d*):',
         request.POST['review-code'],
         re.MULTILINE,
     )
@@ -102,7 +120,8 @@ def review(request, pk):
 
 @login_required
 def submission_list(request):
-    submissions = Submission.objects.all()[::-1]
+    submissions = Submission.objects.all().order_by('-id')
+
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
 
     page = request.GET.get('page', '1')
@@ -127,6 +146,7 @@ def submission_result(request, pk):
                   {'sub': sub,
                    'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
+                   'submission_review_message': sub.review_message,
                    'submission_list_url': redirect(submission_list).url})
 
 
@@ -141,7 +161,7 @@ def done(request, pk):
 
     submission = get_object_or_404(models.Submission,
                                    pk=pk,
-                                   score__isnull=True)
+                                   state__startswith=Submission.STATE_RUNNING)
 
     assert submission.verify_jwt(request.GET.get('token'))
 

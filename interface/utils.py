@@ -66,6 +66,14 @@ def get_script_url(link):
     return script_url
 
 
+def get_artifact_url(link):
+    url_base = get_url_base(link)
+    artifact_url = urljoin(url_base,
+                           f'{link.assignment.repo_branch}/artifact.zip')
+
+    return artifact_url
+
+
 def get_config_data(link):
     url_base = get_url_base(link)
     config_data = requests.get(
