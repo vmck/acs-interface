@@ -9,7 +9,7 @@ from django.db import models
 from django.conf import settings
 
 import interface.backend.minio_api as storage
-from interface.utils import vmck_config, get_script_url
+from interface.utils import vmck_config, get_script_url, get_artifact_url
 
 
 log_level = logging.DEBUG
@@ -114,7 +114,6 @@ class Submission(models.Model):
         return self.STATE_CHOICES[self.state]
 
     def evaluate(self):
-        script_url = get_script_url(self)
         callback = (f"submission/{self.id}/done?"
                     f"token={str(self.generate_jwt(), encoding='latin1')}")
 
@@ -124,7 +123,8 @@ class Submission(models.Model):
         options['env'] = {}
         options['env']['archive'] = self.get_url()
         options['env']['vagrant_tag'] = settings.MANAGER_TAG
-        options['env']['script'] = script_url
+        options['env']['script'] = get_script_url(self)
+        options['env']['artifact'] = get_artifact_url(self)
         options['env']['memory'] = settings.MANAGER_MEMORY
         options['env']['cpu_mhz'] = settings.MANAGER_MHZ
         options['env']['callback'] = urljoin(
