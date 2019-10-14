@@ -85,9 +85,6 @@ class Submission(models.Model):
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 
-    def get_url(self):
-        return storage.get_link(f'{self.id}.zip')
-
     @property
     def total_score(self):
         score = self.score if self.score else 0

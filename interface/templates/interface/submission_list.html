@@ -41,7 +41,7 @@
                             <td>{{ sub.archive_size|filesizeformat }}</td>
                             <td>
                                 {% if sub.user == current_user %}
-                                    <a href="{{ sub.get_url }}">Download</a>
+                                    <a href="/submission/{{ sub.id }}/download">Download</a>
                                 {% else %}
                                     <p>Download</p>
                                 {% endif %}
