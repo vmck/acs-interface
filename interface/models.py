@@ -110,6 +110,9 @@ class Submission(models.Model):
     def state_label(self):
         return self.STATE_CHOICES[self.state]
 
+    def get_url(self):
+        return storage.get_link(f'{self.id}.zip')
+
     def evaluate(self):
         callback = (f"submission/{self.id}/done?"
                     f"token={str(self.generate_jwt(), encoding='latin1')}")
