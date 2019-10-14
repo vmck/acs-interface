@@ -128,6 +128,7 @@ class Submission(models.Model):
             settings.ACS_INTERFACE_ADDRESS,
             callback,
         )
+        options['env']['restrict_network'] = True
         log.debug(f'Submission #{self.id} config is done')
         log.debug(f"Callback: {options['env']['callback']}")
 
