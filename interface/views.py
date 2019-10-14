@@ -3,6 +3,8 @@ import json
 import logging
 import decimal
 import pprint
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -11,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
 from django.conf import settings
 
 
@@ -58,6 +60,22 @@ def upload(request):
         form = UploadFileForm()
 
     return render(request, 'interface/upload.html', {'form': form})
+
+
+@login_required
+def download(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+
+    if submission.user != request.user:
+        return Http404('You are not allowed!')
+
+    with TemporaryDirectory() as _tmp:
+        tmp = Path(_tmp)
+
+        submission.download(tmp / f'{submission.id}.zip')
+
+        review_zip = (tmp / f'{submission.id}.zip').open('rb')
+        return FileResponse(review_zip)
 
 
 @login_required
