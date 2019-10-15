@@ -32,7 +32,7 @@ def login_view(request):
         if form.is_valid():
             user = authenticate(username=form.data['username'],
                                 password=form.data['password'])
-            if user and user.username:
+            if user:
                 login(request, user)
                 return redirect(homepage)
     else:
