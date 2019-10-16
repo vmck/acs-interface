@@ -73,13 +73,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'interface.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(BASE_DIR / 'data' / 'db.sqlite3'),
-    }
+_postgres_db = {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': os.getenv('POSTGRES_DB'),
+    'USER': os.getenv('POSTGRES_USER'),
+    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+    'HOST': os.getenv('POSTGRES_ADDRESS'),
+    'PORT': os.getenv('POSTGRES_PORT'),
+}
+_sqlite_db = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': str(BASE_DIR / 'data' / 'db.sqlite3'),
 }
 
+default_db = _postgres_db if os.getenv('POSTGRES_DB') else _sqlite_db
+
+DATABASES = {
+    'default': default_db
+}
 
 AUTH_PASSWORD_VALIDATORS = []
 
