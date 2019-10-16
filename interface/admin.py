@@ -16,10 +16,6 @@ class AssignmentAdmin(admin.ModelAdmin):
     actions = ['download_review_submissions', 'download_all_submissions']
 
     def get_submission_set(self, request, queryset):
-        if queryset.count() != 1:
-            messages.error(request, 'Only one assignment can be selected')
-            return
-
         assignment = queryset[0]
         submission_set = assignment.submission_set.order_by('timestamp')
 
@@ -41,6 +37,10 @@ class AssignmentAdmin(admin.ModelAdmin):
             return FileResponse(review_zip)
 
     def download_review_submissions(self, request, queryset):
+        if queryset.count() != 1:
+            messages.error(request, 'Only one assignment can be selected')
+            return
+
         submission_set = self.get_submission_set(request, queryset)
 
         submissions = {}
@@ -55,6 +55,10 @@ class AssignmentAdmin(admin.ModelAdmin):
                                                      'submissions for review')
 
     def download_all_submissions(self, request, queryset):
+        if queryset.count() != 1:
+            messages.error(request, 'Only one assignment can be selected')
+            return
+
         submission_set = self.get_submission_set(request, queryset)
 
         return self.archive_submissions(submission_set)
