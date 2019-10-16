@@ -164,8 +164,7 @@ def done(request, pk):
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
-                                   pk=pk,
-                                   state__startswith=Submission.STATE_RUNNING)
+                                   pk=pk)
 
     assert submission.verify_jwt(request.GET.get('token'))
 
