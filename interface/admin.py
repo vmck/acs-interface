@@ -69,7 +69,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    actions = ['rerun_submissions']
+    actions = ['rerun_submissions', 'download_archive']
 
     def rerun_submissions(self, request, submissions):
         for submission in submissions:
@@ -77,3 +77,20 @@ class SubmissionAdmin(admin.ModelAdmin):
             submission.evaluate()
 
     rerun_submissions.short_description = 'Re-run submissions'
+
+    def download_archive(self, request, queryset):
+        if queryset.count() != 1:
+            messages.error(request, 'Only one submission can be selected')
+            return
+
+        submission = queryset[0]
+
+        with TemporaryDirectory() as _tmp:
+            tmp = Path(_tmp)
+
+            submission.download(tmp / f'{submission.id}.zip')
+
+            submission_zip = (tmp / f'{submission.id}.zip').open('rb')
+            return FileResponse(submission_zip)
+
+    download_archive.short_description = 'Download submission archive'
