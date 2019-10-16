@@ -15,13 +15,7 @@ admin.site.register(Course)
 class AssignmentAdmin(admin.ModelAdmin):
     actions = ['download_review_submissions', 'download_all_submissions']
 
-    def get_submission_set(self, request, queryset):
-        assignment = queryset[0]
-        submission_set = assignment.submission_set.order_by('timestamp')
-
-        return submission_set
-
-    def archive_submissions(self, submissions):
+    def zip_response_with_submissions(self, submissions):
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
 
@@ -41,7 +35,8 @@ class AssignmentAdmin(admin.ModelAdmin):
             messages.error(request, 'Only one assignment can be selected')
             return
 
-        submission_set = self.get_submission_set(request, queryset)
+        assignment = queryset[0]
+        submission_set = assignment.submission_set.order_by('timestamp')
 
         submissions = {}
 
@@ -49,7 +44,7 @@ class AssignmentAdmin(admin.ModelAdmin):
         for submission in submission_set:
             submissions[submission.user.username] = submission
 
-        return self.archive_submissions(submissions.values())
+        return self.zip_response_with_submissions(submissions.values())
 
     download_review_submissions.short_description = ('Download last '
                                                      'submissions for review')
@@ -59,9 +54,10 @@ class AssignmentAdmin(admin.ModelAdmin):
             messages.error(request, 'Only one assignment can be selected')
             return
 
-        submission_set = self.get_submission_set(request, queryset)
+        assignment = queryset[0]
+        submission_set = assignment.submission_set.order_by('timestamp')
 
-        return self.archive_submissions(submission_set)
+        return self.zip_response_with_submissions(submission_set)
 
     download_all_submissions.short_description = ('Download all submissions '
                                                   'for review')
