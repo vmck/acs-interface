@@ -38,7 +38,7 @@ def login_view(request):
         if form.is_valid():
             user = authenticate(username=form.data['username'],
                                 password=form.data['password'])
-            if user and user.username in settings.ACS_USER_WHITELIST:
+            if user:
                 login(request, user)
                 return redirect(homepage)
     else:
@@ -181,11 +181,11 @@ def done(request, pk):
     output = stdout + '\n' + stderr
 
     if len(output) > 32768:
-        output = output[:32735] + '... TRUNCATED BECAUSE TOO BIG ...'
+        output = output[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
 
     submission.score = decimal.Decimal(points)
     submission.total_score = submission.calculate_total_score()
-    submission.output = stdout + '\n' + stderr
+    submission.output = output
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')
