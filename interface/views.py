@@ -177,6 +177,11 @@ def done(request, pk):
     if not score:
         log.warning('Score is None')
 
+    output = stdout + '\n' + stderr
+
+    if len(output) > 32768:
+        output = output[:32735] + '... TRUNCATED BECAUSE TOO BIG ...'
+
     submission.score = points
     submission.output = stdout + '\n' + stderr
 

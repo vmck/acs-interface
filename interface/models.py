@@ -71,7 +71,7 @@ class Submission(models.Model):
                                    on_delete=models.PROTECT,
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
-    output = models.CharField(max_length=8192, default='none')
+    output = models.CharField(max_length=32768, default='none')
     review_message = models.CharField(max_length=4096, default='none')
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
