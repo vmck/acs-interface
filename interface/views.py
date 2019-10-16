@@ -173,7 +173,7 @@ def done(request, pk):
     stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
 
-    score = re.search(r'.*TOTAL: (\d+)/(\d+)', stdout, re.MULTILINE)
+    score = re.search(r'.*TOTAL: (\d+\.?\d*)/(\d+)', stdout, re.MULTILINE)
     points = score.group(1) if score else 0
     if not score:
         log.warning('Score is None')
@@ -183,7 +183,7 @@ def done(request, pk):
     if len(output) > 32768:
         output = output[:32735] + '... TRUNCATED BECAUSE TOO BIG ...'
 
-    submission.score = int(points)
+    submission.score = decimal.Decimal(points)
     submission.total_score = submission.calculate_total_score()
     submission.output = stdout + '\n' + stderr
 
