@@ -69,6 +69,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def rerun_submissions(self, request, submissions):
         for submission in submissions:
+            submission.state = Submission.STATE_NEW
             submission.evaluate()
 
     rerun_submissions.short_description = 'Re-run submissions'
