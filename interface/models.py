@@ -88,7 +88,6 @@ class Submission(models.Model):
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 
-    @property
     def calculate_total_score(self):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0

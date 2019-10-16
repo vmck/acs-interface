@@ -183,7 +183,7 @@ def done(request, pk):
     if len(output) > 32768:
         output = output[:32735] + '... TRUNCATED BECAUSE TOO BIG ...'
 
-    submission.score = points
+    submission.score = int(points)
     submission.total_score = submission.calculate_total_score()
     submission.output = stdout + '\n' + stderr
 
