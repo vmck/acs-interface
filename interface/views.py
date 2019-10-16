@@ -179,6 +179,7 @@ def done(request, pk):
 
     submission.score = points
     submission.output = stdout + '\n' + stderr
+    submission.state = Submission.STATE_DONE
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')
