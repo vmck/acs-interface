@@ -115,6 +115,7 @@ def review(request, pk):
     review_score = sum([decimal.Decimal(mark) for mark in marks])
 
     submission.review_score = review_score
+    submission.total_score = submission.calculate_total_score()
     submission.review_message = request.POST['review-code']
     submission.save()
 
@@ -182,7 +183,8 @@ def done(request, pk):
     if len(output) > 32768:
         output = output[:32735] + '... TRUNCATED BECAUSE TOO BIG ...'
 
-    submission.score = points
+    submission.score = int(points)
+    submission.total_score = submission.calculate_total_score()
     submission.output = stdout + '\n' + stderr
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
