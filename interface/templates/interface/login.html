@@ -1,22 +1,19 @@
 <!doctype html>
-<html lang='en'>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+<title>vmchecker v2</title>
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+<body>
 
-        <title>VMCK</title>
-    </head>
-    <body>
-        <p>WELCOME TO VMCK</p>
+<div class="container row">
+  <div class="col-md-4 offset-md-4">
+    <h1>vmchecker v2</h1>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn btn-primary" type="submit">Login</button>
-        </form>
-    </body>
-</html>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+  </div>
+</div>
