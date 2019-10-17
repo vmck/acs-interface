@@ -36,9 +36,17 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            user = authenticate(username=form.data['username'],
-                                password=form.data['password'])
-            if user and user.username in settings.ACS_USER_WHITELIST:
+            username = form.data['username']
+            password = form.data['password']
+            user = authenticate(username=username, password=password)
+
+            if not user:
+                log.info(f"Login failure for {username}")
+
+            elif user.username not in settings.ACS_USER_WHITELIST:
+                log.warning(f"User {username} not in ACS_USER_WHITELIST")
+
+            else:
                 login(request, user)
                 return redirect(homepage)
     else:
