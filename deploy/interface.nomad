@@ -128,7 +128,6 @@ job "acs-interface" {
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
           ACS_INTERFACE_ADDRESS = "http://{{ env "NOMAD_ADDR_http" }}"
-          ACS_USER_WHITELIST = '{{ key "acs_interface/whitelist" }}'
           EOF
         destination = "local/interface.env"
         env = true
