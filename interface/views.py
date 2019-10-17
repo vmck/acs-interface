@@ -185,6 +185,7 @@ def done(request, pk):
     submission.score = decimal.Decimal(points)
     submission.total_score = submission.calculate_total_score()
     submission.output = output
+    submission.state = Submission.STATE_DONE
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')
