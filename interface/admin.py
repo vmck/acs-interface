@@ -50,8 +50,8 @@ class AssignmentAdmin(admin.ModelAdmin):
 class SubmissionAdmin(admin.ModelAdmin):
     actions = ['rerun_submissions']
     list_display = ['__str__', 'assignment', 'timestamp', 'archive_size']
-    list_display_links = ['assignment']
-    list_filter = ['user', 'assignment']
+    list_display_links = ['__str__', 'assignment']
+    list_filter = ['user', 'assignment', 'assignment__course']
 
     def rerun_submissions(self, request, submissions):
         for submission in submissions:
