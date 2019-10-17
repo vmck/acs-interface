@@ -38,16 +38,11 @@ def login_view(request):
         if form.is_valid():
             username = form.data['username']
             password = form.data['password']
-            whitelist = settings.ACS_USER_WHITELIST
 
             user = authenticate(username=username, password=password)
 
             if not user:
                 log.info(f"Login failure for {username}")
-
-            elif whitelist is not None and user.username not in whitelist:
-                log.warning(f"User {username} not in ACS_USER_WHITELIST")
-
             else:
                 login(request, user)
                 return redirect(homepage)
@@ -124,6 +119,7 @@ def review(request, pk):
     review_score = sum([decimal.Decimal(mark) for mark in marks])
 
     submission.review_score = review_score
+    submission.total_score = submission.calculate_total_score()
     submission.review_message = request.POST['review-code']
     submission.save()
 
@@ -172,8 +168,7 @@ def done(request, pk):
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
-                                   pk=pk,
-                                   state__startswith=Submission.STATE_RUNNING)
+                                   pk=pk)
 
     assert submission.verify_jwt(request.GET.get('token'))
 
@@ -181,13 +176,19 @@ def done(request, pk):
     stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
 
-    score = re.search(r'.*TOTAL: (\d+)/(\d+)', stdout, re.MULTILINE)
+    score = re.search(r'.*TOTAL: (\d+\.?\d*)/(\d+)', stdout, re.MULTILINE)
     points = score.group(1) if score else 0
     if not score:
         log.warning('Score is None')
 
-    submission.score = points
-    submission.output = stdout + '\n' + stderr
+    output = stdout + '\n' + stderr
+
+    if len(output) > 32768:
+        output = output[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
+
+    submission.score = decimal.Decimal(points)
+    submission.total_score = submission.calculate_total_score()
+    submission.output = output
     submission.state = Submission.STATE_DONE
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501

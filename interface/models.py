@@ -71,7 +71,7 @@ class Submission(models.Model):
                                    on_delete=models.PROTECT,
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
-    output = models.CharField(max_length=8192, default='none')
+    output = models.CharField(max_length=32768, default='none')
     review_message = models.CharField(max_length=4096, default='none')
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
@@ -81,12 +81,16 @@ class Submission(models.Model):
     review_score = models.DecimalField(max_digits=5,
                                        decimal_places=2,
                                        null=True)
-    score = models.IntegerField(null=True)
+    total_score = models.DecimalField(max_digits=5,
+                                      decimal_places=2,
+                                      null=True)
+    score = models.DecimalField(max_digits=5,
+                                decimal_places=2,
+                                null=True)
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 
-    @property
-    def total_score(self):
+    def calculate_total_score(self):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0
 
