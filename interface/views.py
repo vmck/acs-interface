@@ -96,9 +96,8 @@ def homepage(request):
     for course in Course.objects.all():
         assignment_data = []
         for assignment in Assignment.objects.filter(course=course):
-            assignment_data.append((redirect(upload).url
-                                    + f'?assignment_id={assignment.code}',
-                                    assignment.name))
+            url = redirect(upload).url + f'?assignment_id={assignment.code}'
+            assignment_data.append((url, assignment.name))
         data.append((course.name, assignment_data))
 
     return render(request, 'interface/homepage.html',
