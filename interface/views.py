@@ -38,12 +38,14 @@ def login_view(request):
         if form.is_valid():
             username = form.data['username']
             password = form.data['password']
+            whitelist = settings.ACS_USER_WHITELIST
+
             user = authenticate(username=username, password=password)
 
             if not user:
                 log.info(f"Login failure for {username}")
 
-            elif user.username not in settings.ACS_USER_WHITELIST:
+            elif whitelist is not None and user.username not in whitelist:
                 log.warning(f"User {username} not in ACS_USER_WHITELIST")
 
             else:
