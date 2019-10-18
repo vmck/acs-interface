@@ -36,5 +36,6 @@
         var modal = $(this)
         modal.find(".modal-body form")[0].action = "{{ sub_base_url }}" + recipient + "/review"
         modal.find(".modal-title")[0].innerText = "Review submission " + recipient
+        modal.find(".modal-body textarea")[0].value = `{{ submission_review_message }}`
     })
 </script>
