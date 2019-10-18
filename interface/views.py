@@ -153,11 +153,11 @@ def done(request, pk):
         log.warning('Score is None')
 
     submission.score = points
-    submission.output = stdout
-    submission.output_err = stderr
+    submission.stdout = stdout
+    submission.stderr = stderr
 
-    log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
-    log.debug(f'Stderr:\n{submission.output_err}')
+    log.debug(f'Submission #{submission.id} has the stdout:\n{submission.stdout}')  # noqa: E501
+    log.debug(f'Stderr:\n{submission.stderr}')
     log.debug(f'Exit code:\n{exit_code}')
 
     submission.save()
