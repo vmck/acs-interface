@@ -108,7 +108,7 @@ class Submission(models.Model):
         storage.download(f'{self.id}.zip', path)
 
     def __str__(self):
-        return f"{self.assignment} {self.id}"
+        return f"#{self.id} by {self.user}"
 
     @property
     def state_label(self):

@@ -36,9 +36,14 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            user = authenticate(username=form.data['username'],
-                                password=form.data['password'])
-            if user:
+            username = form.data['username']
+            password = form.data['password']
+
+            user = authenticate(username=username, password=password)
+
+            if not user:
+                log.info(f"Login failure for {username}")
+            else:
                 login(request, user)
                 return redirect(homepage)
     else:
@@ -88,9 +93,8 @@ def homepage(request):
     for course in Course.objects.all():
         assignment_data = []
         for assignment in Assignment.objects.filter(course=course):
-            assignment_data.append((redirect(upload).url
-                                    + f'?assignment_id={assignment.code}',
-                                    assignment.name))
+            url = redirect(upload).url + f'?assignment_id={assignment.code}'
+            assignment_data.append((url, assignment.name))
         data.append((course.name, assignment_data))
 
     return render(request, 'interface/homepage.html',
