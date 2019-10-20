@@ -149,19 +149,18 @@ def submission_list(request):
 @login_required
 def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
+    show_review_message = True if not sub.review_message.startswith('none') else False  # noqa: E501
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
                    'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
-                   'submission_review_message': sub.review_message,
+                   'show_submission_review_message': show_review_message,
                    'submission_list_url': redirect(submission_list).url})
 
 
 @csrf_exempt
 def done(request, pk):
-    # NOTE: make it safe, some form of authentication
-    #       we don't want students updating their score.
     log.debug(f'URL: {request.get_full_path()}')
     log.debug(pprint.pformat(request.body))
 

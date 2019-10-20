@@ -11,7 +11,7 @@
 <body>
 
 <div class="container-fluid">
-  <div class="row mb-2 mt-2">
+  <div class="row mb-2 mt-2 ml-1">
     <a class="btn btn-primary mr-1" href='{{ homepage_url }}'>Homepage</a>
     <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
   </div>
@@ -19,16 +19,16 @@
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
   {% if current_user.is_staff %}
-  <p>
-    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-  </p>
+    <p>
+      <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+    </p>
   {% endif %}
 
   {% if sub.state == sub.STATE_DONE %}
 
     <p>Score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
 
-    {% if sub.review_message %}
+    {% if show_submission_review_message %}
       <h2>Review</h2>
       <div class="card">
         <div class="card-body">
@@ -37,13 +37,27 @@
       </div>
     {% endif %}
 
-    <h2>Output</h2>
-    <div class="card">
-      <div class="card-body">
-          <pre><code>{{ sub.stderr }}</code></pre>
-        <pre><code>{{ sub.stdout }}</code></pre>
+    <ul class="nav nav-tabs mb-2 mt-2">
+      <li class="active"><button type="button" class="btn btn-success mr-1" data-toggle="pill" href="#stdout">Stdout</button></li>
+      <li><button type="button" class="btn btn-danger" data-toggle="pill" href="#stderr">Stderr</button></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="stdout" class="tab-pane fade show active">
+            <div class="card">
+              <div class="card-body">
+                <pre><code>{{ sub.stdout }}</code></pre>
+              </div>
+            </div>
+        </div>
+        <div id="stderr" class="tab-pane fade">
+            <div class="card">
+              <div class="card-body">
+                <pre><code>{{ sub.stderr }}</code></pre>
+              </div>
+            </div>
+        </div>
       </div>
-    </div>
 
   {% else %}
 
@@ -52,5 +66,8 @@
   {% endif %}
 
 </div>
+
+
+
 
 {% include "interface/review_modal.html" %}
