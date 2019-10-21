@@ -29,8 +29,8 @@ Vagrant.configure("2") do |config|
     config.vm.network :forwarded_port, guest: 8500, guest_ip: "10.66.60.1", host: 8500, host_ip: "127.0.0.1"
     config.vm.network :forwarded_port, guest: 8200, guest_ip: "10.66.60.1", host: 8200, host_ip: "127.0.0.1"
     config.vm.network :forwarded_port, guest: 10000, guest_ip: "10.66.60.1", host: 10000, host_ip: "127.0.0.1"
-    config.vm.network :forwarded_port, guest: 8000, guest_ip: "127.0.0.1", host: 8000, host_ip: "127.0.0.1"
-    config.vm.network :forwarded_port, guest: 9000, guest_ip: "127.0.0.1", host: 9000, host_ip: "127.0.0.1"
+    config.vm.network :forwarded_port, guest: 8000, guest_ip: "10.66.60.1", host: 8000, host_ip: "127.0.0.1"
+    config.vm.network :forwarded_port, guest: 9000, guest_ip: "10.66.60.1", host: 9000, host_ip: "127.0.0.1"
     vb.memory = "2048"
   end
 
