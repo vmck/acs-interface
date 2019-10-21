@@ -12,7 +12,6 @@ steps:
   commands:
   - export VMCK_URL=http://$VMCK_IP:$VMCK_PORT
   - export VMCK_NAME="drone $DRONE_REPO:$DRONE_BRANCH#$DRONE_BUILD_NUMBER"
-  - exit 0
   - trap "vagrant destroy -f"  EXIT
   - vagrant up
   - vagrant ssh -- < ./ci/test-pytest.sh
