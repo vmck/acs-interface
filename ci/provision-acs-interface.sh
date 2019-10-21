@@ -6,5 +6,7 @@ sudo pip3 install pipenv
 
 cd /vagrant
 pipenv install
+mkdir -p data
+pipenv run ./manage.py migrate
 
 echo "✔ acs-interface installed successfully"
