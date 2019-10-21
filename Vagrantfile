@@ -10,15 +10,15 @@ Vagrant.configure("2") do |config|
   config.nfs.functional = false
   config.smb.functional = false
 
-  config.vm.synced_folder "..", "/opt/acs-interface", type: "rsync"
-
-  config.vm.provision 'hello', type: 'shell', path: "ci/set-up.sh"
+  config.vm.provision "shell", path: "ci/provision-cluster.sh", privileged: false
+  config.vm.provision "shell", path: "ci/provision-vmck.sh", privileged: false
+  config.vm.provision "shell", path: "ci/provision-acs-interface.sh", privileged: false
 
   config.vm.provider :vmck do |vmck|
     vmck.image_path = 'imgbuild-cluster.qcow2.tar.gz'
     vmck.vmck_url = ENV['VMCK_URL']
-    vmck.memory = 1024
-    vmck.cpus = 1
+    vmck.memory = 2048
+    vmck.cpus = 2
     vmck.name = ENV['VMCK_NAME']
   end
 
