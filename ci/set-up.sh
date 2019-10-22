@@ -12,7 +12,7 @@ docker run --detach --restart always \
   --env QEMU_IMAGE_PATH_PREFIX=http://10.42.1.1:10001 \
   --env QEMU_CPU_MHZ=1000 \
   --env VMCK_URL=http://127.0.0.1:8000 \
-  --publish 8000:8000 \
-  vmck/vmck:api-update
+  --publish 10002:8000 \
+  vmck/vmck
 
 sleep 10

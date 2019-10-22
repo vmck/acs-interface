@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-cd /opt/acs-interface
+cd /vagrant
 
 echo '======= Setting up env variabiles... ======='
 echo "DEBUG=true" >> .env
