@@ -6,7 +6,7 @@ sudo pip3 install pipenv
 
 
 cd /vagrant
-pipenv install
+pipenv install --ignore-pipfile &> /dev/null
 mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
