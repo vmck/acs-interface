@@ -2,7 +2,7 @@
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"/..
 
-docker run --rm \
+docker run \
   --restart always \
   --name storage \
   --detach \
