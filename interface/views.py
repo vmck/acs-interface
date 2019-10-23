@@ -19,7 +19,7 @@ from django.conf import settings
 
 from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Assignment, Course
+from interface.models import Submission, Assignment, Course, User
 from interface import models
 from interface import utils
 
@@ -204,3 +204,38 @@ def alive(request):
     '''Consul http check'''
 
     return JsonResponse({'alive': True})
+
+#show a list of users who submitted to an assignment. Show each user once, and the time,
+# score and checker status of their latest submission 
+#(you can reuse the logic from admin download submissions). Link the username to the 2nd page:
+def users_list(request, assign_id):
+    req_assignment = Assignment.objects.get(code = assign_id)
+    submissions_list = Submission.objects.all().filter(assignment = req_assignment)
+    list_of_users = []
+    for subm in submissions_list:
+        list_of_users.append(subm.user)
+    list_of_users = set(list_of_users)
+    list_of_users = (list(list_of_users))
+    final_sub_list = []
+    for curr_user in list_of_users:
+        submissions_list_aux = submissions_list.filter(user = curr_user)
+        submissions_list_aux = submissions_list_aux.order_by('-timestamp')
+        subm = submissions_list_aux.first()
+        final_sub_list.append(subm)
+
+    return render(request, 'interface/users_list.html',
+                {'submissions_list': final_sub_list,
+                 'assign_id': assign_id})
+
+
+def subs_for_user(request, assign_id, username):
+    curr_user = User.objects.get(username = username)
+    req_assignment = Assignment.objects.get(code=assign_id)
+    submissions_list = Submission.objects.all().filter(assignment = req_assignment)
+    submissions_list = submissions_list.filter(user = curr_user)
+
+    return render(request, 'interface/subs_for_user.html',
+                {'submissions_list': submissions_list,
+                  'username': curr_user.username,
+				  'assign_id': assign_id})
+

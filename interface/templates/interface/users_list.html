@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang='en'>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+
+        <title>Users List</title>
+
+        {% include "interface/tracker.html" %}
+    </head>
+
+    <body>
+        {% for sub in submissions_list %}
+            <p>User: <a href="{% url 'subs_for_user' assign_id sub.user.username %}"> {{ sub.user.username }} </p></a>
+            <p>Time: {{sub.timestamp }}</p>
+            <p>Score: {{ sub.score }}</p>
+            <p>Status: {{ sub.state }}</p>
+        {% endfor %}
+    </body>
+</html>

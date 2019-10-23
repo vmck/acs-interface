@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang='en'>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+
+        <title>Submissions</title>
+
+        {% include "interface/tracker.html" %}
+    </head>
+
+    <body>
+        <p> {{ username }} </p>
+        {% for sub in submissions_list %}
+            <p> {{sub.timestamp }}</p>
+            <p> {{ sub.score }}</p>
+            <p> {{ sub.state }}</p>
+			{% endfor %}
+    </body>
+</html>
