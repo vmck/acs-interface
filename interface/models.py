@@ -9,6 +9,7 @@ from django.db import models
 from django.conf import settings
 
 import interface.backend.minio_api as storage
+from interface import penalty
 from interface.utils import vmck_config, get_script_url, get_artifact_url
 
 
@@ -94,7 +95,7 @@ class Submission(models.Model):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0
 
-        return score + review_score - self.punishment_score()
+        return score + review_score - self.penalty()
 
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
@@ -107,11 +108,9 @@ class Submission(models.Model):
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
 
-    def punishment_score(self):
-        deltatime = self.timestamp - self.assignment.deadline
-        days = (deltatime.days + 1) if deltatime.days > 0 else 0
-
-        return days*10
+    def penalty(self):
+        return penalty.compute_penalty(self.timestamp,
+                                       self.assignment.deadline)
 
     def __str__(self):
         return f"#{self.id} by {self.user}"

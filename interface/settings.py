@@ -125,3 +125,4 @@ MANAGER_MHZ = int(os.environ.get('MANAGER_MHZ', 30))
 MANAGER_TAG = os.environ.get('MANAGER_TAG', 'master')
 
 SUBMISSIONS_PER_PAGE = 20
+DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
