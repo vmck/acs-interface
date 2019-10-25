@@ -10,6 +10,7 @@ urlpatterns = [
     path('submission/<int:pk>', views.submission_result),
     path('submission/<int:pk>/done', views.done),
     path('submission/<int:pk>/review', views.review),
+    path('submission/<int:pk>/download', views.download),
     path('alive/', views.alive),
     path('logout/', views.logout_view),
     path('', views.login_view),

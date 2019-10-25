@@ -2,6 +2,9 @@ import re
 import json
 import logging
 import decimal
+import pprint
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -10,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
 from django.conf import settings
 
 
@@ -27,12 +30,20 @@ log.setLevel(log_level)
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect(homepage)
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            user = authenticate(username=form.data['username'],
-                                password=form.data['password'])
-            if user and user.username in settings.ACS_USER_WHITELIST:
+            username = form.data['username']
+            password = form.data['password']
+
+            user = authenticate(username=username, password=password)
+
+            if not user:
+                log.info(f"Login failure for {username}")
+            else:
                 login(request, user)
                 return redirect(homepage)
     else:
@@ -60,15 +71,30 @@ def upload(request):
 
 
 @login_required
+def download(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+
+    if submission.user != request.user:
+        return Http404('You are not allowed!')
+
+    with TemporaryDirectory() as _tmp:
+        tmp = Path(_tmp)
+
+        submission.download(tmp / f'{submission.id}.zip')
+
+        review_zip = (tmp / f'{submission.id}.zip').open('rb')
+        return FileResponse(review_zip)
+
+
+@login_required
 def homepage(request):
     data = []
 
     for course in Course.objects.all():
         assignment_data = []
         for assignment in Assignment.objects.filter(course=course):
-            assignment_data.append((redirect(upload).url
-                                    + f'?assignment_id={assignment.code}',
-                                    assignment.name))
+            url = redirect(upload).url + f'?assignment_id={assignment.code}'
+            assignment_data.append((url, assignment.name))
         data.append((course.name, assignment_data))
 
     return render(request, 'interface/homepage.html',
@@ -84,7 +110,7 @@ def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
     marks = re.findall(
-        r'^([+-]\d\.\d):',
+        r'^([+-]\d+\.*\d*):',
         request.POST['review-code'],
         re.MULTILINE,
     )
@@ -93,6 +119,7 @@ def review(request, pk):
     review_score = sum([decimal.Decimal(mark) for mark in marks])
 
     submission.review_score = review_score
+    submission.total_score = submission.calculate_total_score()
     submission.review_message = request.POST['review-code']
     submission.save()
 
@@ -101,7 +128,8 @@ def review(request, pk):
 
 @login_required
 def submission_list(request):
-    submissions = Submission.objects.all()[::-1]
+    submissions = Submission.objects.all().order_by('-id')
+
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
 
     page = request.GET.get('page', '1')
@@ -114,6 +142,7 @@ def submission_list(request):
                   {'subs': subs,
                    'homepage_url': redirect(homepage).url,
                    'sub_base_url': redirect(submission_list).url,
+                   'current_user': request.user,
                    'logout_url': redirect(logout_view).url})
 
 
@@ -125,32 +154,42 @@ def submission_result(request, pk):
                   {'sub': sub,
                    'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
+                   'submission_review_message': sub.review_message,
                    'submission_list_url': redirect(submission_list).url})
 
 
 @csrf_exempt
 def done(request, pk):
     # NOTE: make it safe, some form of authentication
-    #       we don't want stundets updating their score.
-    log.debug(request.body)
+    #       we don't want students updating their score.
+    log.debug(f'URL: {request.get_full_path()}')
+    log.debug(pprint.pformat(request.body))
 
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission,
-                                   pk=pk,
-                                   score__isnull=True)
+                                   pk=pk)
+
+    assert submission.verify_jwt(request.GET.get('token'))
 
     stdout = utils.decode(options['stdout'])
     stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
 
-    score = re.search(r'.*TOTAL: (\d+)/(\d+)', stdout, re.MULTILINE)
+    score = re.search(r'.*TOTAL: (\d+\.?\d*)/(\d+)', stdout, re.MULTILINE)
     points = score.group(1) if score else 0
     if not score:
         log.warning('Score is None')
 
-    submission.score = points
-    submission.output = stdout + '\n' + stderr
+    output = stdout + '\n' + stderr
+
+    if len(output) > 32768:
+        output = output[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
+
+    submission.score = decimal.Decimal(points)
+    submission.total_score = submission.calculate_total_score()
+    submission.output = output
+    submission.state = Submission.STATE_DONE
 
     log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
     log.debug(f'Stderr:\n{stderr}')

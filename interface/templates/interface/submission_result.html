@@ -1,39 +1,55 @@
 <!doctype html>
-<html lang='en'>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta charset="utf-8">
+<title>vmchecker v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+{% include "interface/tracker.html" %}
+<script src="https://unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
+<script src="https://unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
 
-        <!-- Holly Javascript -->
-        <script src="http://unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
-        <script src="https://unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
+<body>
 
-        <title>VMCK</title>
-    </head>
+<div class="container-fluid">
+  <div class="row mb-2 mt-2">
+    <a class="btn btn-primary mr-1" href='{{ homepage_url }}'>Homepage</a>
+    <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
+  </div>
 
-    <body>
-        <div class="container">
-            <div class="row mb-2 mt-2">
-                <a class="btn btn-primary mr-1" href='{{ homepage_url }}'>Homepage</a>
-                <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
-            </div>
+  <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
-            <p>Submission id: {{ sub.id }}
-            {% if current_user.is_staff %}
-                <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-            {% endif %}
-            </p>
-            <p>Your score is: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
-            <p>Review:</p>
-            <pre>{{ sub.review_message }}</pre>
-            <p>The output is:</p>
-            <pre><samp>{{ sub.output }}</samp></pre>
+  {% if current_user.is_staff %}
+  <p>
+    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+  </p>
+  {% endif %}
+
+  {% if sub.state == sub.STATE_DONE %}
+
+    <p>Score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
+
+    {% if sub.review_message %}
+      <h2>Review</h2>
+      <div class="card">
+        <div class="card-body">
+          <pre><code>{{ sub.review_message }}</code></pre>
         </div>
+      </div>
+    {% endif %}
 
-        {% include "interface/review_modal.html" %}
-    </body>
-</html>
+    <h2>Output</h2>
+    <div class="card">
+      <div class="card-body">
+        <pre><code>{{ sub.output }}</code></pre>
+      </div>
+    </div>
+
+  {% else %}
+
+    <p>Submission is being evaluated, check again later.</p>
+
+  {% endif %}
+
+</div>
+
+{% include "interface/review_modal.html" %}

@@ -28,7 +28,7 @@ job "acs-interface" {
             MINIO_SECRET_KEY = "{{ .Data.secret_key }}"
           {{- end -}}
             MINIO_BROWSER = "on"
-        EOF
+          EOF
         destination = "local/config.env"
         env = true
       }
@@ -55,6 +55,56 @@ job "acs-interface" {
     }
   }
 
+  group "database" {
+    task "postgres" {
+      constraint {
+        attribute = "${meta.volumes}"
+        operator  = "is_set"
+      }
+
+      driver = "docker"
+      config {
+        image = "postgres:12.0-alpine"
+        dns_servers = ["${attr.unique.network.ip-address}"]
+        volumes = [
+          "${meta.volumes}/database/postgres/data:/var/lib/postgresql/data",
+        ]
+        port_map {
+          pg = 5432
+        }
+      }
+      template {
+        data = <<-EOF
+          POSTGRES_DB = "interface"
+          {{- with secret "kv/postgres" }}
+            POSTGRES_USER = {{ .Data.username }}
+            POSTGRES_PASSWORD = {{ .Data.password }}
+          {{- end }}
+          EOF
+        destination = "local/postgres.env"
+        env = true
+      }
+      resources {
+        memory = 350
+        network {
+          mbits = 1
+          port "pg" {}
+        }
+      }
+      service {
+        name = "database-postgres-interface"
+        port = "pg"
+        check {
+          name = "tcp"
+          initial_status = "critical"
+          type = "tcp"
+          interval = "5s"
+          timeout = "5s"
+        }
+      }
+    }
+  }
+
   group "acs-interface" {
     task "acs-interface" {
       constraint {
@@ -65,10 +115,6 @@ job "acs-interface" {
       config {
         image = "vmck/acs-interface"
         dns_servers = ["${attr.unique.network.ip-address}"]
-        command = "/bin/bash"
-        args = [
-          "-c", "echo 10.42.1.13 $LDAP_SERVER_URL >> /etc/hosts; ./runinterface"
-        ]
         volumes = [
           "${meta.volumes}/acs-interface:/opt/interface/data",
         ]
@@ -82,28 +128,27 @@ job "acs-interface" {
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
           ACS_INTERFACE_ADDRESS = "http://{{ env "NOMAD_ADDR_http" }}"
-          ACS_USER_WHITELIST = '{{ key "acs_interface/whitelist" }}'
           EOF
-          destination = "local/interface.env"
-          env = true
+        destination = "local/interface.env"
+        env = true
       }
       template {
         data = <<-EOF
           {{- range service "vmck" -}}
-            VMCK_API_URL = "http://{{.Address}}:{{.Port}}/v0/"
+            VMCK_API_URL = "http://{{ .Address }}:{{ .Port }}/v0/"
           {{- end }}
           EOF
-          env = true
-          destination = "local/vmck-api.env"
+        env = true
+        destination = "local/vmck-api.env"
       }
       template {
         data = <<-EOF
           {{- range service "storage" -}}
-            MINIO_ADDRESS = "{{.Address}}:{{.Port}}"
+            MINIO_ADDRESS = "{{ .Address }}:{{ .Port }}"
           {{- end }}
           EOF
-          destination = "local/minio-api.env"
-          env = true
+        destination = "local/minio-api.env"
+        env = true
       }
       template {
         data = <<-EOF
@@ -113,8 +158,29 @@ job "acs-interface" {
             MINIO_BUCKET = "test"
           {{- end -}}
           EOF
-          destination = "local/minio.env"
-          env = true
+        destination = "local/minio.env"
+        env = true
+      }
+      template {
+        data = <<-EOF
+          {{- with secret "kv/postgres" }}
+            POSTGRES_USER = {{ .Data.username }}
+            POSTGRES_PASSWORD = {{ .Data.password }}
+          {{- end }}
+          EOF
+        destination = "local/postgres.env"
+        env = true
+      }
+      template {
+        data = <<-EOF
+          POSTGRES_DB = "interface"
+          {{- range service "database-postgres-interface" -}}
+            POSTGRES_ADDRESS = "{{ .Address }}"
+            POSTGRES_PORT = "{{ .Port }}"
+          {{- end }}
+          EOF
+        destination = "local/postgres-api.env"
+        env = true
       }
       template {
         data = <<-EOF
@@ -132,7 +198,7 @@ job "acs-interface" {
       }
       resources {
         memory = 300
-        cpu = 200
+        cpu = 400
         network {
           port "http" {
             static = 10002

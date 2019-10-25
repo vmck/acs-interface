@@ -1,6 +1,6 @@
 # interface
 UI for Vmchecker
-[![Build Status](https://jenkins.liquiddemo.org/api/badges/vmck/acs-interface/status.svg)](https://jenkins.liquiddemo.org/vmck/interface)
+[![Build Status](https://jenkins.liquiddemo.org/api/badges/vmck/acs-interface/status.svg)](https://jenkins.liquiddemo.org/vmck/acs-interface)
 
 ## Installation
 
@@ -42,10 +42,10 @@ pipenv run ./examples/minio.sh
 ./runinterface
 ```
 
-Now the vmck/interface is available at `localhost:8100` and the minio
+Now the vmck/acs-interface is available at `localhost:8100` and the minio
 blob storage server at `localhost:9000`.
 
-To stop `CTRL-C` in the terminal where you started to stop `vmck/interface`
+To stop `CTRL-C` in the terminal where you started to stop `vmck/acs-interface`
 and `docker stop storage` to stop the minio server.
 
 ### Deploy on cluster
