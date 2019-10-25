@@ -193,7 +193,8 @@ def done(request, pk):
     submission.stderr = stderr
     submission.state = Submission.STATE_DONE
 
-    log.debug(f'Submission #{submission.id} has the stdout:\n{submission.stdout}')  # noqa: E501
+    log.debug(f'Submission #{submission.id}:')
+    log.debug(f'Stdout:\n{submission.stdout}')
     log.debug(f'Stderr:\n{submission.stderr}')
     log.debug(f'Exit code:\n{exit_code}')
 
