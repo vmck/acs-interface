@@ -10,18 +10,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
+        migrations.AlterField(
             model_name='submission',
             name='output',
+            field=models.CharField(blank=True, default='', max_length=32768)
+        ),
+        migrations.RenameField(
+            model_name='submission',
+            old_name='output',
+            new_name='stdout',
         ),
         migrations.AddField(
             model_name='submission',
             name='stderr',
-            field=models.CharField(blank=True, default='', max_length=32768),
-        ),
-        migrations.AddField(
-            model_name='submission',
-            name='stdout',
             field=models.CharField(blank=True, default='', max_length=32768),
         ),
         migrations.AlterField(
