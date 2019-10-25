@@ -35,6 +35,7 @@ class Assignment(models.Model):
 
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
+    penalty = models.CharField(max_length=256, blank=True)
 
     @property
     def full_code(self):
@@ -95,7 +96,9 @@ class Submission(models.Model):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0
 
-        return score + review_score - self.penalty()
+        total_score = score + review_score - self.penalty()
+
+        return total_score if total_score >= 0 else 0
 
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
@@ -109,8 +112,10 @@ class Submission(models.Model):
         storage.download(f'{self.id}.zip', path)
 
     def penalty(self):
+        penalties = [int(x) for x in self.assignment.penalty.split(",")]
         return penalty.compute_penalty(self.timestamp,
-                                       self.assignment.deadline)
+                                       self.assignment.deadline,
+                                       penalties, None, None)
 
     def __str__(self):
         return f"#{self.id} by {self.user}"

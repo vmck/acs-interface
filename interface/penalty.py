@@ -1,25 +1,21 @@
 import time
 import math
 
-from django.conf import settings
+# from django.conf import settings
 
 
-def str_to_time(time_str, format_str=settings.DATE_FORMAT):
+def str_to_time(time_str, format_str="%Y.%m.%d %H:%M:%S"):
     """Interprets time_str as a time value specified by format_str and
     returns that time object"""
     return time.mktime(time.strptime(time_str, format_str))
 
 
-def compute_penalty(upload_time, deadline, penalty, weights, limit,
+def compute_penalty(upload_time, deadline, penalty,
                     holiday_start=None, holiday_finish=None):
     """A generic function to compute penalty
     Args:
-        penalty - for every day after the deadline the product
-                  of the penalty and the weight is added to the
-                  penalty_points variable
-        weights - the penalty's weight per day (the last weight
-                   from the list is used for subsequent computations)
-        limit - the limit for the penalty value
+        penalty - for every day after the deadline the penalty
+                  is added to the penalty_points variable
     Returns:
         Number of penalty points.
     Note: time interval between deadline and upload time (seconds)
@@ -34,8 +30,8 @@ def compute_penalty(upload_time, deadline, penalty, weights, limit,
     # XXX refactor such that instead of holiday_start and holiday_finish
     # only one list (of intervals) is used
 
-    sec_upload_time = time.mktime(upload_time)
-    sec_deadline = time.mktime(deadline)
+    sec_upload_time = str_to_time(upload_time)
+    sec_deadline = str_to_time(deadline)
     interval = sec_upload_time - sec_deadline
     penalty_points = 0
 
@@ -56,15 +52,9 @@ def compute_penalty(upload_time, deadline, penalty, weights, limit,
     if interval > 0:
         days_late = int(math.ceil(interval / (3600 * 24)))
 
-        for i in range(days_late):
-            # the penalty exceeded the limit
-            if penalty_points > limit:
-                break
-            else:
-                # for every day late the specific weight is used
-                weight = weights[min(i, len(weights) - 1)]
-                penalty_points += weight * penalty
+        for i in range(min(days_late, len(penalty))):
+            penalty_points += penalty[i]
     else:
         days_late = 0
 
-    return (min(penalty_points, limit), days_late)
+    return penalty_points
