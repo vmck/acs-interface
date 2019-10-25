@@ -154,14 +154,11 @@ def submission_result(request, pk):
                   {'sub': sub,
                    'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
-                   'submission_review_message': sub.review_message,
                    'submission_list_url': redirect(submission_list).url})
 
 
 @csrf_exempt
 def done(request, pk):
-    # NOTE: make it safe, some form of authentication
-    #       we don't want students updating their score.
     log.debug(f'URL: {request.get_full_path()}')
     log.debug(pprint.pformat(request.body))
 
@@ -193,7 +190,8 @@ def done(request, pk):
     submission.stderr = stderr
     submission.state = Submission.STATE_DONE
 
-    log.debug(f'Submission #{submission.id} has the stdout:\n{submission.stdout}')  # noqa: E501
+    log.debug(f'Submission #{submission.id}:')
+    log.debug(f'Stdout:\n{submission.stdout}')
     log.debug(f'Stderr:\n{submission.stderr}')
     log.debug(f'Exit code:\n{exit_code}')
 
