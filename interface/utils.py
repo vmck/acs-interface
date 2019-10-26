@@ -94,8 +94,8 @@ def get_penalty_info(link):
 
     penalty_info = dict(config['PENALTY'])
 
-    penalty = [int(x) for x in penalty_info['PenaltyWeights'].split(',')]
-    holiday_start = [x for x in penalty_info['HolidayStart'].split(',')]
-    holiday_finish = [x for x in penalty_info['HolidayFinish'].split(',')]
+    penalty = [int(x) for x in penalty_info['penaltyweights'].split(',')]
+    holiday_s = [x for x in penalty_info.get('holidaystart', '').split(',')]
+    holiday_f = [x for x in penalty_info.get('holidayfinish', '').split(',')]
 
-    return (penalty, holiday_start, holiday_finish)
+    return (penalty, holiday_s, holiday_f)
