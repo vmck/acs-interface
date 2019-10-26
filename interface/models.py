@@ -50,7 +50,8 @@ class Submission(models.Model):
     username -- the user id provided by the LDAP
     assignment_id -- class specific, will have the form
                      `{course_name}_{homework_id}` for example pc_00
-    message -- the output message of the checker
+    stdout -- the output message of the checker
+    stderr -- the error message of the checker
     score -- the score of the submission given by the checker
     review_score - score set by the assignment reviwer
     max_score -- the maximum score for the submission
@@ -71,8 +72,15 @@ class Submission(models.Model):
                                    on_delete=models.PROTECT,
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
-    output = models.CharField(max_length=32768, default='none')
-    review_message = models.CharField(max_length=4096, default='none')
+    stdout = models.CharField(max_length=32768,
+                              default='',
+                              blank=True)
+    stderr = models.CharField(max_length=32768,
+                              default='',
+                              blank=True)
+    review_message = models.CharField(max_length=4096,
+                                      default='',
+                                      blank=True)
     state = models.CharField(max_length=32,
                              choices=list(STATE_CHOICES.items()),
                              default=STATE_NEW)
