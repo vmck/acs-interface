@@ -84,3 +84,18 @@ def get_config_data(link):
                   )
 
     return config_data
+
+
+def get_penalty_info(link):
+    config_data = get_config_data(link)
+
+    config = configparser.ConfigParser()
+    config.read_string(config_data.text)
+
+    penalty_info = dict(config['PENALTY'])
+
+    penalty = [int(x) for x in penalty_info['PenaltyWeights'].split(',')]
+    holiday_start = [x for x in penalty_info['HolidayStart'].split(',')]
+    holiday_finish = [x for x in penalty_info['HolidayFinish'].split(',')]
+
+    return (penalty, holiday_start, holiday_finish)

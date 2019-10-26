@@ -10,7 +10,7 @@ from django.conf import settings
 
 import interface.backend.minio_api as storage
 from interface import penalty
-from interface.utils import vmck_config, get_script_url, get_artifact_url
+from interface.utils import vmck_config, get_script_url, get_artifact_url, get_penalty_info  # noqa: E501
 
 
 log_level = logging.DEBUG
@@ -35,7 +35,6 @@ class Assignment(models.Model):
 
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
-    penalty = models.CharField(max_length=256, blank=True)
 
     @property
     def full_code(self):
@@ -89,14 +88,20 @@ class Submission(models.Model):
     score = models.DecimalField(max_digits=5,
                                 decimal_places=2,
                                 null=True)
+    penalty = models.DecimalField(max_digits=5,
+                                  decimal_places=2,
+                                  null=True)
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 
     def calculate_total_score(self):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0
+        if not self.penalty:
+            self.penalty = self.compute_penalty()
+        penalty = self.penalty
 
-        total_score = score + review_score - self.penalty()
+        total_score = score + review_score - penalty
 
         return total_score if total_score >= 0 else 0
 
@@ -111,11 +116,13 @@ class Submission(models.Model):
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
 
-    def penalty(self):
-        penalties = [int(x) for x in self.assignment.penalty.split(",")]
+    def compute_penalty(self):
+        (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
         return penalty.compute_penalty(self.timestamp,
                                        self.assignment.deadline,
-                                       penalties, None, None)
+                                       penalties,
+                                       holiday_start,
+                                       holiday_finish)
 
     def __str__(self):
         return f"#{self.id} by {self.user}"
