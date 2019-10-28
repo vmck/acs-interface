@@ -4,7 +4,8 @@ from interface import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('upload/', views.upload),
+    path('assignment/<course_code>/<assignment_code>/upload/',
+         views.upload, name='upload'),
     path('submission/', views.submission_list),
     path('homepage/', views.homepage),
     path('submission/<int:pk>', views.submission_result),
@@ -14,6 +15,8 @@ urlpatterns = [
     path('alive/', views.alive),
     path('logout/', views.logout_view),
     path('', views.login_view),
-	path('assignment/<assign_id>', views.users_list),
-    path('assignment/<assign_id>/user/<username>', views.subs_for_user, name='subs_for_user'),
+    path('assignment/<course_code>/<assignment_code>',
+         views.users_list, name='subs_for_assignment'),
+    path('assignment/<course_code>/<assignment_code>/user/<username>',
+         views.subs_for_user, name='subs_for_user'),
 ]
