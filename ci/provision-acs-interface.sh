@@ -14,7 +14,8 @@ if [ -z $container ]; then (
   pipenv run examples/minio.sh
 ) fi
 
-pipenv run python manage.py migrate
-pipenv run python manage.py storage_setup
+pipenv run ./manage.py migrate
+pipenv run ./manage.py storage_setup
+pipenv run ./manage.py collectstatic
 
 echo "✔ acs-interface installed successfully"

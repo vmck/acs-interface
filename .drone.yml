@@ -15,7 +15,7 @@ steps:
   - cp examples/.env ./
   - trap "vagrant destroy -f"  EXIT
   - vagrant up
-  #- vagrant ssh -- < ./ci/test-pytest.sh
+  - vagrant ssh -- /vagrant/ci/test-pytest.sh
 
 ---
 kind: pipeline
