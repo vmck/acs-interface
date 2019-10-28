@@ -4,7 +4,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"/..
 
 docker run \
   --restart always \
-  --name storage \
+  --name minio \
   --detach \
   --volume $(pwd)/data/uploads:/data \
   --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \

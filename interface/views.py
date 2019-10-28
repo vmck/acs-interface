@@ -181,18 +181,21 @@ def done(request, pk):
     if not score:
         log.warning('Score is None')
 
-    output = stdout + '\n' + stderr
+    if len(stdout) > 32768:
+        stdout = stdout[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
 
-    if len(output) > 32768:
-        output = output[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
+    if len(stderr) > 32768:
+        stderr = stderr[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
 
     submission.score = decimal.Decimal(points)
     submission.total_score = submission.calculate_total_score()
-    submission.output = output
+    submission.stdout = stdout
+    submission.stderr = stderr
     submission.state = Submission.STATE_DONE
 
-    log.debug(f'Submission #{submission.id} has the output:\n{submission.output}')  # noqa: E501
-    log.debug(f'Stderr:\n{stderr}')
+    log.debug(f'Submission #{submission.id}:')
+    log.debug(f'Stdout:\n{submission.stdout}')
+    log.debug(f'Stderr:\n{submission.stderr}')
     log.debug(f'Exit code:\n{exit_code}')
 
     submission.save()
