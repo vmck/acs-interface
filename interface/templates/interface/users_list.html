@@ -1,45 +1,43 @@
 <!doctype html>
 <html lang='en'>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
 
-        <title>Users List</title>
+    <title>Users List</title>
 
-        {% include "interface/tracker.html" %}
+    {% include "interface/tracker.html" %}
+  </head>
 
-    </head>
-
-    <body>
-	    <div class="container">
-        <div class="row">
-            <table class="table table-striped table-bordered table-sm">
-			    <caption>Users List</caption>
-				<thead>
-				    <tr>
-                            <th scope="col">Username</th>
-                            <th scope="col">Time</th>
-                            <th scope="col">Score</th>
-                            <th scope="col">Status</th>
-                    </tr>
-                </thead>
-				<tbody>
-                {% for sub in submissions_list %}
-		            <tr>
-                        <td> <a href="{% url 'subs_for_user' assign_id sub.user.username %}"> {{ sub.user.username }} </td></a>
-                        <td>{{sub.timestamp }}</td>
-                        <td>{{ sub.score }}</td>
-                       <td>{{ sub.state }}</td>
-		            </tr>
-                {% endfor %}
-				</tbody>
-            </table>
-        </div>
-        </div>
-
-    </body>
+  <body>
+    <div class="container">
+      <div class="row">
+        <table class="table table-striped table-bordered table-sm">
+          <caption>Users List</caption>
+          <thead>
+            <tr>
+              <th scope="col">Username</th>
+              <th scope="col">Time</th>
+              <th scope="col">Score</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub in submissions_list %}
+            <tr>
+              <td><a href="{% url 'subs_for_user' assign_id sub.user.username %}">{{ sub.user.username }}</td></a>
+              <td>{{sub.timestamp }}</td>
+              <td>{{ sub.score }}</td>
+              <td>{{ sub.state }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
 </html>
