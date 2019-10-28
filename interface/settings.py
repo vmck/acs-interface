@@ -55,7 +55,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 if os.environ.get('LDAP_SERVER_URI'):
-	AUTHENTICATION_BACKENDS.insert(0, 'django_auth_ldap.backend.LDAPBackend')
+    AUTHENTICATION_BACKENDS.insert(0, 'django_auth_ldap.backend.LDAPBackend')
 
 TEMPLATES = [
     {
