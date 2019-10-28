@@ -19,7 +19,7 @@ from django.conf import settings
 
 from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Assignment, Course, User
+from interface.models import Submission, Course, User
 from interface import models
 from interface import utils
 
