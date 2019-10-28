@@ -14,4 +14,6 @@ urlpatterns = [
     path('alive/', views.alive),
     path('logout/', views.logout_view),
     path('', views.login_view),
+	path('assignment/<assign_id>', views.users_list),
+    path('assignment/<assign_id>/user/<username>', views.subs_for_user, name='subs_for_user'),
 ]
