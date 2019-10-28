@@ -31,7 +31,7 @@
           <tr>
             <td><a href="{% url 'subs_for_user' sub.assignment.course.code sub.assignment.code sub.user.username %}">{{ sub.user.username }}</a></td>
             <td>{{ sub.timestamp }}</td>
-            <td>{{ sub.score }}</td>
+            <td>{{ sub.total_score }}</td>
             <td>{{ sub.state }}</td>
           </tr>
           {% endfor %}
