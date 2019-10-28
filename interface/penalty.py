@@ -21,10 +21,10 @@ def compute_penalty(upload_time, deadline, penalty,
     Note: time interval between deadline and upload time (seconds)
     is time.mktime(upload_time) - time.mktime(deadline)
     """
-    if holiday_start is None:
+    if holiday_start[0] is '':
         holiday_start = []
 
-    if holiday_finish is None:
+    if holiday_finish[0] is '':
         holiday_finish = []
 
     # XXX refactor such that instead of holiday_start and holiday_finish
