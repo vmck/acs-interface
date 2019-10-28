@@ -3,8 +3,10 @@ import math
 
 from django.conf import settings
 
+DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
 
-def str_to_time(time_str, format_str=settings.DATE_FORMAT):
+
+def str_to_time(time_str, format_str=DATE_FORMAT):
     """Interprets time_str as a time value specified by format_str and
     returns that time object"""
     return time.mktime(time.strptime(time_str, format_str))
