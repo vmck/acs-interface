@@ -1,8 +1,6 @@
 import time
 import math
 
-from django.conf import settings
-
 DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
 
 

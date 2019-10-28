@@ -1,6 +1,5 @@
 from interface import penalty
 
-
 DAILY_PENALTIES = [1, 1, 1, 1, 1, 1, 1]
 
 
