@@ -11,7 +11,7 @@ def str_to_time(time_str, format_str=DATE_FORMAT):
 
 
 def compute_penalty(upload_time, deadline, penalty,
-                    holiday_start=None, holiday_finish=None):
+                    holiday_start=[''], holiday_finish=['']):
     """A generic function to compute penalty
     Args:
         penalty - for every day after the deadline the penalty
