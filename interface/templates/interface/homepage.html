@@ -1,32 +1,38 @@
 <!doctype html>
 <html lang='en'>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
 
-        <title>VMCK</title>
+    <title>VMCK</title>
 
-        {% include "interface/tracker.html" %}
-    </head>
+    {% include "interface/tracker.html" %}
+  </head>
 
-    <body>
-        <div class="container">
-            <div class='row'>
-                <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
-                <a class="btn btn-primary" href='{{ logout_url }}'>Logout</a>
-            </div>
-            {% for subject, assignment in data %}
-                <h3>{{ subject }}</h3>
-                <div class="list-group" style="width: 300px; padding-left: 40px">
-                    {% for url, name in assignment %}
-                        <a href="{{ url }}" class="list-group-item list-group-item-action">{{ name }} </a>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
-    </body>
+  <body>
+    <div class="container">
+      <div class="row">
+        <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
+        <a class="btn btn-primary" href='{{ logout_url }}'>Logout</a>
+      </div>
+
+      {% for course in courses %}
+      <h3>{{ course.name }}</h3>
+      <ul>
+      </ul>
+        {% for assignment in course.assignment_set.all %}
+        <li>
+          {{ assignment.name }}:
+          <a href="{% url "upload" course.code assignment.code %}">Upload</a>,
+          <a href="{% url "subs_for_assignment" course.code assignment.code %}">Results</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+    </div>
+  </body>
 </html>
