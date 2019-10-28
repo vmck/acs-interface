@@ -2,3 +2,4 @@
 /data/
 /interface/static/
 /.vagrant
+*.pyc

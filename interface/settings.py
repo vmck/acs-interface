@@ -51,9 +51,11 @@ AUTH_LDAP_FIND_GROUP_PERMS = True
 AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 AUTHENTICATION_BACKENDS = [
-    'django_auth_ldap.backend.LDAPBackend',
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+if os.environ.get('LDAP_SERVER_URI'):
+    AUTHENTICATION_BACKENDS.insert(0, 'django_auth_ldap.backend.LDAPBackend')
 
 TEMPLATES = [
     {
@@ -95,7 +97,7 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Bucharest'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True

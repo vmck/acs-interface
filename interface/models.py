@@ -70,7 +70,7 @@ class Submission(models.Model):
     ])
 
     assignment = models.ForeignKey(Assignment,
-                                   on_delete=models.PROTECT,
+                                   on_delete=models.CASCADE,
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
     stdout = models.CharField(max_length=32768,

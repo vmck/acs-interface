@@ -19,7 +19,7 @@ from django.conf import settings
 
 from interface.backend.submission import handle_submission
 from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Assignment, Course
+from interface.models import Submission, Course, User
 from interface import models
 from interface import utils
 
@@ -58,12 +58,17 @@ def logout_view(request):
 
 
 @login_required
-def upload(request):
+def upload(request, course_code, assignment_code):
+    course = get_object_or_404(Course.objects, code=course_code)
+    assignment = get_object_or_404(course.assignment_set, code=assignment_code)
+
     if request.POST:
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_submission(request)
+            file = request.FILES['file']
+            handle_submission(file, assignment, request.user)
             return redirect(submission_list)
+
     else:
         form = UploadFileForm()
 
@@ -88,19 +93,11 @@ def download(request, pk):
 
 @login_required
 def homepage(request):
-    data = []
-
-    for course in Course.objects.all():
-        assignment_data = []
-        for assignment in Assignment.objects.filter(course=course):
-            url = redirect(upload).url + f'?assignment_id={assignment.code}'
-            assignment_data.append((url, assignment.name))
-        data.append((course.name, assignment_data))
-
-    return render(request, 'interface/homepage.html',
-                  {'data': data,
-                   'submission_list_url': redirect(submission_list).url,
-                   'logout_url': redirect(logout_view).url})
+    return render(request, 'interface/homepage.html', {
+        'courses': Course.objects.all(),
+        'submission_list_url': redirect(submission_list).url,
+        'logout_url': redirect(logout_view).url,
+    })
 
 
 @login_required
@@ -208,3 +205,38 @@ def alive(request):
     '''Consul http check'''
 
     return JsonResponse({'alive': True})
+
+
+def users_list(request, course_code, assignment_code):
+    course = get_object_or_404(Course.objects, code=course_code)
+    assignment = get_object_or_404(course.assignment_set, code=assignment_code)
+    submissions = assignment.submission_set.all()
+    list_of_users = []
+    for subm in submissions:
+        list_of_users.append(subm.user)
+    list_of_users = set(list_of_users)
+    list_of_users = (list(list_of_users))
+    final_sub_list = []
+    for user in list_of_users:
+        submissions_list_aux = submissions.filter(user=user)
+        submissions_list_aux = submissions_list_aux.order_by('-timestamp')
+        subm = submissions_list_aux.first()
+        final_sub_list.append(subm)
+
+    return render(request, 'interface/users_list.html', {
+        'assignment': assignment,
+        'submissions': final_sub_list,
+    })
+
+
+def subs_for_user(request, course_code, assignment_code, username):
+    user = User.objects.get(username=username)
+    course = get_object_or_404(Course.objects, code=course_code)
+    assignment = get_object_or_404(course.assignment_set, code=assignment_code)
+    submissions = assignment.submission_set.filter(user=user)
+
+    return render(request, 'interface/subs_for_user.html', {
+        'assignment': assignment,
+        'submissions': submissions,
+        'user': user,
+    })
