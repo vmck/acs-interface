@@ -1,15 +1,19 @@
 import logging
-import requests
 from collections import OrderedDict
 from urllib.parse import urljoin
 
 import jwt
+import requests
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 
 import interface.backend.minio_api as storage
-from interface.utils import vmck_config, get_script_url, get_artifact_url
+from interface import penalty
+from interface.utils import vmck_config
+from interface.utils import get_script_url
+from interface.utils import get_artifact_url
+from interface.utils import get_penalty_info
 
 
 log_level = logging.DEBUG
@@ -95,14 +99,22 @@ class Submission(models.Model):
     score = models.DecimalField(max_digits=5,
                                 decimal_places=2,
                                 null=True)
+    penalty = models.DecimalField(max_digits=5,
+                                  decimal_places=2,
+                                  null=True)
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
 
     def calculate_total_score(self):
         score = self.score if self.score else 0
         review_score = self.review_score if self.review_score else 0
+        if not self.penalty:
+            self.penalty = self.compute_penalty()
+        penalty = self.penalty
 
-        return score + review_score
+        total_score = score + review_score - penalty
+
+        return total_score if total_score >= 0 else 0
 
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
@@ -114,6 +126,19 @@ class Submission(models.Model):
 
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
+
+    def compute_penalty(self):
+        (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
+        timestamp = self.timestamp.strftime(penalty.DATE_FORMAT)
+        deadline = self.assignment.deadline.strftime(penalty.DATE_FORMAT)
+
+        return penalty.compute_penalty(
+            timestamp,
+            deadline,
+            penalties,
+            holiday_start,
+            holiday_finish,
+        )
 
     def __str__(self):
         return f"#{self.id} by {self.user}"
