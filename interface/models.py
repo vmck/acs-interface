@@ -10,7 +10,10 @@ from django.conf import settings
 
 import interface.backend.minio_api as storage
 from interface import penalty
-from interface.utils import vmck_config, get_script_url, get_artifact_url, get_penalty_info  # noqa: E501
+from interface.utils import vmck_config
+from interface.utils import get_script_url
+from interface.utils import get_artifact_url
+from interface.utils import get_penalty_info
 
 
 log_level = logging.DEBUG
@@ -129,11 +132,13 @@ class Submission(models.Model):
         timestamp = self.timestamp.strftime(settings.DATE_FORMAT)
         deadline = self.assignment.deadline.strftime(settings.DATE_FORMAT)
 
-        return penalty.compute_penalty(timestamp,
-                                       deadline,
-                                       penalties,
-                                       holiday_start,
-                                       holiday_finish)
+        return penalty.compute_penalty(
+            timestamp,
+            deadline,
+            penalties,
+            holiday_start,
+            holiday_finish,
+        )
 
     def __str__(self):
         return f"#{self.id} by {self.user}"
