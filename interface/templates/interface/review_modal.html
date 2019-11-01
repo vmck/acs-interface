@@ -4,15 +4,15 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title" id="reviewLabel"> </h5>
+        <h5 class="modal-title" id="reviewLabel">Review submission {{ sub.id }}</h5>
       </div>
 
       <div class="modal-body">
-        <form id="reviewForm" method="post" action="">
+        <form id="reviewForm" method="post" action="{{ sub_base_url }}{{ sub.id }}/review">
           {% csrf_token %}
           <div class="form-group">
             <label for="message-text" class="col-form-label">Review details:</label>
-            <textarea class="form-control" name='review-code' id="message-text"></textarea>
+            <textarea class="form-control" value='{{ submission_review_message }}' name='review-code' id="message-text"></textarea>
           </div>
         </form>
       </div>
@@ -25,17 +25,3 @@
     </div>
   </div>
 </div>
-
-<!-- Data in modal -->
-<script type='text/javascript'>
-    $('#review').on('show.bs.modal', function (event)
-    {
-        var button = $(event.relatedTarget)
-        var recipient = button.data('id')
-
-        var modal = $(this)
-        modal.find(".modal-body form")[0].action = "{{ sub_base_url }}" + recipient + "/review"
-        modal.find(".modal-title")[0].innerText = "Review submission " + recipient
-        modal.find(".modal-body textarea")[0].value = `{{ submission_review_message }}`
-    })
-</script>
