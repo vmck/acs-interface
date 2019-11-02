@@ -1,4 +1,5 @@
 import logging
+import datetime
 from collections import OrderedDict
 from urllib.parse import urljoin
 
@@ -43,6 +44,13 @@ class Assignment(models.Model):
     @property
     def full_code(self):
         return f'{self.course.code}-{self.code}'
+
+    @property
+    def is_active(self):
+        diff = (self.deadline_hard
+                - datetime.datetime.now(datetime.timezone.utc))
+
+        return diff.total_seconds() > 0
 
     def __str__(self):
         return f"{self.full_code} {self.name}"

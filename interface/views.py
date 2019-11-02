@@ -3,7 +3,6 @@ import json
 import logging
 import decimal
 import pprint
-import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -63,9 +62,7 @@ def upload(request, course_code, assignment_code):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
 
-    diff = (assignment.deadline_hard
-            - datetime.datetime.now(datetime.timezone.utc))
-    if diff.total_seconds() < 0:
+    if not assignment.is_active:
         raise Http404("You cannot upload! You are past the deadline!")
 
     if request.POST:
