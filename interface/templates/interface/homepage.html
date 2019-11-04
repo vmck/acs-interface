@@ -27,7 +27,9 @@
         {% for assignment in course.assignment_set.all %}
         <li>
           {{ assignment.name }}:
+          {% if assignment.is_active %}
           <a href="{% url "upload" course.code assignment.code %}">Upload</a>,
+          {% endif %}
           <a href="{% url "subs_for_assignment" course.code assignment.code %}">Results</a>
         </li>
         {% endfor %}

@@ -62,6 +62,9 @@ def upload(request, course_code, assignment_code):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
 
+    if not assignment.is_active:
+        raise Http404("You cannot upload! You are past the deadline!")
+
     if request.POST:
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -207,6 +210,7 @@ def alive(request):
     return JsonResponse({'alive': True})
 
 
+@login_required
 def users_list(request, course_code, assignment_code):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
@@ -229,6 +233,7 @@ def users_list(request, course_code, assignment_code):
     })
 
 
+@login_required
 def subs_for_user(request, course_code, assignment_code, username):
     user = User.objects.get(username=username)
     course = get_object_or_404(Course.objects, code=course_code)
