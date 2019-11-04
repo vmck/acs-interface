@@ -16,5 +16,6 @@ if [ -z $container ]; then (
 
 pipenv run python manage.py migrate
 pipenv run python manage.py storage_setup
+pipenv run python manage.py loaddata ci/fixtures.json
 
 echo "✔ acs-interface installed successfully"
