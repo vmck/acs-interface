@@ -47,8 +47,8 @@ class Assignment(models.Model):
 
     @property
     def is_active(self):
-        diff = (self.deadline_hard
-                - datetime.datetime.now(datetime.timezone.utc))
+        now = datetime.datetime.now(datetime.timezone.utc)
+        diff = self.deadline_hard - now
 
         return diff.total_seconds() > 0
 
