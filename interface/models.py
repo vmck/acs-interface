@@ -1,4 +1,5 @@
 import logging
+import datetime
 from collections import OrderedDict
 from urllib.parse import urljoin
 
@@ -34,7 +35,8 @@ class Assignment(models.Model):
     code = models.CharField(max_length=64, blank=True)
     name = models.CharField(max_length=256, blank=True)
     max_score = models.IntegerField(default=100)
-    deadline = models.DateTimeField(null=True)
+    deadline_soft = models.DateTimeField(null=True)
+    deadline_hard = models.DateTimeField(null=True)
 
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
@@ -42,6 +44,13 @@ class Assignment(models.Model):
     @property
     def full_code(self):
         return f'{self.course.code}-{self.code}'
+
+    @property
+    def is_active(self):
+        now = datetime.datetime.now(datetime.timezone.utc)
+        diff = self.deadline_hard - now
+
+        return diff.total_seconds() > 0
 
     def __str__(self):
         return f"{self.full_code} {self.name}"
