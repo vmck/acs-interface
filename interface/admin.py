@@ -101,9 +101,16 @@ class SubmissionAdmin(admin.ModelAdmin):
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
 
-            submission.download(tmp / f'{submission.id}.zip')
+            try:
+                submission.download(tmp / f'{submission.id}.zip')
+            except MissingFile:
+                msg = f"File missing for {submission!r}"
+                messages.error(request, msg)
+                log.warning(msg)
+                return
 
-            submission_zip = (tmp / f'{submission.id}.zip').open('rb')
-            return FileResponse(submission_zip)
+            else:
+                submission_zip = (tmp / f'{submission.id}.zip').open('rb')
+                return FileResponse(submission_zip)
 
     download_archive.short_description = 'Download submission archive'
