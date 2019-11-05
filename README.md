@@ -39,11 +39,14 @@ Now run:
 
 ```shell
 pipenv run ./examples/minio.sh
+pipenv run ./manage.py migrate
+pipenv run ./manage.py loaddata ci/fixtures.json
 ./runinterface
 ```
 
 Now the vmck/acs-interface is available at `localhost:8100` and the minio
-blob storage server at `localhost:9000`.
+blob storage server at `localhost:9000`. You can log in with the user `admin`,
+password `admin`. There is a test course and assignment created from fixtures.
 
 To stop `CTRL-C` in the terminal where you started to stop `vmck/acs-interface`
 and `docker stop storage` to stop the minio server.
