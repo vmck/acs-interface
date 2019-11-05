@@ -33,7 +33,8 @@
     "code": "a1",
     "name": "Assignment 1",
     "max_score": 100,
-    "deadline": "2019-12-31T22:00:00Z",
+    "deadline_soft": "2019-12-31T22:00:00Z",
+    "deadline_hard": "2019-12-31T22:00:00Z",
     "repo_url": "https://github.com/vmck/assignment",
     "repo_branch": "pc-00"
   }
