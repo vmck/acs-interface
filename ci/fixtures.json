@@ -1,0 +1,42 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$150000$EoxUbjPQTZBy$OyNZocrY9aewIVmB2nbnCoZVfDh9PC9gBOtXG4Nb8t8=",
+    "last_login": "2019-11-04T14:05:05.520Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2019-11-04T14:05:01.815Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "interface.course",
+  "pk": 1,
+  "fields": {
+    "name": "Course 1",
+    "code": "c1"
+  }
+},
+{
+  "model": "interface.assignment",
+  "pk": 1,
+  "fields": {
+    "course": 1,
+    "code": "a1",
+    "name": "Assignment 1",
+    "max_score": 100,
+    "deadline_soft": "2019-12-31T22:00:00Z",
+    "deadline_hard": "2019-12-31T22:00:00Z",
+    "repo_url": "https://github.com/vmck/assignment",
+    "repo_branch": "pc-00"
+  }
+}
+]
