@@ -1,11 +1,17 @@
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from pathlib import Path
+import logging
 
 from django.contrib import admin, messages
 from django.http import FileResponse
 
 from interface.models import Course, Assignment, Submission
+from interface.backend.minio_api import MissingFile
+
+log_level = logging.DEBUG
+log = logging.getLogger(__name__)
+log.setLevel(log_level)
 
 
 admin.site.register(Course)
@@ -15,17 +21,23 @@ admin.site.register(Course)
 class AssignmentAdmin(admin.ModelAdmin):
     actions = ['download_review_submissions', 'download_all_submissions']
 
-    def zip_response_with_submissions(self, submissions):
+    def zip_submissions(self, request, submissions):
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
 
             with ZipFile(tmp / 'review.zip', 'x') as zipfile:
                 for submission in submissions:
-                    submission.download(tmp / f'{submission.id}.zip')
-                    zipfile.write(
-                        tmp / f'{submission.id}.zip',
-                        f'{submission.user.username}-{submission.id}.zip',
-                    )
+                    try:
+                        submission.download(tmp / f'{submission.id}.zip')
+                    except MissingFile:
+                        msg = f"File missing for {submission!r}"
+                        messages.error(request, msg)
+                        log.warning(msg)
+                    else:
+                        zipfile.write(
+                            tmp / f'{submission.id}.zip',
+                            f'{submission.user.username}-{submission.id}.zip',
+                        )
 
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
@@ -44,7 +56,7 @@ class AssignmentAdmin(admin.ModelAdmin):
         for submission in submission_set:
             submissions[submission.user.username] = submission
 
-        return self.zip_response_with_submissions(submissions.values())
+        return self.zip_submissions(request, submissions.values())
 
     download_review_submissions.short_description = ('Download last '
                                                      'submissions for review')
@@ -57,7 +69,7 @@ class AssignmentAdmin(admin.ModelAdmin):
         assignment = queryset[0]
         submission_set = assignment.submission_set.order_by('timestamp')
 
-        return self.zip_response_with_submissions(submission_set)
+        return self.zip_submissions(request, submission_set)
 
     download_all_submissions.short_description = ('Download all submissions '
                                                   'for review')
@@ -89,9 +101,16 @@ class SubmissionAdmin(admin.ModelAdmin):
         with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
 
-            submission.download(tmp / f'{submission.id}.zip')
+            try:
+                submission.download(tmp / f'{submission.id}.zip')
+            except MissingFile:
+                msg = f"File missing for {submission!r}"
+                messages.error(request, msg)
+                log.warning(msg)
+                return
 
-            submission_zip = (tmp / f'{submission.id}.zip').open('rb')
-            return FileResponse(submission_zip)
+            else:
+                submission_zip = (tmp / f'{submission.id}.zip').open('rb')
+                return FileResponse(submission_zip)
 
     download_archive.short_description = 'Download submission archive'

@@ -1,6 +1,9 @@
-from minio import Minio, ResponseError
-from django.conf import settings
 from datetime import timedelta
+
+from minio import Minio
+from minio.error import ResponseError
+from minio.error import NoSuchKey
+from django.conf import settings
 
 import io
 
@@ -8,6 +11,10 @@ _client = Minio(settings.MINIO_ADDRESS,
                 access_key=settings.MINIO_ACCESS_KEY,
                 secret_key=settings.MINIO_SECRET_KEY,
                 secure=False)
+
+
+class MissingFile(Exception):
+    pass
 
 
 def upload(filename, filedata):
@@ -25,8 +32,11 @@ def copy(source_file, destination_file):
 
 
 def download(filename, path):
-    with open(path, 'wb') as file:
+    try:
         data = _client.get_object(settings.MINIO_BUCKET, filename)
+    except NoSuchKey:
+        raise MissingFile(filename)
+    with open(path, 'wb') as file:
         for chunck in data.stream(32*1024):
             file.write(chunck)
 
