@@ -139,7 +139,7 @@ class Submission(models.Model):
     def compute_penalty(self):
         (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
         timestamp = self.timestamp.strftime(penalty.DATE_FORMAT)
-        deadline = self.assignment.deadline.strftime(penalty.DATE_FORMAT)
+        deadline = self.assignment.deadline_soft.strftime(penalty.DATE_FORMAT)
 
         return penalty.compute_penalty(
             timestamp,
