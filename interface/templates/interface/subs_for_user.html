@@ -17,6 +17,7 @@
     <div class="container">
       <h1>{{ assignment.course.name }} &mdash; {{ assignment.name }}</h1>
       <h2>{{ user }}</h2>
+
       <a class="btn btn-primary" href="{% url 'homepage' %}"> Homepage </a>
       <a class="btn btn-primary" href="{% url 'subs_for_assignment' assignment.course.code assignment.code %}"> Results for {{ assignment.name }} </a>
 
