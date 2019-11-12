@@ -8,9 +8,11 @@ import requests
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import pre_save
 
 import interface.backend.minio_api as storage
 from interface import penalty
+from interface import signals
 from interface.utils import vmck_config
 from interface.utils import get_script_url
 from interface.utils import get_artifact_url
@@ -104,7 +106,8 @@ class Submission(models.Model):
                                        null=True)
     total_score = models.DecimalField(max_digits=5,
                                       decimal_places=2,
-                                      null=True)
+                                      null=True,
+                                      editable=False)
     score = models.DecimalField(max_digits=5,
                                 decimal_places=2,
                                 null=True)
@@ -209,3 +212,6 @@ class Submission(models.Model):
                                      algorithms=['HS256'])
 
         return decoded_message['data'] == str(self.id)
+
+
+pre_save.connect(signals.update_total_score, sender=Submission)
