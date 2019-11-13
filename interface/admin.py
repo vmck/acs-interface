@@ -79,7 +79,8 @@ class AssignmentAdmin(admin.ModelAdmin):
 class SubmissionAdmin(admin.ModelAdmin):
     actions = ['rerun_submissions', 'download_archive']
     list_display = [
-        '__str__', 'assignment', 'timestamp', 'archive_size', 'state',
+        '__str__', 'assignment', 'timestamp',
+        'archive_size', 'total_score', 'state',
     ]
     list_display_links = ['__str__', 'assignment']
     list_filter = ['state', 'assignment__course', 'assignment', 'user']
