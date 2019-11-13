@@ -109,18 +109,8 @@ def homepage(request):
 def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
-    marks = re.findall(
-        r'^([+-]\d+\.*\d*):',
-        request.POST['review-code'],
-        re.MULTILINE,
-    )
-    log.debug('Marks found: ' + str(marks))
-
-    review_score = sum([decimal.Decimal(mark) for mark in marks])
-
-    submission.review_score = review_score
-    submission.total_score = submission.calculate_total_score()
     submission.review_message = request.POST['review-code']
+    submission.total_score = submission.calculate_total_score()
     submission.save()
 
     return redirect(request.META['HTTP_REFERER'])

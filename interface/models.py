@@ -1,4 +1,6 @@
+import re
 import logging
+import decimal
 import datetime
 from collections import OrderedDict
 from urllib.parse import urljoin
@@ -103,7 +105,8 @@ class Submission(models.Model):
 
     review_score = models.DecimalField(max_digits=5,
                                        decimal_places=2,
-                                       null=True)
+                                       null=True,
+                                       editable=False)
     total_score = models.DecimalField(max_digits=5,
                                       decimal_places=2,
                                       null=True,
@@ -119,7 +122,9 @@ class Submission(models.Model):
 
     def calculate_total_score(self):
         score = self.score if self.score else 0
-        review_score = self.review_score if self.review_score else 0
+        if not self.review_score:
+            self.review_score = self.compute_review_score()
+        review_score = self.review_score
         if not self.penalty:
             self.penalty = self.compute_penalty()
         penalty = self.penalty
@@ -138,6 +143,16 @@ class Submission(models.Model):
 
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
+
+    def compute_review_score(self):
+        marks = re.findall(
+            r'^([+-]\d+\.*\d*):',
+            self.review_message,
+            re.MULTILINE,
+        )
+        log.debug('Marks found: ' + str(marks))
+
+        return sum([decimal.Decimal(mark) for mark in marks])
 
     def compute_penalty(self):
         (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
