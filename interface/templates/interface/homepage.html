@@ -15,10 +15,7 @@
 
   <body>
     <div class="container">
-      <div class="row">
-        <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
-        <a class="btn btn-primary" href='{{ logout_url }}'>Logout</a>
-      </div>
+      {% include "interface/navbar.html" %}
 
       {% for course in courses %}
       <h3>{{ course.name }}</h3>
