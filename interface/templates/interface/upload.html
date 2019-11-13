@@ -14,12 +14,15 @@
     </head>
 
     <body>
-        <form enctype="multipart/form-data" method="post">
-            <div class="form-group">
-                {% csrf_token %}
-                {{ form.as_p }}
-            </div>
-            <input class="btn btn-primary" type="submit" value="Submit">
-        </form>
+        <div class="container">
+            {% include "interface/navbar.html" %}
+            <form enctype="multipart/form-data" method="post">
+                <div class="form-group">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                </div>
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </form>
+        </div>
     </body>
 </html>

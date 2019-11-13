@@ -1,4 +1,7 @@
+import re
 import logging
+import decimal
+import datetime
 from collections import OrderedDict
 from urllib.parse import urljoin
 
@@ -7,9 +10,11 @@ import requests
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import pre_save
 
 import interface.backend.minio_api as storage
 from interface import penalty
+from interface import signals
 from interface.utils import vmck_config
 from interface.utils import get_script_url
 from interface.utils import get_artifact_url
@@ -34,7 +39,8 @@ class Assignment(models.Model):
     code = models.CharField(max_length=64, blank=True)
     name = models.CharField(max_length=256, blank=True)
     max_score = models.IntegerField(default=100)
-    deadline = models.DateTimeField(null=True)
+    deadline_soft = models.DateTimeField(null=True)
+    deadline_hard = models.DateTimeField(null=True)
 
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
@@ -42,6 +48,13 @@ class Assignment(models.Model):
     @property
     def full_code(self):
         return f'{self.course.code}-{self.code}'
+
+    @property
+    def is_active(self):
+        now = datetime.datetime.now(datetime.timezone.utc)
+        diff = self.deadline_hard - now
+
+        return diff.total_seconds() > 0
 
     def __str__(self):
         return f"{self.full_code} {self.name}"
@@ -92,10 +105,12 @@ class Submission(models.Model):
 
     review_score = models.DecimalField(max_digits=5,
                                        decimal_places=2,
-                                       null=True)
+                                       null=True,
+                                       editable=False)
     total_score = models.DecimalField(max_digits=5,
                                       decimal_places=2,
-                                      null=True)
+                                      null=True,
+                                      editable=False)
     score = models.DecimalField(max_digits=5,
                                 decimal_places=2,
                                 null=True)
@@ -107,12 +122,12 @@ class Submission(models.Model):
 
     def calculate_total_score(self):
         score = self.score if self.score else 0
-        review_score = self.review_score if self.review_score else 0
+        self.review_score = self.compute_review_score()
         if not self.penalty:
             self.penalty = self.compute_penalty()
         penalty = self.penalty
 
-        total_score = score + review_score - penalty
+        total_score = score + self.review_score - penalty
 
         return total_score if total_score >= 0 else 0
 
@@ -127,10 +142,20 @@ class Submission(models.Model):
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
 
+    def compute_review_score(self):
+        marks = re.findall(
+            r'^([+-]\d+\.*\d*):',
+            self.review_message,
+            re.MULTILINE,
+        )
+        log.debug('Marks found: ' + str(marks))
+
+        return sum([decimal.Decimal(mark) for mark in marks])
+
     def compute_penalty(self):
         (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
         timestamp = self.timestamp.strftime(penalty.DATE_FORMAT)
-        deadline = self.assignment.deadline.strftime(penalty.DATE_FORMAT)
+        deadline = self.assignment.deadline_soft.strftime(penalty.DATE_FORMAT)
 
         return penalty.compute_penalty(
             timestamp,
@@ -200,3 +225,6 @@ class Submission(models.Model):
                                      algorithms=['HS256'])
 
         return decoded_message['data'] == str(self.id)
+
+
+pre_save.connect(signals.update_total_score, sender=Submission)

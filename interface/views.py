@@ -62,6 +62,9 @@ def upload(request, course_code, assignment_code):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
 
+    if not assignment.is_active:
+        raise Http404("You cannot upload! You are past the deadline!")
+
     if request.POST:
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -95,8 +98,6 @@ def download(request, pk):
 def homepage(request):
     return render(request, 'interface/homepage.html', {
         'courses': Course.objects.all(),
-        'submission_list_url': redirect(submission_list).url,
-        'logout_url': redirect(logout_view).url,
     })
 
 
@@ -106,17 +107,6 @@ def homepage(request):
 def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
-    marks = re.findall(
-        r'^([+-]\d+\.*\d*):',
-        request.POST['review-code'],
-        re.MULTILINE,
-    )
-    log.debug('Marks found: ' + str(marks))
-
-    review_score = sum([decimal.Decimal(mark) for mark in marks])
-
-    submission.review_score = review_score
-    submission.total_score = submission.calculate_total_score()
     submission.review_message = request.POST['review-code']
     submission.save()
 
@@ -207,6 +197,7 @@ def alive(request):
     return JsonResponse({'alive': True})
 
 
+@login_required
 def users_list(request, course_code, assignment_code):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
@@ -229,6 +220,7 @@ def users_list(request, course_code, assignment_code):
     })
 
 
+@login_required
 def subs_for_user(request, course_code, assignment_code, username):
     user = User.objects.get(username=username)
     course = get_object_or_404(Course.objects, code=course_code)
