@@ -15,11 +15,9 @@
 
   <body>
     <div class="container">
+      {% include "interface/navbar.html" %}
+
       <h1>{{ assignment.course.name }} / {{ assignment.name }}</h1>
-      <h5><a class="btn btn-primary" href="{% url 'homepage' %}"> Homepage </a>
-      {% if assignment.is_active %}
-      <a class="btn btn-primary" href="{% url 'upload' assignment.course.code assignment.code %}">Upload</a>
-      {% endif %}</h5>
 
       <h5><b>Deadline soft:</b> {{ assignment.deadline_soft|date:'Y-m-d H:i' }}</h5>
       <h5><b>Deadline hard:</b> {{ assignment.deadline_hard|date:'Y-m-d H:i' }}</h5>
@@ -42,7 +40,7 @@
             <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
             <td>{{ sub.total_score }}</td>
             <td>{{ sub.state }}</td>
-            <td><a href="{% url 'submission_result' sub.id %}"> {{ sub.id}} </a></td>
+            <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id}}</a></td>
           </tr>
           {% endfor %}
         </tbody>

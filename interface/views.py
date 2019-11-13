@@ -98,8 +98,6 @@ def download(request, pk):
 def homepage(request):
     return render(request, 'interface/homepage.html', {
         'courses': Course.objects.all(),
-        'submission_list_url': redirect(submission_list).url,
-        'logout_url': redirect(logout_view).url,
     })
 
 

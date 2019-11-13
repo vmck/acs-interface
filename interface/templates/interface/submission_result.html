@@ -11,10 +11,7 @@
 <body>
 
 <div class="container-fluid">
-  <div class="row mb-2 mt-2">
-    <a class="btn btn-primary mr-1" href='{{ homepage_url }}'>Homepage</a>
-    <a class="btn btn-primary" href='{{ submission_list_url }}'>List submissions</a>
-  </div>
+  {% include "interface/navbar.html" %}
 
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
