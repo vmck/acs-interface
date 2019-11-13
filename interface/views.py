@@ -110,7 +110,6 @@ def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
     submission.review_message = request.POST['review-code']
-    submission.total_score = submission.calculate_total_score()
     submission.save()
 
     return redirect(request.META['HTTP_REFERER'])
