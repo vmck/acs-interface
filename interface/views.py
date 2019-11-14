@@ -160,7 +160,6 @@ def done(request, pk):
     assert submission.verify_jwt(request.GET.get('token'))
 
     stdout = utils.decode(options['stdout'])
-    stderr = utils.decode(options['stderr'])
     exit_code = int(options['exit_code'])
 
     score = re.search(r'.*TOTAL: (\d+\.?\d*)/(\d+)', stdout, re.MULTILINE)
@@ -171,19 +170,14 @@ def done(request, pk):
     if len(stdout) > 32768:
         stdout = stdout[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
 
-    if len(stderr) > 32768:
-        stderr = stderr[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
-
     submission.score = decimal.Decimal(points)
     submission.penalty = submission.compute_penalty()
     submission.total_score = submission.calculate_total_score()
     submission.stdout = stdout
-    submission.stderr = stderr
     submission.state = Submission.STATE_DONE
 
     log.debug(f'Submission #{submission.id}:')
     log.debug(f'Stdout:\n{submission.stdout}')
-    log.debug(f'Stderr:\n{submission.stderr}')
     log.debug(f'Exit code:\n{exit_code}')
 
     submission.save()
