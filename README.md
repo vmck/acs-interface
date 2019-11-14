@@ -1,8 +1,46 @@
-# interface
-UI for Vmchecker
+# V2 vmchecker
+Rewrite of the [original vmchecker](https://vmchecker.cs.pub.ro/). This repo is
+for the student portal. It runs at https://v2.vmchecker.cs.pub.ro/.
+
 [![Build Status](https://jenkins.liquiddemo.org/api/badges/vmck/acs-interface/status.svg)](https://jenkins.liquiddemo.org/vmck/acs-interface)
 
-## Installation
+
+## Development
+
+Try the Vagrant method first. It requires [VirtualBox][] and [Vagrant][] to be
+installed.
+
+[VirtualBox]: https://www.virtualbox.org/
+[Vagrant]: https://www.vagrantup.com/downloads.html
+
+
+### Vagrant
+
+Clone the repo and run:
+
+```shell
+vagrant up
+vagrant ssh
+```
+
+This should log you into the Vagrant virtual machine. Then start Django:
+
+```shell
+cd /vagrant
+pipenv run ./manage.py runserver
+```
+
+Django's port is forwarded to http://localhost:8000. A few other useful ports
+are forwarded too:
+
+* vmck: http://localhost:10000
+* minio: http://localhost:9000
+* Nomad: http://localhost:4646
+* Consul: http://localhost:8500
+* Vault: http://localhost:8200
+
+
+### Install locally
 
 You need `pipenv` and `docker` installed
 ```shell
@@ -19,10 +57,6 @@ pipenv install
 You need a running vmck instance. You may use [vmck/vmck](https://github.com/vmck/vmck)
 as a starting ground. Please refer to it on how to set it up.
 Also a Nomad-Consul-Vault cluster is required [liquidinvestigations/cluster](https://github.com/liquidinvestigations/cluster) to run both `Vmck` and `ACS-Interface` along with the user submissions.
-
-## Run
-
-### Locally
 
 You need to set up some enviromental vars. For that, you can
 create the file `.env` at the root of this project  where you
@@ -51,25 +85,9 @@ password `admin`. There is a test course and assignment created from fixtures.
 To stop `CTRL-C` in the terminal where you started to stop `vmck/acs-interface`
 and `docker stop storage` to stop the minio server.
 
-### Deploy on cluster
 
-You must have the following `KV` pairs in your `Vault`:
+## Deploy on cluster
 
-#### For minio in `kv/minio`
-    * access_key
-    * secret_key
-
-#### If you plan on using a LDAP add the following in `kv/ldap`
-    * server_address
-    * server_port
-    * bind_dn
-    * bind_password
-    * user_tree
-    * user_filter
-
-#### To deploy it on the cluster:
-
-```shell
-export NOMAD_URL="http://${nomad_address}:${nomad_port}"
-./deploy/cluster.py
-```
+The deployment is orchestrated at https://github.com/vmck/acs-deploy - it's the
+living documentation and single instance of how to run this thing in
+production.
