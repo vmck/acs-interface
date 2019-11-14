@@ -47,21 +47,19 @@ are forwarded too:
 
 ### Install locally
 
-You need `pipenv` and `docker` installed
+Install dependencies:
 ```shell
-sudo apt update && sudo apt install docker
-pip3 install --user pipenv
-```
-
-To install dependencies:
-```shell
-sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev
+sudo apt-get update
+sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev docker
+sudo pip3 install pipenv
 pipenv install
 ```
 
-You need a running vmck instance. You may use [vmck/vmck](https://github.com/vmck/vmck)
-as a starting ground. Please refer to it on how to set it up.
-Also a Nomad-Consul-Vault cluster is required [liquidinvestigations/cluster](https://github.com/liquidinvestigations/cluster) to run both `Vmck` and `ACS-Interface` along with the user submissions.
+You need a running [vmck][] instance. Also a Nomad-Consul-Vault cluster is
+required - [liquid/cluster][] - to run `vmck`.
+
+[vmck]: https://github.com/vmck/vmck
+[liquid-cluster]: https://github.com/liquidinvestigations/cluster
 
 You need to set up some enviromental vars. For that, you can
 create the file `.env` at the root of this project  where you
@@ -80,15 +78,16 @@ Now run:
 pipenv run ./examples/minio.sh
 pipenv run ./manage.py migrate
 pipenv run ./manage.py loaddata ci/fixtures.json
-./runinterface
+pipenv run ./manage.py runserver
 ```
 
-Now the vmck/acs-interface is available at `localhost:8100` and the minio
-blob storage server at `localhost:9000`. You can log in with the user `admin`,
-password `admin`. There is a test course and assignment created from fixtures.
+Now the vmck/acs-interface is available at http://localhost:8000 and the minio
+blob storage server at http://localhost:9000. You can log in with the user
+`admin`, password `admin`. There is a test course and assignment created from
+fixtures.
 
-To stop `CTRL-C` in the terminal where you started to stop `vmck/acs-interface`
-and `docker stop storage` to stop the minio server.
+To stop, hit `CTRL-C` in the terminal where you started `runserver`, and
+`docker stop storage` to stop the minio server.
 
 
 ## Deploy on cluster
