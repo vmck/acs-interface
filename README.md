@@ -16,6 +16,11 @@ installed.
 
 ### Vagrant
 
+If anything goes wrong, check out [bugs labelled "build"][], and please report
+any bugs you encounter, that are not already documented.
+
+[bugs labelled "build"]: https://github.com/vmck/acs-interface/labels/build
+
 Clone the repo and run:
 
 ```shell
