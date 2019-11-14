@@ -34,12 +34,13 @@ Now run:
 
 ```shell
 vagrant up
-vagrant ssh
 ```
 
-This should log you into the Vagrant virtual machine. Then start Django:
+If all goes well, it should print `✔ acs-interface installed successfully`.
+Next, log you into the Vagrant virtual machine, and start Django:
 
 ```shell
+vagrant ssh
 cd /vagrant
 pipenv run ./manage.py runserver
 ```
