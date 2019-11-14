@@ -45,8 +45,10 @@ cd /vagrant
 pipenv run ./manage.py runserver 10.66.60.1:8000
 ```
 
-Django's port is forwarded to http://localhost:8000. A few other useful ports
-are forwarded too:
+Django's port is forwarded to http://localhost:8000. A default `admin` user is
+created with password `admin`, along with some sample content.
+
+Some more forwarded ports:
 
 * vmck: http://localhost:10000
 * minio: http://localhost:9000
