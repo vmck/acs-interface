@@ -21,7 +21,16 @@ any bugs you encounter, that are not already documented.
 
 [bugs labelled "build"]: https://github.com/vmck/acs-interface/labels/build
 
-Clone the repo and run:
+Clone the repo and create an `.env` file inside:
+
+```env
+MINIO_ACCESS_KEY=1234
+MINIO_SECRET_KEY=123456789
+VMCK_API_URL=http://10.66.60.1:10000/v0/
+DEBUG=True
+```
+
+Now run:
 
 ```shell
 vagrant up
