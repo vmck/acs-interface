@@ -42,7 +42,7 @@ Next, log you into the Vagrant virtual machine, and start Django:
 ```shell
 vagrant ssh
 cd /vagrant
-pipenv run ./manage.py runserver
+pipenv run ./manage.py runserver 10.66.60.1:8000
 ```
 
 Django's port is forwarded to http://localhost:8000. A few other useful ports
