@@ -12,8 +12,7 @@ export NOMAD_ADDR=http://10.66.60.1:4646
   sudo docker cp cluster:/app/bin/nomad /usr/local/bin/nomad
   cd /opt
   git clone https://github.com/vmck/vmck
-  cd /opt/vmck
-  nomad job run examples/vmck.nomad
+  nomad job run /vagrant/ci/vmck.nomad
 )
 
 echo "✔ vmck installed successfully"
