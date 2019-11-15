@@ -102,6 +102,7 @@ job "vmck" {
       }
       template {
         data = <<-EOF
+          DEBUG = "true"
           SECRET_KEY = "TODO:ChangeME!!!"
           HOSTNAME = "*"
           SSH_USERNAME = "vagrant"
@@ -109,7 +110,7 @@ job "vmck" {
           NOMAD_URL = "http://nomad.service.consul:4646"
           VMCK_URL = 'http://{{ env "NOMAD_ADDR_http" }}'
           BACKEND = "docker"
-          QEMU_CPU_MHZ = 3000
+          QEMU_CPU_MHZ = 100
           EOF
           destination = "local/vmck.env"
           env = true
