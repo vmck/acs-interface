@@ -11,7 +11,7 @@ mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
 if [ -z $container ]; then (
-  pipenv run ./examples/minio.sh
+  pipenv run examples/minio.sh
 ) fi
 
 pipenv run python manage.py migrate
