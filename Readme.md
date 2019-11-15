@@ -24,10 +24,14 @@ any bugs you encounter, that are not already documented.
 Clone the repo and create an `.env` file inside:
 
 ```env
+MINIO_ADDRESS=10.66.60.1:9000
 MINIO_ACCESS_KEY=1234
 MINIO_SECRET_KEY=123456789
 VMCK_API_URL=http://10.66.60.1:10000/v0/
 DEBUG=True
+HOSTNAME=*
+ACS_INTERFACE_ADDRESS=http://10.66.60.1:8000
+MANAGER_TAG=0.3.2
 ```
 
 Now run:
