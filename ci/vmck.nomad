@@ -93,6 +93,7 @@ job "vmck" {
         hostname = "${attr.unique.hostname}"
         dns_servers = ["${attr.unique.network.ip-address}"]
         volumes = [
+          "/opt/vmck:/opt/vmck",
           "${meta.volumes}/vmck:/opt/vmck/data",
         ]
         port_map {
