@@ -11,12 +11,9 @@
       <li class="nav-item">
         <a class="nav-link" href="{% url 'submission_list' %}">List all submissions</a>
       </li>
-      {% if assignment and assignment.is_active%}
+      {% if assignment and assignment.is_active %}
       <li class="nav-item">
         <a class="nav-link" href="{%  url 'upload' assignment.course.code assignment.code %}">Upload</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'subs_for_assignment' assignment.course.code assignment.code %}">Results for {{ assignment.name }}</a>
       </li>
       {% endif %}
       <li class="nav-item">
