@@ -105,12 +105,10 @@ class Submission(models.Model):
 
     review_score = models.DecimalField(max_digits=5,
                                        decimal_places=2,
-                                       null=True,
-                                       editable=False)
+                                       null=True)
     total_score = models.DecimalField(max_digits=5,
                                       decimal_places=2,
-                                      null=True,
-                                      editable=False)
+                                      null=True)
     score = models.DecimalField(max_digits=5,
                                 decimal_places=2,
                                 null=True)

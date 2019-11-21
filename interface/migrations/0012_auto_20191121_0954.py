@@ -20,4 +20,14 @@ class Migration(migrations.Migration):
             name='stdout',
             field=models.TextField(blank=True, default='', max_length=32768),
         ),
+        migrations.AlterField(
+            model_name='submission',
+            name='review_score',
+            field=models.DecimalField(decimal_places=2, max_digits=5, null=True),
+        ),
+        migrations.AlterField(
+            model_name='submission',
+            name='total_score',
+            field=models.DecimalField(decimal_places=2, max_digits=5, null=True),
+        ),
     ]
