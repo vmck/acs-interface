@@ -89,13 +89,13 @@ class Submission(models.Model):
                                    on_delete=models.CASCADE,
                                    null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
-    stdout = models.CharField(max_length=32768,
+    stdout = models.TextField(max_length=32768,
                               default='',
                               blank=True)
-    stderr = models.CharField(max_length=32768,
+    stderr = models.TextField(max_length=32768,
                               default='',
                               blank=True)
-    review_message = models.CharField(max_length=4096,
+    review_message = models.TextField(max_length=4096,
                                       default='',
                                       blank=True)
     state = models.CharField(max_length=32,
@@ -105,12 +105,10 @@ class Submission(models.Model):
 
     review_score = models.DecimalField(max_digits=5,
                                        decimal_places=2,
-                                       null=True,
-                                       editable=False)
+                                       null=True)
     total_score = models.DecimalField(max_digits=5,
                                       decimal_places=2,
-                                      null=True,
-                                      editable=False)
+                                      null=True)
     score = models.DecimalField(max_digits=5,
                                 decimal_places=2,
                                 null=True)
