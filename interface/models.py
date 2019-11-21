@@ -95,7 +95,7 @@ class Submission(models.Model):
     stderr = models.TextField(max_length=32768,
                               default='',
                               blank=True)
-    review_message = models.CharField(max_length=4096,
+    review_message = models.TextField(max_length=4096,
                                       default='',
                                       blank=True)
     state = models.CharField(max_length=32,
