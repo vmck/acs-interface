@@ -111,3 +111,20 @@ To stop, hit `CTRL-C` in the terminal where you started `runserver`, and
 The deployment is orchestrated at https://github.com/vmck/acs-deploy - it's the
 living documentation and single instance of how to run this thing in
 production.
+
+## Add new homework
+1. You need to have access to the [admin page for V2 vmchecker](https://v2.vmchecker.cs.pub.ro/admin).
+2. Click on adding a new *Assignment*
+  - Select the course (mandatory field);
+  - Add a code for the homework (currently it is only displayed in the admin page);
+  - Give a name to the homework;
+  - Set a maximum score (the minimum score is 0, if the total score is negative it will be clipped);
+  - Add the soft and hard deadlines (mandatory fields);
+  - Add a repo URL - when evaluating a homework the repo URL and the below specified branch will be used for testing;
+  - Add a branch
+
+The specified repository should contain the **tests** and the **checker script**.
+
+It should also contain a **checker.sh** file (it does some unzip work) and a **config.ini** file (has specified the virtual machine where the homework would be run).
+
+For a complete example on how the repo should look you could check [here](https://github.com/vmck/assignment/tree/pc-00).
