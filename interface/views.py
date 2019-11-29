@@ -3,6 +3,8 @@ import json
 import logging
 import decimal
 import pprint
+import subprocess
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -136,13 +138,16 @@ def submission_list(request):
 @login_required
 def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
+    fortune_msg = subprocess.check_output("fortune").decode('utf-8')
 
     return render(request, 'interface/submission_result.html',
                   {'sub': sub,
                    'current_user': request.user,
                    'homepage_url': redirect(homepage).url,
                    'submission_review_message': sub.review_message,
-                   'submission_list_url': redirect(submission_list).url})
+                   'submission_list_url': redirect(submission_list).url,
+                   'fortune': fortune_msg
+                   })
 
 
 @csrf_exempt

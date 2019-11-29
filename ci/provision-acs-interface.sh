@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 sudo apt-get update -qq
-sudo apt-get -qq install python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev
+sudo apt-get -qq install python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev fortune
 sudo pip3 install pipenv
 
 
