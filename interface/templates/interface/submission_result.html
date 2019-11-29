@@ -24,7 +24,6 @@
   {% if sub.state == sub.STATE_DONE %}
 
     <p>Score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
-
     {% if sub.review_message %}
       <h2>Review</h2>
       <div class="card">
@@ -42,6 +41,13 @@
     </div>
 
   {% else %}
+
+    <h2>Fortune teller</h2>
+    <div class="card">
+      <div class="card-body">
+          <pre><code>{{ fortune }}</code></pre>
+      </div>
+    </div>
 
     <p>Submission is being evaluated, check again later.</p>
 
