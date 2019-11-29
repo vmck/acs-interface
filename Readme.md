@@ -116,7 +116,7 @@ production.
 1. You need to have access to the [admin page for V2 vmchecker](https://v2.vmchecker.cs.pub.ro/admin).
 2. Click on adding a new *Assignment*
   - Select the course (mandatory field);
-  - Add a code for the homework (currently it is only displayed in the admin page);
+  - Add a code for the homework. It should respect a pattern, like `course_initials-homework_number`; example `pc-01`;
   - Give a name to the homework;
   - Set a maximum score (the minimum score is 0, if the total score is negative it will be clipped);
   - Add the soft and hard deadlines (mandatory fields);
