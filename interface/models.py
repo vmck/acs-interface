@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import pre_save
+from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
 from interface import penalty
@@ -30,6 +31,8 @@ class Course(models.Model):
     name = models.CharField(max_length=256, blank=True)
     code = models.CharField(max_length=64, blank=True)
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return f"{self.name}"
 
@@ -44,6 +47,8 @@ class Assignment(models.Model):
 
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
+
+    history = HistoricalRecords()
 
     @property
     def full_code(self):
@@ -117,6 +122,8 @@ class Submission(models.Model):
                                   null=True)
     archive_size = models.IntegerField(null=True)
     vmck_job_id = models.IntegerField(null=True)
+
+    history = HistoricalRecords()
 
     def calculate_total_score(self):
         score = self.score if self.score else 0
