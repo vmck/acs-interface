@@ -1,5 +1,12 @@
 {% extends "interface/generics/base.html" %}
 
+{% if too_many_submissions %}
+    <script type="text/javascript">
+        alert('Please wait {{too_many_submissions.delta_t}}s before doing another submission');
+    </script>
+{% endif %}
+
+
 {% block body_content %}
   <div class="container">
     <form enctype="multipart/form-data" method="post">
