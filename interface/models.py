@@ -142,6 +142,7 @@ class Submission(models.Model):
                                             f'jobs/{self.vmck_job_id}'))
 
             self.state = response.json()['state']
+            self.changeReason = 'Update state'
             self.save()
 
     def download(self, path):
@@ -208,6 +209,7 @@ class Submission(models.Model):
         log.debug(f"Submission's #{self.id} VMCK response:\n{response}")
 
         self.vmck_job_id = response.json()['id']
+        self.changeReason = 'VMCK id'
         self.save()
 
     def generate_jwt(self):
