@@ -110,6 +110,7 @@ def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
     submission.review_message = request.POST['review-code']
+    submission.changeReason = 'Review'
     submission.save()
 
     return redirect(request.META['HTTP_REFERER'])
@@ -185,6 +186,7 @@ def done(request, pk):
     log.debug(f'Stdout:\n{submission.stdout}')
     log.debug(f'Exit code:\n{exit_code}')
 
+    submission.changeReason = 'Evaluation'
     submission.save()
 
     return JsonResponse({})

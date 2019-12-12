@@ -5,6 +5,7 @@ import logging
 
 from django.contrib import admin, messages
 from django.http import FileResponse
+import simple_history
 
 from interface.models import Course, Assignment, Submission
 from interface.backend.minio_api import MissingFile
@@ -14,11 +15,11 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-admin.site.register(Course)
+admin.site.register(Course, simple_history.admin.SimpleHistoryAdmin)
 
 
 @admin.register(Assignment)
-class AssignmentAdmin(admin.ModelAdmin):
+class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     actions = ['download_review_submissions', 'download_all_submissions']
 
     def zip_submissions(self, request, submissions):
@@ -76,7 +77,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Submission)
-class SubmissionAdmin(admin.ModelAdmin):
+class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
     actions = ['rerun_submissions', 'download_archive']
     list_display = [
         '__str__', 'assignment', 'timestamp',
