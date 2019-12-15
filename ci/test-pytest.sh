@@ -11,5 +11,6 @@ HOSTNAME=*
 ACS_INTERFACE_ADDRESS=http://10.66.60.1:8000/
 MANAGER_TAG=vagrant-pytest" > .env
 
-exec pipenv run pytest --liveserver 10.66.60.1:8000
+pipenv run pytest --liveserver 10.66.60.1:8000
+
 rm .env
