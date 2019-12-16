@@ -72,8 +72,7 @@ def upload(request, course_code, assignment_code):
         if form.is_valid():
             file = request.FILES['file']
             handle_submission(file, assignment, request.user)
-            return redirect(submission_list)
-
+            return redirect(users_list, course_code, assignment_code)
     else:
         form = UploadFileForm()
 
