@@ -38,7 +38,7 @@ def test_submission(client, live_server):
         )
 
     assert len(Submission.objects.all()) == 1
-    assert storage.exists('1.zip') is True
+    assert storage.exists('1.zip')
 
     submission = Submission.objects.all()[0]
 
@@ -55,7 +55,7 @@ def test_submission(client, live_server):
 
         count += 1
         if count == 18:
-            assert 0 == 1
+            assert False
 
     assert submission.score == 100
     assert submission.total_score == 100
