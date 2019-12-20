@@ -47,14 +47,13 @@ def test_submission(client, live_server):
     assert submission.archive_size > 0
     assert submission.vmck_job_id > 0
 
-    count = 0
+    start = time.time()
     while submission.state != submission.STATE_DONE:
-        submission = Submission.objects.all()[0]
+        submission.refresh_from_db()
 
-        time.sleep(10)
+        time.sleep(1)
 
-        count += 1
-        if count == 18:
+        if time.time() - start >= 180:
             assert False
 
     assert submission.score == 100
@@ -63,10 +62,11 @@ def test_submission(client, live_server):
     client.post(
         '/submission/1/review',
         data={'review-code': '+10.0: Good Job'},
-        HTTP_REFERER='/'
+        HTTP_REFERER='/',
     )
 
-    submission = Submission.objects.all()[0]
+    submission.refresh_from_db()
 
     assert len(submission.review_message) > 0
+    assert submission.review_score == 10
     assert submission.total_score == 110
