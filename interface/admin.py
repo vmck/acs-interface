@@ -7,8 +7,9 @@ from django.contrib import admin, messages
 from django.http import FileResponse
 import simple_history
 
-from interface.models import Course, Assignment, Submission
+from interface.models import Course, Assignment, Submission, ActionLog
 from interface.backend.minio_api import MissingFile
+from interface.actions_logger import log_action
 
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
@@ -16,6 +17,22 @@ log.setLevel(log_level)
 
 
 admin.site.register(Course, simple_history.admin.SimpleHistoryAdmin)
+
+@admin.register(ActionLog)
+class ActionLogAdmin(admin.ModelAdmin):
+    list_display = ['timestamp', 'user', 'action', 'content_object']
+    list_filter = ['timestamp', 'user']
+    readonly_fields = ['timestamp', 'user', 'action']
+
+    actions_selection_counter = False
+    list_display_links = None
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Assignment)
@@ -43,6 +60,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
+    @log_action('Download last submissions')
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -62,6 +80,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     download_review_submissions.short_description = ('Download last '
                                                      'submissions for review')
 
+    @log_action('Download all submissions')
     def download_all_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -90,6 +109,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
 
+    @log_action('Rerun submission')
     def rerun_submissions(self, request, submissions):
         for submission in submissions:
             submission.state = Submission.STATE_NEW
@@ -97,6 +117,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     rerun_submissions.short_description = 'Re-run submissions'
 
+    @log_action('Donwload submission archive')
     def download_archive(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one submission can be selected')
