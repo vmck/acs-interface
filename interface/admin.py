@@ -18,6 +18,7 @@ log.setLevel(log_level)
 
 admin.site.register(Course, simple_history.admin.SimpleHistoryAdmin)
 
+
 @admin.register(ActionLog)
 class ActionLogAdmin(admin.ModelAdmin):
     list_display = ['timestamp', 'user', 'action', 'content_object']
