@@ -1,4 +1,4 @@
-FROM python:3.7-stretch
+FROM python:3.7.5-stretch
 
 ENV PATH="/root/.local/bin:${PATH}"
 WORKDIR /opt/interface
