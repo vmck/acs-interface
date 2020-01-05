@@ -4,7 +4,8 @@ RUN set -e \
  && apt-get update -q \
  && apt-get install -yq libsasl2-dev python-dev libldap2-dev libssl-dev fortune \
  && apt-get clean && rm -rf /var/lib/apt/lists/* \
- && pip install pipenv
+ && pip install pipenv \
+ && ln -s /usr/games/fortune /usr/local/bin/fortune
 
 WORKDIR /opt/interface
 COPY Pipfile Pipfile.lock ./
