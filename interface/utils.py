@@ -6,6 +6,7 @@ import configparser
 from urllib.parse import urljoin
 
 import requests
+from cachetools import cached, TTLCache
 
 vocabulary_64 = string.ascii_letters + string.digits + '.+'
 
@@ -74,15 +75,16 @@ def get_artifact_url(link):
     return artifact_url
 
 
+# cache for 10 seconds
+@cached(cache=TTLCache(maxsize=10, ttl=10))
+def get_config_ini(url_base, branch):
+    url = urljoin(url_base, f'{branch}/config.ini')
+    return requests.get(url)
+
+
 def get_config_data(link):
     url_base = get_url_base(link)
-    config_data = requests.get(
-                    urljoin(
-                        url_base,
-                        f'{link.assignment.repo_branch}/config.ini',
-                    )
-                  )
-
+    config_data = get_config_ini(url_base, link.assignment.repo_branch)
     return config_data
 
 
