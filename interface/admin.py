@@ -98,7 +98,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
-    actions = ['rerun_submissions', 'download_archive']
+    actions = ['rerun_submissions', 'download_archive', 'recompute_score']
     list_display = [
         '__str__', 'assignment', 'timestamp',
         'archive_size', 'total_score', 'state',
@@ -142,3 +142,12 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
                 return FileResponse(submission_zip)
 
     download_archive.short_description = 'Download submission archive'
+
+    @log_action('Recompute score')
+    def recompute_score(self, request, submissions):
+        for submission in submissions:
+            # Clear the penalty so it's calculated again
+            submission.penalty = None
+            submission.save()
+
+    recompute_score.short_description = 'Recompute score'
