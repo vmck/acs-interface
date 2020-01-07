@@ -140,7 +140,7 @@ class Submission(models.Model):
     def calculate_total_score(self):
         score = self.score if self.score else 0
         self.review_score = self.compute_review_score()
-        if not self.penalty:
+        if self.penalty is None:
             self.penalty = self.compute_penalty()
         penalty = self.penalty
 
