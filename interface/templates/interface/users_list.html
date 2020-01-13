@@ -7,15 +7,15 @@
     <h5><b>Deadline soft:</b> {{ assignment.deadline_soft|date:'Y-m-d H:i' }}</h5>
     <h5><b>Deadline hard:</b> {{ assignment.deadline_hard|date:'Y-m-d H:i' }}</h5>
     <h5><b>Scor maxim:</b> {{ assignment.max_score }}</h5>
-
     <table class="table table-striped table-bordered table-sm">
-      <thead>
+      <thead class="text-center">
         <tr>
           <th scope="col">Username</th>
           <th scope="col">Time</th>
           <th scope="col">Score</th>
           <th scope="col">Status</th>
           <th scope="col">Submission id</th>
+          <th scope="col">Reviewed</th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +26,11 @@
             <td>{{ sub.total_score }}</td>
             <td>{{ sub.state }}</td>
             <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id}}</a></td>
+            <td class="text-center">
+                {% if sub.review_message %}
+                    &#x2713;
+                {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

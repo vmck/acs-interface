@@ -6,7 +6,7 @@
       <table class="table table-striped table-bordered table-sm">
         <caption>Submission list</caption>
 
-        <thead class="text-center">
+        <thead>
           <tr>
             <th scope="col">User id</th>
             <th scope="col">Submission id</th>
@@ -15,7 +15,6 @@
             <th scope="col">Download archive</th>
             <th scope="col">Score</th>
             <th scope="col">Status</th>
-            <th scope="col">Reviewed</th>
           </tr>
         </thead>
 
@@ -35,15 +34,9 @@
               </td>
               <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
               <td>{{ sub.state }}</td>
-              <td class="text-center">
-                {% if sub.review_message %}
-                  &#x2713;
-                {% endif %}
-              </td>
             </tr>
           {% endfor %}
         </tbody>
-
       </table>
     </div>
 

@@ -72,7 +72,8 @@ def upload(request, course_code, assignment_code):
         if form.is_valid():
             file = request.FILES['file']
             handle_submission(file, assignment, request.user)
-            return redirect(users_list, course_code, assignment_code)
+            return redirect(subs_for_user, course_code,
+                            assignment_code, request.user)
     else:
         form = UploadFileForm()
 
@@ -226,7 +227,10 @@ def subs_for_user(request, course_code, assignment_code, username):
     user = User.objects.get(username=username)
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
-    submissions = assignment.submission_set.filter(user=user)
+    submissions = (
+            assignment.submission_set
+            .filter(user=user)
+            .order_by("-timestamp"),)
 
     return render(request, 'interface/subs_for_user.html', {
         'assignment': assignment,
