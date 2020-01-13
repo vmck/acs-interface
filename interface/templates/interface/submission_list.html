@@ -21,26 +21,26 @@
 
         <tbody>
           {% for sub in subs %}
-          <tr>
-            <td>{{ sub.user.username }}</td>
-            <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
-            <td>{{ sub.assignment.full_code }}</td>
-            <td>{{ sub.archive_size|filesizeformat }}</td>
-            <td>
-              {% if sub.user == current_user %}
-              <a href="/submission/{{ sub.id }}/download">Download</a>
-              {% else %}
-              <p>Download</p>
-              {% endif %}
-            </td>
-            <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
-            <td>{{ sub.state }}</td>
-            <td class="text-center">
-              {% if sub.review_message %}
-              &#x2713;
-              {% endif %}
-            </td>
-          </tr>
+            <tr>
+              <td>{{ sub.user.username }}</td>
+              <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
+              <td>{{ sub.assignment.full_code }}</td>
+              <td>{{ sub.archive_size|filesizeformat }}</td>
+              <td>
+                {% if sub.user == user %}
+                  <a href="/submission/{{ sub.id }}/download">Download</a>
+                {% else %}
+                  <p>Download</p>
+                {% endif %}
+              </td>
+              <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
+              <td>{{ sub.state }}</td>
+              <td class="text-center">
+                {% if sub.review_message %}
+                  &#x2713;
+                {% endif %}
+              </td>
+            </tr>
           {% endfor %}
         </tbody>
 
@@ -48,15 +48,15 @@
     </div>
 
     {% if subs %}
-    <div class="rowf text-center">
-      {% if subs.has_previous %}
-      <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
-      {% endif %}
+      <div class="rowf text-center">
+        {% if subs.has_previous %}
+          <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
+        {% endif %}
 
-      {% if subs.has_next %}
-      <a class="btn btn-primary" href='?page={{ subs.next_page_number }}'>Next</a>
-      {% endif %}
-    </div>
+        {% if subs.has_next %}
+          <a class="btn btn-primary" href='?page={{ subs.next_page_number }}'>Next</a>
+        {% endif %}
+      </div>
     {% endif %}
   </div>
 {% endblock %}

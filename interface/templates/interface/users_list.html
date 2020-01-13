@@ -20,13 +20,13 @@
       </thead>
       <tbody>
         {% for sub in submissions %}
-        <tr>
-          <td><a href="{% url 'subs_for_user' sub.assignment.course.code sub.assignment.code sub.user.username %}">{{ sub.user.username }}</a></td>
-          <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
-          <td>{{ sub.total_score }}</td>
-          <td>{{ sub.state }}</td>
-          <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id}}</a></td>
-        </tr>
+          <tr>
+            <td><a href="{% url 'subs_for_user' sub.assignment.course.code sub.assignment.code sub.user.username %}">{{ sub.user.username }}</a></td>
+            <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
+            <td>{{ sub.total_score }}</td>
+            <td>{{ sub.state }}</td>
+            <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id}}</a></td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>

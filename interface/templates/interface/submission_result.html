@@ -5,10 +5,10 @@
 
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
-  {% if current_user.is_staff %}
-  <p>
-    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-  </p>
+  {% if user.is_staff %}
+    <p>
+      <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+    </p>
   {% endif %}
 
   {% if sub.state == sub.STATE_DONE %}
