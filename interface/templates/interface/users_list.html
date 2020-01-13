@@ -1,50 +1,34 @@
-<!doctype html>
-<html lang='en'>
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends "interface/generics/base.html" %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+{% block body_content %}
+  <div class="container">
+    <h1>{{ assignment.course.name }} / {{ assignment.name }}</h1>
 
-    <title>Users List</title>
+    <h5><b>Deadline soft:</b> {{ assignment.deadline_soft|date:'Y-m-d H:i' }}</h5>
+    <h5><b>Deadline hard:</b> {{ assignment.deadline_hard|date:'Y-m-d H:i' }}</h5>
+    <h5><b>Scor maxim:</b> {{ assignment.max_score }}</h5>
 
-    {% include "interface/tracker.html" %}
-  </head>
-
-  <body>
-    <div class="container">
-      {% include "interface/navbar.html" %}
-
-      <h1>{{ assignment.course.name }} / {{ assignment.name }}</h1>
-
-      <h5><b>Deadline soft:</b> {{ assignment.deadline_soft|date:'Y-m-d H:i' }}</h5>
-      <h5><b>Deadline hard:</b> {{ assignment.deadline_hard|date:'Y-m-d H:i' }}</h5>
-      <h5><b>Scor maxim:</b> {{ assignment.max_score }}</h5>
-
-      <table class="table table-striped table-bordered table-sm">
-        <thead>
-          <tr>
-            <th scope="col">Username</th>
-            <th scope="col">Time</th>
-            <th scope="col">Score</th>
-            <th scope="col">Status</th>
-            <th scope="col">Submission id</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for sub in submissions %}
-          <tr>
-            <td><a href="{% url 'subs_for_user' sub.assignment.course.code sub.assignment.code sub.user.username %}">{{ sub.user.username }}</a></td>
-            <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
-            <td>{{ sub.total_score }}</td>
-            <td>{{ sub.state }}</td>
-            <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id}}</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </body>
-</html>
+    <table class="table table-striped table-bordered table-sm">
+      <thead>
+        <tr>
+          <th scope="col">Username</th>
+          <th scope="col">Time</th>
+          <th scope="col">Score</th>
+          <th scope="col">Status</th>
+          <th scope="col">Submission id</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr>
+          <td><a href="{% url 'subs_for_user' sub.assignment.course.code sub.assignment.code sub.user.username %}">{{ sub.user.username }}</a></td>
+          <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
+          <td>{{ sub.total_score }}</td>
+          <td>{{ sub.state }}</td>
+          <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id}}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

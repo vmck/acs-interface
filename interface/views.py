@@ -76,7 +76,10 @@ def upload(request, course_code, assignment_code):
     else:
         form = UploadFileForm()
 
-    return render(request, 'interface/upload.html', {'form': form})
+    return render(request, 'interface/upload.html', {
+        'form': form,
+        'current_user': request.user,
+    })
 
 
 @login_required
@@ -99,6 +102,7 @@ def download(request, pk):
 def homepage(request):
     return render(request, 'interface/homepage.html', {
         'courses': Course.objects.all(),
+        'current_user': request.user,
     })
 
 
@@ -127,12 +131,13 @@ def submission_list(request):
     for submission in subs:
         submission.update_state()
 
-    return render(request, 'interface/submission_list.html',
-                  {'subs': subs,
-                   'homepage_url': redirect(homepage).url,
-                   'sub_base_url': redirect(submission_list).url,
-                   'current_user': request.user,
-                   'logout_url': redirect(logout_view).url})
+    return render(request, 'interface/submission_list.html', {
+        'subs': subs,
+        'homepage_url': redirect(homepage).url,
+        'sub_base_url': redirect(submission_list).url,
+        'current_user': request.user,
+        'logout_url': redirect(logout_view).url,
+    })
 
 
 @login_required
@@ -140,14 +145,14 @@ def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
     fortune_msg = subprocess.check_output("fortune").decode('utf-8')
 
-    return render(request, 'interface/submission_result.html',
-                  {'sub': sub,
-                   'current_user': request.user,
-                   'homepage_url': redirect(homepage).url,
-                   'submission_review_message': sub.review_message,
-                   'submission_list_url': redirect(submission_list).url,
-                   'fortune': fortune_msg
-                   })
+    return render(request, 'interface/submission_result.html', {
+        'sub': sub,
+        'current_user': request.user,
+        'homepage_url': redirect(homepage).url,
+        'submission_review_message': sub.review_message,
+        'submission_list_url': redirect(submission_list).url,
+        'fortune': fortune_msg
+    })
 
 
 @csrf_exempt
@@ -217,6 +222,7 @@ def users_list(request, course_code, assignment_code):
     return render(request, 'interface/users_list.html', {
         'assignment': assignment,
         'submissions': final_sub_list,
+        'current_user': request.user,
     })
 
 
@@ -230,5 +236,5 @@ def subs_for_user(request, course_code, assignment_code, username):
     return render(request, 'interface/subs_for_user.html', {
         'assignment': assignment,
         'submissions': submissions,
-        'user': user,
+        'current_user': request.user,
     })

@@ -1,37 +1,21 @@
-<!doctype html>
-<html lang='en'>
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends "interface/generics/base.html" %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
-
-    <title>VMCK</title>
-
-    {% include "interface/tracker.html" %}
-  </head>
-
-  <body>
-    <div class="container">
-      {% include "interface/navbar.html" %}
-
-      {% for course in courses %}
-      <h3>{{ course.name }}</h3>
-      <ul>
-      </ul>
-        {% for assignment in course.assignment_set.all %}
-        <li>
-          {{ assignment.name }}:
-          {% if assignment.is_active %}
-          <a href="{% url "upload" course.code assignment.code %}">Upload</a>,
-          {% endif %}
-          <a href="{% url "subs_for_assignment" course.code assignment.code %}">Results</a>
-        </li>
-        {% endfor %}
-      </ul>
-      {% endfor %}
-    </div>
-  </body>
-</html>
+{% block body_content %}
+  <div class="container">
+    {% for course in courses %}
+    <h3>{{ course.name }}</h3>
+    <ul>
+    </ul>
+    {% for assignment in course.assignment_set.all %}
+    <li>
+      {{ assignment.name }}:
+      {% if assignment.is_active %}
+      <a href="{% url "upload" course.code assignment.code %}">Upload</a>,
+      {% endif %}
+      <a href="{% url "subs_for_assignment" course.code assignment.code %}">Results</a>
+    </li>
+    {% endfor %}
+    </ul>
+    {% endfor %}
+  </div>
+{% endblock %}
