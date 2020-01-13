@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import pre_save
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
@@ -25,6 +27,16 @@ from interface.utils import get_penalty_info
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
 log.setLevel(log_level)
+
+
+class ActionLog(models.Model):
+    timestamp = models.DateTimeField()
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+    action = models.CharField(max_length=256)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
 
 class Course(models.Model):
@@ -128,7 +140,7 @@ class Submission(models.Model):
     def calculate_total_score(self):
         score = self.score if self.score else 0
         self.review_score = self.compute_review_score()
-        if not self.penalty:
+        if self.penalty is None:
             self.penalty = self.compute_penalty()
         penalty = self.penalty
 
