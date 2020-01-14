@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang='en'>
+
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+
+    <!-- Bootstrap JS -->
+    <script src="https://unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
+    <script src="https://unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
+
+    <title>VMCK</title>
+
+    {% include "interface/generics/tracker.html" %}
+  </head>
+
+  <body>
+    <div class="container">
+      {% include "interface/generics/navbar.html" %}
+    </div>
+
+    {% block body_content %} {% endblock %}
+  </body>
+
+</html>

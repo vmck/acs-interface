@@ -1,68 +1,55 @@
-<!doctype html>
-<html lang='en'>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends "interface/generics/base.html" %}
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+{% block body_content %}
+  <div class="container">
+    <div class="row mt-2">
+      <table class="table table-striped table-bordered table-sm">
+        <caption>Submission list</caption>
 
-        <title>VMCK</title>
+        <thead>
+          <tr>
+            <th scope="col">User id</th>
+            <th scope="col">Submission id</th>
+            <th scope="col">Homework id</th>
+            <th scope="col">Archive size</th>
+            <th scope="col">Download archive</th>
+            <th scope="col">Score</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
 
-        {% include "interface/tracker.html" %}
-    </head>
+        <tbody>
+          {% for sub in subs %}
+            <tr>
+              <td>{{ sub.user.username }}</td>
+              <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
+              <td>{{ sub.assignment.full_code }}</td>
+              <td>{{ sub.archive_size|filesizeformat }}</td>
+              <td>
+                {% if sub.user == user %}
+                  <a href="/submission/{{ sub.id }}/download">Download</a>
+                {% else %}
+                  <p>Download</p>
+                {% endif %}
+              </td>
+              <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
+              <td>{{ sub.state }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-    <body>
-        <div class="container">
-            {% include "interface/navbar.html" %}
-            <div class="row mt-2">
-                <table class="table table-striped table-bordered table-sm">
-                    <caption>Submission list</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">User id</th>
-                            <th scope="col">Submission id</th>
-                            <th scope="col">Homework id</th>
-                            <th scope="col">Archive size</th>
-                            <th scope="col">Download archive</th>
-                            <th scope="col">Score</th>
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for sub in subs %}
-                        <tr>
-                            <td>{{ sub.user.username }}</td>
-                            <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
-                            <td>{{ sub.assignment.full_code }}</td>
-                            <td>{{ sub.archive_size|filesizeformat }}</td>
-                            <td>
-                                {% if sub.user == current_user %}
-                                    <a href="/submission/{{ sub.id }}/download">Download</a>
-                                {% else %}
-                                    <p>Download</p>
-                                {% endif %}
-                            </td>
-                            <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
-                            <td>{{ sub.state }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% if subs %}
-                <div class="rowf text-center">
-                    {% if subs.has_previous %}
-                        <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
-                    {% endif %}
+    {% if subs %}
+      <div class="rowf text-center">
+        {% if subs.has_previous %}
+          <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
+        {% endif %}
 
-                    {% if subs.has_next %}
-                        <a class="btn btn-primary" href='?page={{ subs.next_page_number }}'>Next</a>
-                    {% endif %}
-
-                </div>
-            {% endif %}
-        </div>
-    </body>
-</html>
+        {% if subs.has_next %}
+          <a class="btn btn-primary" href='?page={{ subs.next_page_number }}'>Next</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

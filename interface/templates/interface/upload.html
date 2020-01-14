@@ -1,28 +1,13 @@
-<!doctype html>
-<html lang='en'>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends "interface/generics/base.html" %}
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
-
-        <title>VMCK</title>
-
-        {% include "interface/tracker.html" %}
-    </head>
-
-    <body>
-        <div class="container">
-            {% include "interface/navbar.html" %}
-            <form enctype="multipart/form-data" method="post">
-                <div class="form-group">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                </div>
-                <input class="btn btn-primary" type="submit" value="Submit">
-            </form>
-        </div>
-    </body>
-</html>
+{% block body_content %}
+  <div class="container">
+    <form enctype="multipart/form-data" method="post">
+      <div class="form-group">
+        {% csrf_token %}
+        {{ form.as_p }}
+      </div>
+      <input class="btn btn-primary" type="submit" value="Submit">
+    </form>
+  </div>
+{% endblock %}

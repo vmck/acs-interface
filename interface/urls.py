@@ -15,7 +15,7 @@ urlpatterns = [
     path('submission/<int:pk>/download', views.download),
     path('alive/', views.alive),
     path('logout/', views.logout_view, name='logout'),
-    path('', views.login_view),
+    path('', views.login_view, name='login'),
     path('assignment/<course_code>/<assignment_code>',
          views.users_list, name='subs_for_assignment'),
     path('assignment/<course_code>/<assignment_code>/user/<username>',

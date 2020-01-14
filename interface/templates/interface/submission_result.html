@@ -1,24 +1,14 @@
-<!doctype html>
-<meta charset="utf-8">
-<title>vmchecker v2</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" href="https://unpkg.com/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+{% extends "interface/generics/base.html" %}
 
-{% include "interface/tracker.html" %}
-<script src="https://unpkg.com/jquery@3.2.1/dist/jquery.js"></script>
-<script src="https://unpkg.com/bootstrap@4.3.1/dist/js/bootstrap.js"></script>
-
-<body>
-
-<div class="container-fluid">
-  {% include "interface/navbar.html" %}
+{% block body_content %}
+<div class="container">
 
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
-  {% if current_user.is_staff %}
-  <p>
-    <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-  </p>
+  {% if user.is_staff %}
+    <p>
+      <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+    </p>
   {% endif %}
 
   {% if sub.state == sub.STATE_DONE %}
@@ -55,4 +45,7 @@
 
 </div>
 
-{% include "interface/review_modal.html" %}
+{% include "interface/generics/review_modal.html" %}
+
+{% endblock %}
+
