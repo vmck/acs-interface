@@ -113,18 +113,26 @@ living documentation and single instance of how to run this thing in
 production.
 
 ## Add new homework
-1. You need to have access to the [admin page for V2 vmchecker](https://v2.vmchecker.cs.pub.ro/admin).
-2. Click on adding a new *Assignment*
+1. Set up the assignment files in a GitHub repository. You can share a
+   repository for a whole course and have each assignment in a subfolder.
+
+   The specified repository should contain the **tests** and the **checker
+   script** in a subfolder for the assignment.
+
+   It should also contain a **checker.sh** file (it does some unzip work) and a
+   **config.ini** file (has specified the virtual machine where the homework
+   would be run).
+
+   See [pc-00](https://github.com/vmck/assignment/tree/master/pc-00) for an
+   example.
+
+2. You need to have access to the [admin page for V2 vmchecker](https://v2.vmchecker.cs.pub.ro/admin).
+3. Click on adding a new *Assignment*
   - Select the course (mandatory field);
   - Add a code for the homework. It should respect a pattern, like `course_initials-homework_number`; example `pc-01`;
   - Give a name to the homework;
   - Set a maximum score (the minimum score is 0, if the total score is negative it will be clipped);
   - Add the soft and hard deadlines (mandatory fields);
   - Add a repo URL - when evaluating a homework the repo URL and the below specified branch will be used for testing;
-  - Add a branch
-
-The specified repository should contain the **tests** and the **checker script**.
-
-It should also contain a **checker.sh** file (it does some unzip work) and a **config.ini** file (has specified the virtual machine where the homework would be run).
-
-For a complete example on how the repo should look you could check [here](https://github.com/vmck/assignment/tree/pc-00).
+  - Set `repo_branch`, or leave blank to use `master`
+  - Set `repo_path` to a folder of the repository that contains the assignment files
