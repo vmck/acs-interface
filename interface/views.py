@@ -80,7 +80,7 @@ def upload(request, course_code, assignment_code):
                     'interface/upload.html',
                     {
                         'form': form,
-                        'too_many_submissions': {'delta_t': e.get_delta_t()},
+                        'too_many_submissions': {'wait_t': e.wait_t}
                     }
                 )
 

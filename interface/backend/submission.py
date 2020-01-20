@@ -4,7 +4,6 @@ from django.db import transaction
 from django.utils import timezone
 
 import interface.backend.minio_api as storage
-from interface.models import Submission
 from interface.models import Assignment
 
 
@@ -17,8 +16,19 @@ def handle_submission(file, assignment, user):
     log.debug(f'Submission {file.name} received')
 
     with transaction.atomic():
-        Assignment.objects.select_for_update().get(pk=assignment.pk)
-        entries = Submission.objects.filter(user=user).order_by('-timestamp')
+        """
+            Computing time from the last upload by this user. We lock the
+            assignment row to prevent simultaneous uploads (race condition).
+        """
+        assignment = (
+            Assignment.objects.select_for_update()
+            .get(pk=assignment.pk)
+        )
+        entries = (
+            assignment.submission_set
+            .filter(user=user)
+            .order_by('-timestamp')
+        )
 
         entry = entries.first()
 
@@ -26,8 +36,9 @@ def handle_submission(file, assignment, user):
             delta_t = timezone.now() - entry.timestamp
             if delta_t.seconds < assignment.min_time_between_uploads:
                 log.debug(f'Submission can be made after #{delta_t} seconds')
-                wait_t = assignment.min_time_between_uploads - delta_t.seconds
-                raise TooManySubmissionsError(wait_t)
+                raise TooManySubmissionsError(
+                            assignment.min_time_between_uploads
+                        )
 
         submission = assignment.submission_set.create(
             user=user,
@@ -45,8 +56,5 @@ def handle_submission(file, assignment, user):
 
 
 class TooManySubmissionsError(Exception):
-    def __init__(self, delta_t):
-        self.delta_t = delta_t
-
-    def get_delta_t(self):
-        return self.delta_t
+    def __init__(self, wait_t):
+        self.wait_t = wait_t
