@@ -109,6 +109,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'user', 'assignment', 'archive_size', 'vmck_job_id', 'state',
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
+    search_fields = ['user__username']
 
     @log_action('Rerun submission')
     def rerun_submissions(self, request, submissions):
