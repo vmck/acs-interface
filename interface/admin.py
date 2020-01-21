@@ -5,18 +5,20 @@ import logging
 
 from django.contrib import admin, messages
 from django.http import FileResponse
+from django.db import transaction
+
 import simple_history
 
 from interface.models import Course, Assignment, Submission, ActionLog
+from django.contrib.auth.models import Permission
+
 from interface.backend.minio_api import MissingFile
 from interface.actions_logger import log_action
+
 
 log_level = logging.DEBUG
 log = logging.getLogger(__name__)
 log.setLevel(log_level)
-
-
-admin.site.register(Course, simple_history.admin.SimpleHistoryAdmin)
 
 
 @admin.register(ActionLog)
@@ -36,9 +38,79 @@ class ActionLogAdmin(admin.ModelAdmin):
         return False
 
 
+@admin.register(Course)
+class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
+    filter_horizontal = ["teaching_assistants"]
+    _ta_permissions = [
+        "view_submission",
+        "add_assignment",
+        "change_assignment",
+        "delete_assignment"
+    ]
+
+    def _add_new_ta(self, user):
+        ta_permissions = (
+                Permission.objects
+                .filter(codename__in=CourseAdmin._ta_permissions)
+            )
+
+        if not user.is_staff:
+            user.is_staff = True
+            user.user_permissions.set(ta_permissions)
+            user.save()
+
+    def _remove_ta(self, user, course):
+        tas_courses = (
+                    Course.objects.all()
+                    .exclude(code=course.code)
+                    .filter(teaching_assistants=user)
+                )
+        if not tas_courses:
+            user.is_staff = False
+            user.user_permissions.set([])
+            user.save()
+
+    def get_queryset(self, request):
+        qs = super(CourseAdmin, self).get_queryset(request)
+
+        if request.user.is_superuser:
+            return qs
+
+        return qs.filter(teaching_assistants=request.user)
+
+    def save_model(self, request, obj, form, change):
+        if obj.id is None:
+            # New course was added
+            # need to save it to have access to member vars
+            super().save_model(request, obj, form, change)
+
+        if "teaching_assistants" not in form.changed_data:
+            return
+
+        tas = set(obj.teaching_assistants.all())
+        new_tas = set(form.cleaned_data["teaching_assistants"])
+
+        to_add_tas = new_tas - tas
+        to_remove_tas = tas - new_tas
+
+        for user in to_add_tas:
+            self._add_new_ta(user)
+
+        with transaction.atomic():
+            for user in to_remove_tas:
+                self._remove_ta(user, obj)
+
+
 @admin.register(Assignment)
 class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     actions = ['download_review_submissions', 'download_all_submissions']
+
+    def get_queryset(self, request):
+        qs = super(AssignmentAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+
+        return qs.filter(course__teaching_assistants=request.user)
 
     def zip_submissions(self, request, submissions):
         with TemporaryDirectory() as _tmp:
@@ -109,6 +181,12 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'user', 'assignment', 'archive_size', 'vmck_job_id', 'state',
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
+
+    def get_queryset(self, request):
+        qs = super(SubmissionAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(assignment__course__teaching_assistants=request.user)
 
     @log_action('Rerun submission')
     def rerun_submissions(self, request, submissions):
