@@ -4,6 +4,9 @@ for the student portal. It runs at https://v2.vmchecker.cs.pub.ro/.
 
 [![Build Status](https://jenkins.liquiddemo.org/api/badges/vmck/acs-interface/status.svg)](https://jenkins.liquiddemo.org/vmck/acs-interface)
 
+For documentation you can check:
+* FEATURES.md
+* ADMIN_HOW_TO.md
 
 ## Development
 
