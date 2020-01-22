@@ -56,7 +56,7 @@ class Assignment(models.Model):
     max_score = models.IntegerField(default=100)
     deadline_soft = models.DateTimeField()
     deadline_hard = models.DateTimeField()
-
+    min_time_between_uploads = models.IntegerField(default=60)
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
     repo_path = models.CharField(max_length=256, blank=True)
