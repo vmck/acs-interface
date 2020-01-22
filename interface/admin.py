@@ -181,6 +181,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'user', 'assignment', 'archive_size', 'vmck_job_id', 'state',
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
+    search_fields = ['user__username']
 
     def get_queryset(self, request):
         qs = super(SubmissionAdmin, self).get_queryset(request)
