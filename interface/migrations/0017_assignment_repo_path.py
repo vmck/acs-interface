@@ -17,7 +17,7 @@ def do_nothing(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('interface', '0015_actionlog'),
+        ('interface', '0016_min_time_between_uploads'),
     ]
 
     operations = [
