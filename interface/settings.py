@@ -129,3 +129,5 @@ MANAGER_MHZ = int(os.environ.get('MANAGER_MHZ', 30))
 MANAGER_TAG = os.environ.get('MANAGER_TAG', 'master')
 
 SUBMISSIONS_PER_PAGE = 20
+
+MOSS_USER_ID = int(os.environ.get('MOSS_USER_ID', 9999999))

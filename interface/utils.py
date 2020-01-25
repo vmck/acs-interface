@@ -101,3 +101,15 @@ def get_penalty_info(link):
     holiday_f = [x for x in penalty_info.get('holidayfinish', '').split(',')]
 
     return (penalty, holiday_s, holiday_f)
+
+
+def get_last_submissions_of_every_user(assignment):
+    submission_set = assignment.submission_set.order_by('timestamp')
+
+    submissions = {}
+
+    # we only want the last submission of every user
+    for submission in submission_set:
+        submissions[submission.user.username] = submission
+
+    return submission.values()
