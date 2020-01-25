@@ -73,8 +73,31 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         assignment = queryset[0]
         submissions = get_last_submissions_of_every_user(assignment)
 
-        moss = mosspy.Moss(settings.MOSS_USER_ID, assignment.course.language)
+        moss = mosspy.Moss(
+            settings.MOSS_USER_ID,
+            assignment.get_language_display(),
+        )
+        moss.setDirectoryMode(1)
 
+        with TemporaryDirectory as _tmp:
+            tmp = Path(_tmp)
+            for submission in submissions:
+                try:
+                    submission.download(tmp / f'{submission.id}.zip')
+                except MissingFile:
+                    msg = f"File missing for {submission!r}"
+                    messages.error(request, msg)
+                    log.warning(msg)
+
+                submission_archive = ZipFile(f'{submission.id}.zip')
+                submission.extractall(f'{submission.user.username}')
+
+                moss.addFileByWildcard(
+                    f'{submission.user.username}/*.{submission.assignment.language}'
+                )
+
+        url = moss.send()
+        messages.success(request, f'Report url: {url}')
 
     run_moss.short_description = 'Run moss check on selected assignments'
 
