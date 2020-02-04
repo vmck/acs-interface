@@ -112,4 +112,4 @@ def get_last_submissions_of_every_user(assignment):
     for submission in submission_set:
         submissions[submission.user.username] = submission
 
-    return submission.values()
+    return submissions.values()

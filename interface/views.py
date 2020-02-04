@@ -152,8 +152,6 @@ def submission_result(request, pk):
 
 @csrf_exempt
 def done(request, pk):
-    # NOTE: make it safe, some form of authentication
-    #       we don't want students updating their score.
     log.debug(f'URL: {request.get_full_path()}')
     log.debug(pprint.pformat(request.body))
 
@@ -226,9 +224,10 @@ def subs_for_user(request, course_code, assignment_code, username):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
     submissions = (
-            assignment.submission_set
-            .filter(user=user)
-            .order_by("-timestamp"),)
+        assignment.submission_set
+        .filter(user=user)
+        .order_by("-timestamp")
+    )
 
     return render(request, 'interface/subs_for_user.html', {
         'assignment': assignment,

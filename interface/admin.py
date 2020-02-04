@@ -1,3 +1,4 @@
+import glob
 import logging
 from pathlib import Path
 from zipfile import ZipFile
@@ -79,8 +80,9 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         )
         moss.setDirectoryMode(1)
 
-        with TemporaryDirectory as _tmp:
+        with TemporaryDirectory() as _tmp:
             tmp = Path(_tmp)
+
             for submission in submissions:
                 try:
                     submission.download(tmp / f'{submission.id}.zip')
@@ -89,17 +91,23 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
                     messages.error(request, msg)
                     log.warning(msg)
 
-                submission_archive = ZipFile(f'{submission.id}.zip')
-                submission.extractall(f'{submission.user.username}')
+                submission_archive = ZipFile(tmp / f'{submission.id}.zip')
+                submission_archive.extractall(tmp / f'{submission.user.username}')
 
-                moss.addFileByWildcard(
-                    f'{submission.user.username}/*.{submission.assignment.language}'
+                read_files = glob.glob(
+                    str(tmp / f'{submission.user.username}/*.{submission.assignment.language}'),
                 )
 
-        url = moss.send()
+                for f in read_files:
+                    new_filename = f.split('/')[-2] + f'/{submission.user.username}_' + f.split('/')[-1]
+                    moss.addFile(f, new_filename)
+
+            print(moss.files)
+            url = moss.send()
+
         messages.success(request, f'Report url: {url}')
 
-    run_moss.short_description = 'Run moss check on selected assignments'
+    run_moss.short_description = 'Run moss check on the selected assignment'
 
     @log_action('Download last submissions')
     def download_review_submissions(self, request, queryset):

@@ -36,7 +36,8 @@
     "deadline_soft": "2019-12-31T22:00:00Z",
     "deadline_hard": "2019-12-31T22:00:00Z",
     "repo_url": "https://github.com/vmck/assignment",
-    "repo_branch": "pc-00"
+    "repo_branch": "pc-00",
+    "language": "c"
   }
 }
 ]
