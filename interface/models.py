@@ -42,7 +42,7 @@ class ActionLog(models.Model):
 class Course(models.Model):
     name = models.CharField(max_length=256, blank=True)
     code = models.CharField(max_length=64, blank=True)
-
+    teaching_assistants = models.ManyToManyField(User, blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -68,13 +68,14 @@ class Assignment(models.Model):
     max_score = models.IntegerField(default=100)
     deadline_soft = models.DateTimeField()
     deadline_hard = models.DateTimeField()
-
+    min_time_between_uploads = models.IntegerField(default=60)
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
+    repo_path = models.CharField(max_length=256, blank=True)
     language = models.CharField(
         max_length=32,
         choices=list(LANG_CHOICES.items()),
-        default=LANG_C
+        default=LANG_C,
     )
 
     history = HistoricalRecords()
@@ -92,6 +93,17 @@ class Assignment(models.Model):
 
     def __str__(self):
         return f"{self.full_code} {self.name}"
+
+    def url_for(self, filename):
+        m = re.match(
+            r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
+            self.repo_url,
+        )
+        url_base = ('https://raw.githubusercontent.com/'
+                    '{0}/{1}/'.format(*list(m.groups())))
+        branch = self.repo_branch or 'master'
+        path = f'{self.repo_path}/' if self.repo_path else ''
+        return urljoin(url_base, f'{branch}/{path}{filename}')
 
 
 class Submission(models.Model):

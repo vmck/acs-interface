@@ -1,6 +1,12 @@
 {% extends "interface/generics/base.html" %}
 
 {% block body_content %}
+  {% if too_many_submissions %}
+      <script type="text/javascript">
+        alert('Please wait {{too_many_submissions.wait_t}}s between submissions');
+      </script>
+  {% endif %}
+
   <div class="container">
     <form enctype="multipart/form-data" method="post">
       <div class="form-group">

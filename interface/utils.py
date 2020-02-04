@@ -1,9 +1,7 @@
-import re
 import string
 import secrets
 import base64
 import configparser
-from urllib.parse import urljoin
 
 import requests
 from cachetools import cached, TTLCache
@@ -12,7 +10,7 @@ vocabulary_64 = string.ascii_letters + string.digits + '.+'
 
 
 def vmck_config(submission):
-    config_data = get_config_data(submission)
+    config_data = get_config_ini(submission)
 
     config = configparser.ConfigParser()
     config.read_string(config_data.text)
@@ -50,46 +48,27 @@ def is_true(value):
     return text in ['1', 'yes', 'true', 'on', 'enabled']
 
 
-def get_url_base(link):
-    m = re.match(r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
-                 link.assignment.repo_url)
-    url_base = ('https://raw.githubusercontent.com/'
-                '{0}/{1}/'.format(*list(m.groups())))
-
-    return url_base
-
-
 def get_script_url(link):
-    url_base = get_url_base(link)
-    script_url = urljoin(url_base,
-                         f'{link.assignment.repo_branch}/checker.sh')
-
-    return script_url
+    return link.assignment.url_for('checker.sh')
 
 
 def get_artifact_url(link):
-    url_base = get_url_base(link)
-    artifact_url = urljoin(url_base,
-                           f'{link.assignment.repo_branch}/artifact.zip')
-
-    return artifact_url
+    return link.assignment.url_for('artifact.zip')
 
 
 # cache for 10 seconds
 @cached(cache=TTLCache(maxsize=10, ttl=10))
-def get_config_ini(url_base, branch):
-    url = urljoin(url_base, f'{branch}/config.ini')
+def cached_get_file(url):
     return requests.get(url)
 
 
-def get_config_data(link):
-    url_base = get_url_base(link)
-    config_data = get_config_ini(url_base, link.assignment.repo_branch)
-    return config_data
+def get_config_ini(link):
+    url = link.assignment.url_for('config.ini')
+    return cached_get_file(url)
 
 
 def get_penalty_info(link):
-    config_data = get_config_data(link)
+    config_data = get_config_ini(link)
 
     config = configparser.ConfigParser()
     config.read_string(config_data.text)

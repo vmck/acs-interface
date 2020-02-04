@@ -24,7 +24,7 @@ def test_submission(client, live_server):
         deadline_soft=datetime(2100, 1, 1, tzinfo=timezone.utc),
         deadline_hard=datetime(2100, 1, 1, tzinfo=timezone.utc),
         repo_url='https://github.com/vmck/assignment',
-        repo_branch='pc-00',
+        repo_path='pc-00',
     )
 
     with open(filepath, 'rb') as file:

@@ -21,7 +21,8 @@ from interface import models
 from interface import utils
 from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Course, User
-from interface.backend.submission import handle_submission
+from interface.backend.submission import handle_submission, \
+    TooManySubmissionsError
 
 
 log_level = logging.DEBUG
@@ -69,9 +70,19 @@ def upload(request, course_code, assignment_code):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
-            handle_submission(file, assignment, request.user)
-            return redirect(subs_for_user, course_code,
-                            assignment_code, request.user)
+            try:
+                handle_submission(file, assignment, request.user)
+            except TooManySubmissionsError as e:
+                return render(
+                    request,
+                    'interface/upload.html',
+                    {
+                        'form': form,
+                        'too_many_submissions': {'wait_t': e.wait_t}
+                    }
+                )
+
+            return redirect(users_list, course_code, assignment_code)
     else:
         form = UploadFileForm()
 
