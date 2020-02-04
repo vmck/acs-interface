@@ -42,7 +42,11 @@ class ActionLogAdmin(admin.ModelAdmin):
 
 @admin.register(Assignment)
 class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
-    actions = ['download_review_submissions', 'download_all_submissions', 'run_moss']
+    actions = [
+        'download_review_submissions',
+        'download_all_submissions',
+        'run_moss',
+    ]
 
     def zip_submissions(self, request, submissions):
         with TemporaryDirectory() as _tmp:
@@ -92,17 +96,23 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
                     log.warning(msg)
 
                 submission_archive = ZipFile(tmp / f'{submission.id}.zip')
-                submission_archive.extractall(tmp / f'{submission.user.username}')
+                submission_archive.extractall(
+                    tmp / f'{submission.user.username}',
+                )
 
                 read_files = glob.glob(
-                    str(tmp / f'{submission.user.username}/*.{submission.assignment.language}'),
+                    str(tmp / (f'{submission.user.username}'
+                        '/*.{submission.assignment.language}')
+                        ),
                 )
 
                 for f in read_files:
-                    new_filename = f.split('/')[-2] + f'/{submission.user.username}_' + f.split('/')[-1]
+                    new_filename = f.split('/')[-2]
+                    + f'/{submission.user.username}_'
+                    + f.split('/')[-1]
+
                     moss.addFile(f, new_filename)
 
-            print(moss.files)
             url = moss.send()
 
         messages.success(request, f'Report url: {url}')
@@ -116,7 +126,6 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             return
 
         assignment = queryset[0]
-        submission_set = assignment.submission_set.order_by('timestamp')
 
         return self.zip_submissions(
             request,
