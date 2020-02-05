@@ -180,9 +180,9 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
                 for f in read_files:
                     user_dir = f[len(str(tmp)):]
                     new_filename = (user_dir.split('/')[1]
-                    + f'/{submission.user.username}_'
-                    + user_dir.split('/')[-1]
-                    )
+                                    + f'/{submission.user.username}_'
+                                    + user_dir.split('/')[-1]
+                                    )
 
                     moss.addFile(f, new_filename)
 
