@@ -1,17 +1,15 @@
-import glob
 import logging
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-import mosspy
 import simple_history
-from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
 from django.contrib import admin, messages
 from django.contrib.auth.models import Permission
 
+from interface.moss import moss_check
 from interface.actions_logger import log_action
 from interface.backend.minio_api import MissingFile
 from interface.utils import get_last_submissions_of_every_user
@@ -148,45 +146,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         assignment = queryset[0]
         submissions = get_last_submissions_of_every_user(assignment)
 
-        moss = mosspy.Moss(
-            settings.MOSS_USER_ID,
-            assignment.get_language_display(),
-        )
-        moss.setDirectoryMode(1)
-
-        with TemporaryDirectory() as _tmp:
-            tmp = Path(_tmp)
-
-            for submission in submissions:
-                try:
-                    submission.download(tmp / f'{submission.id}.zip')
-                except MissingFile:
-                    msg = f"File missing for {submission!r}"
-                    messages.error(request, msg)
-                    log.warning(msg)
-
-                submission_archive = ZipFile(tmp / f'{submission.id}.zip')
-                submission_archive.extractall(
-                    tmp / f'{submission.user.username}',
-                )
-
-                read_files = glob.glob(
-                    str(tmp / (f'{submission.user.username}'
-                        f'/**/*.{submission.assignment.language}')
-                        ),
-                    recursive=True,
-                )
-
-                for f in read_files:
-                    user_dir = f[len(str(tmp)):]
-                    new_filename = (user_dir.split('/')[1]
-                                    + f'/{submission.user.username}_'
-                                    + user_dir.split('/')[-1]
-                                    )
-
-                    moss.addFile(f, new_filename)
-
-            url = moss.send()
+        url = moss_check(submissions, assignment, request)
 
         messages.success(request, f'Report url: {url}')
 
