@@ -50,6 +50,18 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
+    LANG_C = 'c'
+    LANG_PYTHON = 'py'
+    LANG_JAVA = 'java'
+
+    # This is a maping from file format to what moss expects
+    # as input when choosing a language
+    LANG_CHOICES = OrderedDict([
+        (LANG_C, 'c'),
+        (LANG_PYTHON, 'python'),
+        (LANG_JAVA, 'java'),
+    ])
+
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
     code = models.CharField(max_length=64, blank=True)
     name = models.CharField(max_length=256, blank=True)
@@ -60,6 +72,11 @@ class Assignment(models.Model):
     repo_url = models.CharField(max_length=256, blank=True)
     repo_branch = models.CharField(max_length=256, blank=True)
     repo_path = models.CharField(max_length=256, blank=True)
+    language = models.CharField(
+        max_length=32,
+        choices=list(LANG_CHOICES.items()),
+        default=LANG_C,
+    )
 
     history = HistoricalRecords()
 

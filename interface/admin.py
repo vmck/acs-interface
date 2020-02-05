@@ -1,19 +1,19 @@
+import logging
+from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
-from pathlib import Path
-import logging
-
-from django.contrib import admin, messages
-from django.http import FileResponse
-from django.db import transaction
 
 import simple_history
-
-from interface.models import Course, Assignment, Submission, ActionLog
+from django.db import transaction
+from django.http import FileResponse
+from django.contrib import admin, messages
 from django.contrib.auth.models import Permission
 
-from interface.backend.minio_api import MissingFile
+from interface.moss import moss_check
 from interface.actions_logger import log_action
+from interface.backend.minio_api import MissingFile
+from interface.utils import get_last_submissions_of_every_user
+from interface.models import Course, Assignment, Submission, ActionLog
 
 
 log_level = logging.DEBUG
@@ -103,7 +103,11 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
 
 @admin.register(Assignment)
 class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
-    actions = ['download_review_submissions', 'download_all_submissions']
+    actions = [
+        'download_review_submissions',
+        'download_all_submissions',
+        'run_moss',
+    ]
 
     def get_queryset(self, request):
         qs = super(AssignmentAdmin, self).get_queryset(request)
@@ -133,6 +137,21 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
+    @log_action('Run moss check')
+    def run_moss(self, request, queryset):
+        if queryset.count() != 1:
+            messages.error(request, 'Only one assignment can be selected')
+            return
+
+        assignment = queryset[0]
+        submissions = get_last_submissions_of_every_user(assignment)
+
+        url = moss_check(submissions, assignment, request)
+
+        messages.success(request, f'Report url: {url}')
+
+    run_moss.short_description = 'Run moss check on the selected assignment'
+
     @log_action('Download last submissions')
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
@@ -140,15 +159,11 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             return
 
         assignment = queryset[0]
-        submission_set = assignment.submission_set.order_by('timestamp')
 
-        submissions = {}
-
-        # we only want the last submission of every user
-        for submission in submission_set:
-            submissions[submission.user.username] = submission
-
-        return self.zip_submissions(request, submissions.values())
+        return self.zip_submissions(
+            request,
+            get_last_submissions_of_every_user(assignment),
+        )
 
     download_review_submissions.short_description = ('Download last '
                                                      'submissions for review')

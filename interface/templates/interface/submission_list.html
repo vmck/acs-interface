@@ -33,7 +33,7 @@
                 {% endif %}
               </td>
               <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
-              <td>{{ sub.state }}</td>
+              <td>{{ sub.get_state_display }}</td>
             </tr>
           {% endfor %}
         </tbody>

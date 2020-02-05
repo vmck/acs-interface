@@ -20,7 +20,7 @@
             <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
             <td><a href="{% url 'submission_result' sub.id %}">{{ sub.id }}</a></td>
             <td>{{ sub.total_score }}</td>
-            <td>{{ sub.state }}</td>
+            <td>{{ sub.get_state_display }}</td>
           </tr>
         {% endfor %}
       </tbody>

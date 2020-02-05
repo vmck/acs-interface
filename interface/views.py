@@ -1,30 +1,28 @@
 import re
 import json
+import pprint
 import logging
 import decimal
-import pprint
 import subprocess
-
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.conf import settings
+from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
-from django.core.paginator import Paginator
 from django.http import JsonResponse, FileResponse, Http404
-from django.conf import settings
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
 
-
-from interface.backend.submission import handle_submission, \
-    TooManySubmissionsError
-from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Course, User
 from interface import models
 from interface import utils
+from interface.forms import UploadFileForm, LoginForm
+from interface.models import Submission, Course, User
+from interface.backend.submission import handle_submission, \
+    TooManySubmissionsError
 
 
 log_level = logging.DEBUG
@@ -165,8 +163,6 @@ def submission_result(request, pk):
 
 @csrf_exempt
 def done(request, pk):
-    # NOTE: make it safe, some form of authentication
-    #       we don't want students updating their score.
     log.debug(f'URL: {request.get_full_path()}')
     log.debug(pprint.pformat(request.body))
 
@@ -239,9 +235,10 @@ def subs_for_user(request, course_code, assignment_code, username):
     course = get_object_or_404(Course.objects, code=course_code)
     assignment = get_object_or_404(course.assignment_set, code=assignment_code)
     submissions = (
-            assignment.submission_set
-            .filter(user=user)
-            .order_by("-timestamp"),)
+        assignment.submission_set
+        .filter(user=user)
+        .order_by("-timestamp")
+    )
 
     return render(request, 'interface/subs_for_user.html', {
         'assignment': assignment,
