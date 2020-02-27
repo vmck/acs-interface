@@ -1,5 +1,6 @@
 import time
 import math
+import configparser
 
 DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
 
@@ -8,6 +9,21 @@ def str_to_time(time_str, format_str=DATE_FORMAT):
     """Interprets time_str as a time value specified by format_str and
     returns that time object"""
     return time.mktime(time.strptime(time_str, format_str))
+
+
+def get_penalty_info(submission):
+    config_data = submission.get_config_ini()
+
+    config = configparser.ConfigParser()
+    config.read_string(config_data.text)
+
+    penalty_info = dict(config['PENALTY'])
+
+    penalty = [int(x) for x in penalty_info['penaltyweights'].split(',')]
+    holiday_s = [x for x in penalty_info.get('holidaystart', '').split(',')]
+    holiday_f = [x for x in penalty_info.get('holidayfinish', '').split(',')]
+
+    return (penalty, holiday_s, holiday_f)
 
 
 def compute_penalty(upload_time, deadline, penalty,

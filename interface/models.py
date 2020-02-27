@@ -19,9 +19,7 @@ import interface.backend.minio_api as storage
 from interface import scoring
 from interface import signals
 from interface.utils import vmck_config
-from interface.utils import get_script_url
-from interface.utils import get_artifact_url
-from interface.utils import get_penalty_info
+from interface.utils import cached_get_file
 
 
 log_level = logging.DEBUG
@@ -189,6 +187,16 @@ class Submission(models.Model):
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
 
+    def get_script_url(self):
+        return self.assignment.url_for('checker.sh')
+
+    def get_artifact_url(self):
+        return self.assignment.url_for('artifact.zip')
+
+    def get_config_ini(self):
+        url = self.assignment.url_for('config.ini')
+        return cached_get_file(url)
+
     def compute_review_score(self):
         marks = re.findall(
             r'^([+-]\d+\.*\d*):',
@@ -200,7 +208,8 @@ class Submission(models.Model):
         return sum([decimal.Decimal(mark) for mark in marks])
 
     def compute_penalty(self):
-        (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
+        (penalties, holiday_start, holiday_finish) = \
+            scoring.get_penalty_info(self)
         timestamp = self.timestamp or datetime.datetime.now()
         deadline = self.assignment.deadline_soft
 
@@ -232,8 +241,8 @@ class Submission(models.Model):
         options['env'] = {}
         options['env']['archive'] = self.get_url()
         options['env']['vagrant_tag'] = settings.MANAGER_TAG
-        options['env']['script'] = get_script_url(self)
-        options['env']['artifact'] = get_artifact_url(self)
+        options['env']['script'] = self.get_script_url()
+        options['env']['artifact'] = self.get_artifact_url()
         options['env']['memory'] = settings.MANAGER_MEMORY
         options['env']['cpu_mhz'] = settings.MANAGER_MHZ
         options['env']['callback'] = urljoin(
