@@ -1,6 +1,5 @@
 import re
 import logging
-import decimal
 import datetime
 from collections import OrderedDict
 from urllib.parse import urljoin
@@ -185,16 +184,6 @@ class Submission(models.Model):
     def get_config_ini(self):
         url = self.assignment.url_for('config.ini')
         return cached_get_file(url)
-
-    def compute_review_score(self):
-        marks = re.findall(
-            r'^([+-]\d+\.*\d*):',
-            self.review_message,
-            re.MULTILINE,
-        )
-        log.debug('Marks found: ' + str(marks))
-
-        return sum([decimal.Decimal(mark) for mark in marks])
 
     def compute_penalty(self):
         (penalties, holiday_start, holiday_finish) = \

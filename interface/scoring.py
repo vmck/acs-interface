@@ -1,8 +1,15 @@
 import time
 import math
 import configparser
+import decimal
+import re
+import logging
 
 DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
+
+log_level = logging.DEBUG
+log = logging.getLogger(__name__)
+log.setLevel(log_level)
 
 
 def str_to_time(time_str, format_str=DATE_FORMAT):
@@ -75,9 +82,21 @@ def compute_penalty(upload_time, deadline, penalty,
 
     return penalty_points
 
+
+def compute_review_score(submission):
+    marks = re.findall(
+        r'^([+-]\d+\.*\d*):',
+        submission.review_message,
+        re.MULTILINE,
+    )
+    log.debug('Marks found: ' + str(marks))
+
+    return sum([decimal.Decimal(mark) for mark in marks])
+
+
 def calculate_total_score(submission):
     score = submission.score if submission.score else 0
-    submission.review_score = submission.compute_review_score()
+    submission.review_score = compute_review_score(submission)
     if submission.penalty is None:
         submission.penalty = submission.compute_penalty()
     penalty = submission.penalty
