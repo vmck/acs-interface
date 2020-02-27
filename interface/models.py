@@ -5,7 +5,6 @@ from collections import OrderedDict
 from urllib.parse import urljoin
 
 import jwt
-import requests
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
@@ -15,9 +14,8 @@ from django.contrib.contenttypes.models import ContentType
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
-from interface import scoring
 from interface import signals
-from interface.utils import vmck_config
+from interface import vmck
 from interface.utils import cached_get_file
 
 
@@ -165,10 +163,7 @@ class Submission(models.Model):
 
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
-            response = requests.get(urljoin(settings.VMCK_API_URL,
-                                            f'jobs/{self.vmck_job_id}'))
-
-            self.state = response.json()['state']
+            self.state = vmck.update(self)
             self.changeReason = 'Update state'
             self.save()
 
@@ -185,20 +180,6 @@ class Submission(models.Model):
         url = self.assignment.url_for('config.ini')
         return cached_get_file(url)
 
-    def compute_penalty(self):
-        (penalties, holiday_start, holiday_finish) = \
-            scoring.get_penalty_info(self)
-        timestamp = self.timestamp or datetime.datetime.now()
-        deadline = self.assignment.deadline_soft
-
-        return scoring.compute_penalty(
-            timestamp.strftime(scoring.DATE_FORMAT),
-            deadline.strftime(scoring.DATE_FORMAT),
-            penalties,
-            holiday_start,
-            holiday_finish,
-        )
-
     def __str__(self):
         return f"#{self.id} by {self.user}"
 
@@ -210,33 +191,7 @@ class Submission(models.Model):
         return storage.get_link(f'{self.id}.zip')
 
     def evaluate(self):
-        callback = (f"submission/{self.id}/done?"
-                    f"token={str(self.generate_jwt(), encoding='latin1')}")
-
-        options = vmck_config(self)
-        options['name'] = f'{self.assignment.full_code} submission #{self.id}'
-        options['manager'] = True
-        options['env'] = {}
-        options['env']['archive'] = self.get_url()
-        options['env']['vagrant_tag'] = settings.MANAGER_TAG
-        options['env']['script'] = self.get_script_url()
-        options['env']['artifact'] = self.get_artifact_url()
-        options['env']['memory'] = settings.MANAGER_MEMORY
-        options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-        options['env']['callback'] = urljoin(
-            settings.ACS_INTERFACE_ADDRESS,
-            callback,
-        )
-        options['restrict_network'] = True
-        log.debug(f'Submission #{self.id} config is done')
-        log.debug(f"Callback: {options['env']['callback']}")
-
-        response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
-                                 json=options)
-
-        log.debug(f"Submission's #{self.id} VMCK response:\n{response}")
-
-        self.vmck_job_id = response.json()['id']
+        self.vmck_job_id = vmck.evaluate(self)
         self.changeReason = 'VMCK id'
         self.save()
 

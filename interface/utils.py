@@ -1,27 +1,11 @@
 import string
 import secrets
 import base64
-import configparser
 
 import requests
 from cachetools import cached, TTLCache
 
 vocabulary_64 = string.ascii_letters + string.digits + '.+'
-
-
-def vmck_config(submission):
-    config_data = submission.get_config_ini()
-
-    config = configparser.ConfigParser()
-    config.read_string(config_data.text)
-
-    config_dict = dict(config['VMCK'])
-
-    for key, value in config_dict.items():
-        if is_number(value):
-            config_dict[key] = int(value)
-
-    return config_dict
 
 
 def is_number(string):
