@@ -16,7 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
-from interface import penalty
+from interface import scoring
 from interface import signals
 from interface.utils import vmck_config
 from interface.utils import get_script_url
@@ -204,9 +204,9 @@ class Submission(models.Model):
         timestamp = self.timestamp or datetime.datetime.now()
         deadline = self.assignment.deadline_soft
 
-        return penalty.compute_penalty(
-            timestamp.strftime(penalty.DATE_FORMAT),
-            deadline.strftime(penalty.DATE_FORMAT),
+        return scoring.compute_penalty(
+            timestamp.strftime(scoring.DATE_FORMAT),
+            deadline.strftime(scoring.DATE_FORMAT),
             penalties,
             holiday_start,
             holiday_finish,
