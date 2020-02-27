@@ -186,7 +186,6 @@ def done(request, pk):
         stdout = stdout[:32730] + '... TRUNCATED BECAUSE TOO BIG ...'
 
     submission.score = decimal.Decimal(points)
-    submission.penalty = submission.compute_penalty()
     submission.total_score = calculate_total_score(submission)
     submission.stdout = stdout
     submission.state = Submission.STATE_DONE

@@ -98,19 +98,19 @@ def compute_review_score(submission):
 def calculate_total_score(submission):
     score = submission.score if submission.score else 0
     submission.review_score = compute_review_score(submission)
-    if submission.penalty is None:
-        (penalties, holiday_start, holiday_finish) = \
-            get_penalty_info(submission)
-        timestamp = submission.timestamp or datetime.datetime.now()
-        deadline = submission.assignment.deadline_soft
 
-        submission.penalty = compute_penalty(
-            timestamp.strftime(DATE_FORMAT),
-            deadline.strftime(DATE_FORMAT),
-            penalties,
-            holiday_start,
-            holiday_finish,
-        )
+    (penalties, holiday_start, holiday_finish) = \
+        get_penalty_info(submission)
+    timestamp = submission.timestamp or datetime.datetime.now()
+    deadline = submission.assignment.deadline_soft
+
+    submission.penalty = compute_penalty(
+        timestamp.strftime(DATE_FORMAT),
+        deadline.strftime(DATE_FORMAT),
+        penalties,
+        holiday_start,
+        holiday_finish,
+    )
 
     penalty = submission.penalty
 
