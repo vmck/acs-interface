@@ -74,3 +74,14 @@ def compute_penalty(upload_time, deadline, penalty,
         days_late = 0
 
     return penalty_points
+
+def calculate_total_score(submission):
+    score = submission.score if submission.score else 0
+    submission.review_score = submission.compute_review_score()
+    if submission.penalty is None:
+        submission.penalty = submission.compute_penalty()
+    penalty = submission.penalty
+
+    total_score = score + submission.review_score - penalty
+
+    return total_score if total_score >= 0 else 0

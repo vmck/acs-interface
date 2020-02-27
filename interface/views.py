@@ -23,6 +23,7 @@ from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Course, User
 from interface.backend.submission import handle_submission, \
     TooManySubmissionsError
+from .scoring import calculate_total_score
 
 
 log_level = logging.DEBUG
@@ -186,7 +187,7 @@ def done(request, pk):
 
     submission.score = decimal.Decimal(points)
     submission.penalty = submission.compute_penalty()
-    submission.total_score = submission.calculate_total_score()
+    submission.total_score = calculate_total_score(submission)
     submission.stdout = stdout
     submission.state = Submission.STATE_DONE
 

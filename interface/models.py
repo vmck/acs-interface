@@ -164,17 +164,6 @@ class Submission(models.Model):
 
     history = HistoricalRecords()
 
-    def calculate_total_score(self):
-        score = self.score if self.score else 0
-        self.review_score = self.compute_review_score()
-        if self.penalty is None:
-            self.penalty = self.compute_penalty()
-        penalty = self.penalty
-
-        total_score = score + self.review_score - penalty
-
-        return total_score if total_score >= 0 else 0
-
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
             response = requests.get(urljoin(settings.VMCK_API_URL,
