@@ -1,13 +1,37 @@
 import time
 import math
+import configparser
+import decimal
+import re
+import logging
+import datetime
 
 DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
+
+log_level = logging.DEBUG
+log = logging.getLogger(__name__)
+log.setLevel(log_level)
 
 
 def str_to_time(time_str, format_str=DATE_FORMAT):
     """Interprets time_str as a time value specified by format_str and
     returns that time object"""
     return time.mktime(time.strptime(time_str, format_str))
+
+
+def get_penalty_info(submission):
+    config_data = submission.get_config_ini()
+
+    config = configparser.ConfigParser()
+    config.read_string(config_data.text)
+
+    penalty_info = dict(config['PENALTY'])
+
+    penalty = [int(x) for x in penalty_info['penaltyweights'].split(',')]
+    holiday_s = [x for x in penalty_info.get('holidaystart', '').split(',')]
+    holiday_f = [x for x in penalty_info.get('holidayfinish', '').split(',')]
+
+    return (penalty, holiday_s, holiday_f)
 
 
 def compute_penalty(upload_time, deadline, penalty,
@@ -58,3 +82,38 @@ def compute_penalty(upload_time, deadline, penalty,
         days_late = 0
 
     return penalty_points
+
+
+def compute_review_score(submission):
+    marks = re.findall(
+        r'^([+-]\d+\.*\d*):',
+        submission.review_message,
+        re.MULTILINE,
+    )
+    log.debug('Marks found: ' + str(marks))
+
+    return sum([decimal.Decimal(mark) for mark in marks])
+
+
+def calculate_total_score(submission):
+    score = submission.score if submission.score else 0
+    submission.review_score = compute_review_score(submission)
+
+    (penalties, holiday_start, holiday_finish) = \
+        get_penalty_info(submission)
+    timestamp = submission.timestamp or datetime.datetime.now()
+    deadline = submission.assignment.deadline_soft
+
+    submission.penalty = compute_penalty(
+        timestamp.strftime(DATE_FORMAT),
+        deadline.strftime(DATE_FORMAT),
+        penalties,
+        holiday_start,
+        holiday_finish,
+    )
+
+    penalty = submission.penalty
+
+    total_score = score + submission.review_score - penalty
+
+    return total_score if total_score >= 0 else 0

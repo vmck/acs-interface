@@ -1,12 +1,10 @@
 import re
 import logging
-import decimal
 import datetime
 from collections import OrderedDict
 from urllib.parse import urljoin
 
 import jwt
-import requests
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
@@ -16,12 +14,9 @@ from django.contrib.contenttypes.models import ContentType
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
-from interface import penalty
 from interface import signals
-from interface.utils import vmck_config
-from interface.utils import get_script_url
-from interface.utils import get_artifact_url
-from interface.utils import get_penalty_info
+from interface import vmck
+from interface.utils import cached_get_file
 
 
 log_level = logging.DEBUG
@@ -166,51 +161,24 @@ class Submission(models.Model):
 
     history = HistoricalRecords()
 
-    def calculate_total_score(self):
-        score = self.score if self.score else 0
-        self.review_score = self.compute_review_score()
-        if self.penalty is None:
-            self.penalty = self.compute_penalty()
-        penalty = self.penalty
-
-        total_score = score + self.review_score - penalty
-
-        return total_score if total_score >= 0 else 0
-
     def update_state(self):
         if self.state != self.STATE_DONE and self.vmck_job_id is not None:
-            response = requests.get(urljoin(settings.VMCK_API_URL,
-                                            f'jobs/{self.vmck_job_id}'))
-
-            self.state = response.json()['state']
+            self.state = vmck.update(self)
             self.changeReason = 'Update state'
             self.save()
 
     def download(self, path):
         storage.download(f'{self.id}.zip', path)
 
-    def compute_review_score(self):
-        marks = re.findall(
-            r'^([+-]\d+\.*\d*):',
-            self.review_message,
-            re.MULTILINE,
-        )
-        log.debug('Marks found: ' + str(marks))
+    def get_script_url(self):
+        return self.assignment.url_for('checker.sh')
 
-        return sum([decimal.Decimal(mark) for mark in marks])
+    def get_artifact_url(self):
+        return self.assignment.url_for('artifact.zip')
 
-    def compute_penalty(self):
-        (penalties, holiday_start, holiday_finish) = get_penalty_info(self)
-        timestamp = self.timestamp or datetime.datetime.now()
-        deadline = self.assignment.deadline_soft
-
-        return penalty.compute_penalty(
-            timestamp.strftime(penalty.DATE_FORMAT),
-            deadline.strftime(penalty.DATE_FORMAT),
-            penalties,
-            holiday_start,
-            holiday_finish,
-        )
+    def get_config_ini(self):
+        url = self.assignment.url_for('config.ini')
+        return cached_get_file(url)
 
     def __str__(self):
         return f"#{self.id} by {self.user}"
@@ -223,33 +191,7 @@ class Submission(models.Model):
         return storage.get_link(f'{self.id}.zip')
 
     def evaluate(self):
-        callback = (f"submission/{self.id}/done?"
-                    f"token={str(self.generate_jwt(), encoding='latin1')}")
-
-        options = vmck_config(self)
-        options['name'] = f'{self.assignment.full_code} submission #{self.id}'
-        options['manager'] = True
-        options['env'] = {}
-        options['env']['archive'] = self.get_url()
-        options['env']['vagrant_tag'] = settings.MANAGER_TAG
-        options['env']['script'] = get_script_url(self)
-        options['env']['artifact'] = get_artifact_url(self)
-        options['env']['memory'] = settings.MANAGER_MEMORY
-        options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-        options['env']['callback'] = urljoin(
-            settings.ACS_INTERFACE_ADDRESS,
-            callback,
-        )
-        options['restrict_network'] = True
-        log.debug(f'Submission #{self.id} config is done')
-        log.debug(f"Callback: {options['env']['callback']}")
-
-        response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
-                                 json=options)
-
-        log.debug(f"Submission's #{self.id} VMCK response:\n{response}")
-
-        self.vmck_job_id = response.json()['id']
+        self.vmck_job_id = vmck.evaluate(self)
         self.changeReason = 'VMCK id'
         self.save()
 
