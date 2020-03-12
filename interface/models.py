@@ -19,9 +19,7 @@ from interface import vmck
 from interface.utils import cached_get_file
 
 
-log_level = logging.DEBUG
 log = logging.getLogger(__name__)
-log.setLevel(log_level)
 
 
 class ActionLog(models.Model):

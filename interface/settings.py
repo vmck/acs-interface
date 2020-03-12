@@ -124,7 +124,7 @@ MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', '1234')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', '123456789')
 MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
-ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')  # noqa: E501
+ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', '10.0.2.15:8100')  # noqa: E501
 
 MANAGER_MEMORY = int(os.environ.get('MANAGER_MEMORY', 50))
 MANAGER_MHZ = int(os.environ.get('MANAGER_MHZ', 30))
@@ -133,3 +133,28 @@ MANAGER_TAG = os.environ.get('MANAGER_TAG', 'master')
 SUBMISSIONS_PER_PAGE = 20
 
 MOSS_USER_ID = int(os.environ.get('MOSS_USER_ID', 9999999))
+
+# Used for updating the status of homeworks
+CHECK_INTERVAL_SUBS = 2  # in seconds
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+        'interface': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+    },
+}
