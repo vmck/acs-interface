@@ -4,4 +4,5 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 ./manage.py migrate
 ./manage.py storage_setup
+./manage.py sync_vmck &
 exec ./manage.py waitress
