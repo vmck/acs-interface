@@ -1,7 +1,7 @@
 import os
 
 import ldap
-from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+from django_auth_ldap.config import LDAPSearch
 from interface.utils import is_true
 from pathlib import Path
 
@@ -42,12 +42,9 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
     ldap.SCOPE_SUBTREE,
     os.getenv('LDAP_USER_FILTER'),
 )
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
-    "ou=People,dc=curs,dc=pub,dc=ro",
-    ldap.SCOPE_SUBTREE,
-    "(objectClass=person)",
-)
-AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
+
+AUTH_LDAP_FIND_GROUP_PERMS = False
+
 AUTH_LDAP_USER_ATTR_MAP = {
     'first_name': 'givenName',
     'last_name': 'sn',
@@ -55,7 +52,6 @@ AUTH_LDAP_USER_ATTR_MAP = {
 }
 
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
-AUTH_LDAP_FIND_GROUP_PERMS = True
 AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 AUTHENTICATION_BACKENDS = [
