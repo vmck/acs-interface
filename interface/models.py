@@ -160,7 +160,7 @@ class Submission(models.Model):
     history = HistoricalRecords()
 
     def update_state(self):
-        if self.state == self.STATE_DONE or self.vmck_job_id is not None:
+        if self.state == self.STATE_DONE or self.vmck_job_id is None:
             return
 
         state = vmck.update(self)
