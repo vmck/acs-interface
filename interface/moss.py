@@ -11,9 +11,7 @@ from django.contrib import messages
 from interface.backend.minio_api import MissingFile
 
 
-log_level = logging.DEBUG
 log = logging.getLogger(__name__)
-log.setLevel(log_level)
 
 
 def moss_check(submissions, assignment, request):

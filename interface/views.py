@@ -26,9 +26,7 @@ from interface.backend.submission import handle_submission, \
 from .scoring import calculate_total_score
 
 
-log_level = logging.DEBUG
 log = logging.getLogger(__name__)
-log.setLevel(log_level)
 
 
 def login_view(request):
@@ -136,9 +134,6 @@ def submission_list(request):
 
     page = request.GET.get('page', '1')
     subs = paginator.get_page(page)
-
-    for submission in subs:
-        submission.update_state()
 
     return render(request, 'interface/submission_list.html', {
         'subs': subs,

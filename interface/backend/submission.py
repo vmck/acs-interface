@@ -7,9 +7,7 @@ import interface.backend.minio_api as storage
 from interface.models import Assignment
 
 
-log_level = logging.DEBUG
 log = logging.getLogger(__name__)
-log.setLevel(log_level)
 
 
 def handle_submission(file, assignment, user):

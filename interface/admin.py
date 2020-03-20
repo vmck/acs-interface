@@ -16,9 +16,7 @@ from interface.utils import get_last_submissions_of_every_user
 from interface.models import Course, Assignment, Submission, ActionLog
 
 
-log_level = logging.DEBUG
 log = logging.getLogger(__name__)
-log.setLevel(log_level)
 
 
 @admin.register(ActionLog)

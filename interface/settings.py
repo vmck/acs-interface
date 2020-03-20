@@ -133,3 +133,28 @@ MANAGER_TAG = os.environ.get('MANAGER_TAG', 'master')
 SUBMISSIONS_PER_PAGE = 20
 
 MOSS_USER_ID = int(os.environ.get('MOSS_USER_ID', 9999999))
+
+# Used for updating the status of homeworks
+CHECK_INTERVAL_SUBS = 2  # in seconds
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+        'interface': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+    },
+}
