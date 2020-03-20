@@ -43,7 +43,9 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
     os.getenv('LDAP_USER_FILTER'),
 )
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
-    "ou=People,dc=curs,dc=pub,dc=ro", ldap.SCOPE_SUBTREE, "(objectClass=person)"
+    "ou=People,dc=curs,dc=pub,dc=ro",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=person)",
 )
 AUTH_LDAP_USER_ATTR_MAP = {
     'first_name': 'givenName',
