@@ -160,9 +160,13 @@ class Submission(models.Model):
     history = HistoricalRecords()
 
     def update_state(self):
-        if self.state != self.STATE_DONE and self.vmck_job_id is not None:
-            self.state = vmck.update(self)
-            self.changeReason = 'Update state'
+        if self.state == self.STATE_DONE or self.vmck_job_id is not None:
+            return
+
+        state = vmck.update(self)
+        if state != self.state:
+            self.state = state
+            self.changeReason = f'Update state to {state}'
             self.save()
 
     def download(self, path):
