@@ -1,7 +1,7 @@
 import os
 
 import ldap
-from django_auth_ldap.config import LDAPSearch
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 from interface.utils import is_true
 from pathlib import Path
 
@@ -47,6 +47,7 @@ AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     ldap.SCOPE_SUBTREE,
     "(objectClass=person)",
 )
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
 AUTH_LDAP_USER_ATTR_MAP = {
     'first_name': 'givenName',
     'last_name': 'sn',
