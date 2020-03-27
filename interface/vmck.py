@@ -34,21 +34,24 @@ def evaluate(submission):
     options = vmck_config(submission)
     name = f'{submission.assignment.full_code} submission #{submission.id}'
     options['name'] = name
-    options['manager'] = True
+    options['restrict_network'] = True
+
+    options['manager'] = {}
+    options['manager']['vagrant_tag'] = settings.MANAGER_TAG
+    options['manager']['memory'] = settings.MANAGER_MEMORY
+    options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
+
     options['env'] = {}
-    options['env']['archive'] = submission.get_url()
-    options['env']['vagrant_tag'] = settings.MANAGER_TAG
-    options['env']['script'] = submission.get_script_url()
-    options['env']['artifact'] = submission.get_artifact_url()
-    options['env']['memory'] = settings.MANAGER_MEMORY
-    options['env']['cpu_mhz'] = settings.MANAGER_MHZ
-    options['env']['callback'] = urljoin(
+    options['env']['archive_url'] = submission.get_url()
+    options['env']['script_url'] = submission.get_script_url()
+    options['env']['artifact_url'] = submission.get_artifact_url()
+    options['env']['callback_url'] = urljoin(
         settings.ACS_INTERFACE_ADDRESS,
         callback,
     )
-    options['restrict_network'] = True
+
     log.debug(f'Submission #{submission.id} config is done')
-    log.debug(f"Callback: {options['env']['callback']}")
+    log.debug(f"Callback: {options['env']['callback_url']}")
 
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
