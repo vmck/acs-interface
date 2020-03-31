@@ -38,7 +38,7 @@ def evaluate(submission):
 
     options['manager'] = {}
     options['manager']['vagrant_tag'] = settings.MANAGER_TAG
-    options['manager']['memory'] = settings.MANAGER_MEMORY
+    options['manager']['memory_mb'] = settings.MANAGER_MEMORY
     options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
 
     options['env'] = {}
