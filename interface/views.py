@@ -76,7 +76,10 @@ def upload(request, course_code, assignment_code):
                 handle_submission(file, assignment, request.user)
 
             except TooManySubmissionsError as e:
-                messages.error(request, f'Please wait {e.wait_t}s between submissions')
+                messages.error(
+                    request,
+                    f'Please wait {e.wait_t}s between submissions',
+                )
 
             except CorruptZipFile:
                 messages.error(request, 'The archive is corrupt')

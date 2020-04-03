@@ -3,7 +3,6 @@ from zipfile import ZipFile
 
 from django.db import transaction
 from django.utils import timezone
-from django.contrib import messages
 
 from interface.models import Assignment
 import interface.backend.minio_api as storage
