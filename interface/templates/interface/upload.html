@@ -1,10 +1,14 @@
 {% extends "interface/generics/base.html" %}
 
 {% block body_content %}
-  {% if too_many_submissions %}
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
       <script type="text/javascript">
-        alert('Please wait {{too_many_submissions.wait_t}}s between submissions');
+        alert('{{ message }}');
       </script>
+      {% endfor %}
+  </ul>
   {% endif %}
 
   <div class="container">
