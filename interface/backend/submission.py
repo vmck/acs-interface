@@ -1,17 +1,26 @@
 import logging
+from zipfile import ZipFile
 
 from django.db import transaction
 from django.utils import timezone
 
-import interface.backend.minio_api as storage
 from interface.models import Assignment
+import interface.backend.minio_api as storage
 
 
 log = logging.getLogger(__name__)
 
 
+class CorruptZipFile(Exception):
+    pass
+
+
 def handle_submission(file, assignment, user):
     log.debug(f'Submission {file.name} received')
+
+    with ZipFile(file) as archive:
+        if archive.testzip():
+            raise CorruptZipFile()
 
     with transaction.atomic():
         """

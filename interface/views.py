@@ -5,9 +5,11 @@ import logging
 import decimal
 import subprocess
 from pathlib import Path
+from zipfile import BadZipFile
 from tempfile import TemporaryDirectory
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -22,7 +24,8 @@ from interface import utils
 from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Course, User
 from interface.backend.submission import handle_submission, \
-    TooManySubmissionsError
+    TooManySubmissionsError, \
+    CorruptZipFile
 from .scoring import calculate_total_score
 
 
@@ -71,17 +74,25 @@ def upload(request, course_code, assignment_code):
             file = request.FILES['file']
             try:
                 handle_submission(file, assignment, request.user)
+
             except TooManySubmissionsError as e:
-                return render(
+                messages.error(
                     request,
-                    'interface/upload.html',
-                    {
-                        'form': form,
-                        'too_many_submissions': {'wait_t': e.wait_t}
-                    }
+                    f'Please wait {e.wait_t}s between submissions',
                 )
 
-            return redirect(users_list, course_code, assignment_code)
+            except CorruptZipFile:
+                messages.error(request, 'The archive is corrupt')
+
+            except BadZipFile:
+                messages.error(request, 'File is not a valid zip archive')
+
+            else:
+                return redirect(users_list, course_code, assignment_code)
+
+            return render(request, 'interface/upload.html', {
+                'form': form,
+            })
     else:
         form = UploadFileForm()
 
