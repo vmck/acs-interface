@@ -51,6 +51,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
                 Permission.objects
                 .filter(codename__in=CourseAdmin._ta_permissions)
             )
+        print(user)
 
         if not user.is_staff:
             user.is_staff = True
@@ -183,7 +184,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
-    actions = ['rerun_submissions', 'download_archive', 'recompute_score']
+    actions = ['recompute_score']
     list_display = [
         '__str__', 'assignment', 'timestamp',
         'archive_size', 'total_score', 'state',
@@ -201,39 +202,6 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         if request.user.is_superuser:
             return qs
         return qs.filter(assignment__course__teaching_assistants=request.user)
-
-    @log_action('Rerun submission')
-    def rerun_submissions(self, request, submissions):
-        for submission in submissions:
-            submission.state = Submission.STATE_NEW
-            submission.evaluate()
-
-    rerun_submissions.short_description = 'Re-run submissions'
-
-    @log_action('Donwload submission archive')
-    def download_archive(self, request, queryset):
-        if queryset.count() != 1:
-            messages.error(request, 'Only one submission can be selected')
-            return
-
-        submission = queryset[0]
-
-        with TemporaryDirectory() as _tmp:
-            tmp = Path(_tmp)
-
-            try:
-                submission.download(tmp / f'{submission.id}.zip')
-            except MissingFile:
-                msg = f"File missing for {submission!r}"
-                messages.error(request, msg)
-                log.warning(msg)
-                return
-
-            else:
-                submission_zip = (tmp / f'{submission.id}.zip').open('rb')
-                return FileResponse(submission_zip)
-
-    download_archive.short_description = 'Download submission archive'
 
     @log_action('Recompute score')
     def recompute_score(self, request, submissions):
