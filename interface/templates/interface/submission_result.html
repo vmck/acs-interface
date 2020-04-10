@@ -5,11 +5,32 @@
 
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
-  {% if user.is_staff %}
-    <p>
-      <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-    </p>
-  {% endif %}
+  <div class="row">
+    <div class="col-1">
+      {% if user.is_staff %}
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+        </p>
+      {% endif %}
+    </div>
+
+    {% if user is sub.user or perms.interface.view_submission %}
+    <div class="col-1.5">
+      <form action="download">
+        {% csrf_token %}
+        <input formmethod="post" class="btn btn-primary btn-sm" type="submit" value="Download archive">
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="col-1">
+      <form action="rerun">
+        {% csrf_token %}
+        <input formmethod="post" class="btn btn-primary btn-sm" type="submit" value="Rerun submission">
+      </form>
+    </div>
+  </div>
+
 
   {% if sub.state == sub.STATE_DONE %}
 
