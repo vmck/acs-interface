@@ -134,6 +134,8 @@ SUBMISSIONS_PER_PAGE = 20
 
 MOSS_USER_ID = int(os.environ.get('MOSS_USER_ID', 9999999))
 
+APP_THREAD_COUNT = int(os.environ.get('APP_THREAD_COUNT', 20))
+
 # Used for updating the status of homeworks
 CHECK_INTERVAL_SUBS = 2  # in seconds
 
