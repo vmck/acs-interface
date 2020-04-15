@@ -25,6 +25,7 @@ from interface.backend.submission import handle_submission, \
     TooManySubmissionsError
 from .scoring import calculate_total_score
 
+from util.submission_scheduler import SubmissionScheduler
 
 log = logging.getLogger(__name__)
 
@@ -191,6 +192,8 @@ def done(request, pk):
 
     submission.changeReason = 'Evaluation'
     submission.save()
+
+    SubmissionScheduler.done_evaluation()
 
     return JsonResponse({})
 
