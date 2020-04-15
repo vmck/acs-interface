@@ -20,9 +20,9 @@ from interface.utils import cached_get_file
 from interface.backend.submission.submission_scheduler import \
     SubmissionScheduler
 
+from util.submission_scheduler import SubmissionScheduler
 
 log = logging.getLogger(__name__)
-
 
 class ActionLog(models.Model):
     timestamp = models.DateTimeField()
@@ -221,6 +221,5 @@ class Submission(models.Model):
                                      algorithms=['HS256'])
 
         return decoded_message['data'] == str(self.pk)
-
 
 pre_save.connect(signals.update_total_score, sender=Submission)
