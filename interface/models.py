@@ -220,6 +220,7 @@ class Submission(models.Model):
                                      settings.SECRET_KEY,
                                      algorithms=['HS256'])
 
-        return decoded_message['data'] == str(self.pk)
+        return decoded_message['data'] == str(self.id)
+
 
 pre_save.connect(signals.update_total_score, sender=Submission)
