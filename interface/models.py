@@ -24,6 +24,7 @@ from util.submission_scheduler import SubmissionScheduler
 
 log = logging.getLogger(__name__)
 
+
 class ActionLog(models.Model):
     timestamp = models.DateTimeField()
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
