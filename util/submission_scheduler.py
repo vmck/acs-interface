@@ -1,8 +1,12 @@
+import time
 import logging
 from queue import PriorityQueue
 from threading import Semaphore, Thread
 
+from django.conf import settings
+
 from interface import vmck
+from interface import models
 
 
 log = logging.getLogger(__name__)
@@ -15,6 +19,7 @@ class SubQueue(object):
         self.max_machines = free_machines
         self.sem = Semaphore(free_machines)
         self.consumer = Thread(target=self._run_submission)
+        self.sync = Thread(target=self._sync_vmck)
 
     def _run_submission(self):
         while True:
@@ -22,9 +27,27 @@ class SubQueue(object):
             self.sem.acquire()
             self._evaluate_submission(sub)
 
+    def _sync_vmck(self):
+        while True:
+            submissions = (
+                models.Submission.objects
+                .exclude(state=models.Submission.STATE_DONE)
+                .exclude(state=models.Submission.STATE_QUEUED)
+                .order_by('-id')
+            )
+
+            for submission in submissions:
+                submission.update_state()
+                log.info(f"Check submission #{submission.id} status")
+
+            time.sleep(settings.CHECK_INTERVAL_SUBS)
+
     def add_sub(self, sub):
         if not self.consumer.is_alive():
             self.consumer.start()
+
+        if not self.sync.is_alive():
+            self.sync.start()
 
         log.info(f"Add submission #{sub.id} to queue")
         self.queue.put((sub.timestamp, sub))
