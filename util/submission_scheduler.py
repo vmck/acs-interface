@@ -16,8 +16,6 @@ class SubQueue(object):
         self.sem = Semaphore(free_machines)
         self.consumer = Thread(target=self._run_submission)
 
-        self.consumer.start()
-
     def _run_submission(self):
         while True:
             print("Done")
@@ -27,6 +25,9 @@ class SubQueue(object):
             self._evaluate_submission(sub)
 
     def add_sub(self, sub):
+        if not self.consumer.is_alive():
+            self.consumer.start()
+
         log.info(f"Add submission #{sub.id} to queue")
         self.queue.put((sub.timestamp, sub))
         sub.state = sub.STATE_QUEUED
@@ -40,6 +41,7 @@ class SubQueue(object):
         print("Eval")
         log.info(f"Evaluate submission #{sub.id}")
         sub.vmck_job_id = vmck.evaluate(sub)
+        sub.state = sub.STATE_NEW
         sub.changeReason = "VMCK id"
         sub.save()
 
@@ -49,7 +51,7 @@ class SubQueue(object):
 
 class SubmissionScheduler(object):
     # Queue for all the assignments that are not prioritiezed
-    general_queue = SubQueue(4)
+    general_queue = SubQueue(2)
 
     def __init__(self):
         raise AttributeError("No init method for SubmissionScheduler")
