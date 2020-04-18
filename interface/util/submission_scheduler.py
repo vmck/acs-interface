@@ -21,6 +21,9 @@ class SubQueue(object):
         self.consumer = Thread(target=self._run_submission)
         self.sync = Thread(target=self._sync_vmck)
 
+        self.consumer.daemon = True
+        self.sync.daemon = True
+
     def _run_submission(self):
         while True:
             _, sub = self.queue.get()

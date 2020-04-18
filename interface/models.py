@@ -17,7 +17,7 @@ import interface.backend.minio_api as storage
 from interface import signals
 from interface import vmck
 from interface.utils import cached_get_file
-from util.submission_scheduler import SubmissionScheduler
+from interface.util.submission_scheduler import SubmissionScheduler
 
 
 log = logging.getLogger(__name__)
