@@ -169,6 +169,11 @@ class Submission(models.Model):
         state = vmck.update(self)
         if state != self.state:
             self.state = state
+
+            if state == Submission.STATE_DONE:
+                SubmissionScheduler.show()
+                SubmissionScheduler.done_evaluation()
+
             self.changeReason = f'Update state to {state}'
             self.save()
 

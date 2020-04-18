@@ -27,7 +27,6 @@ from interface.backend.submission import handle_submission, \
     TooManySubmissionsError, \
     CorruptZipFile
 from .scoring import calculate_total_score
-from util.submission_scheduler import SubmissionScheduler
 
 
 log = logging.getLogger(__name__)
@@ -195,7 +194,7 @@ def done(request, pk):
     submission.score = decimal.Decimal(points)
     submission.total_score = calculate_total_score(submission)
     submission.stdout = stdout
-    submission.state = Submission.STATE_DONE
+    submission.update_state()
 
     log.debug(f'Submission #{submission.id}:')
     log.debug(f'Stdout:\n{submission.stdout}')
@@ -203,8 +202,6 @@ def done(request, pk):
 
     submission.changeReason = 'Evaluation'
     submission.save()
-
-    SubmissionScheduler.done_evaluation()
 
     return JsonResponse({})
 
