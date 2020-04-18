@@ -20,7 +20,6 @@ from interface.utils import cached_get_file
 from interface.backend.submission.submission_scheduler import \
     SubmissionScheduler
 
-from util.submission_scheduler import SubmissionScheduler
 
 log = logging.getLogger(__name__)
 

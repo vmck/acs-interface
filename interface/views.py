@@ -27,8 +27,8 @@ from interface.backend.submission.submission import handle_submission, \
     TooManySubmissionsError, \
     CorruptZipFile
 from .scoring import calculate_total_score
-
 from util.submission_scheduler import SubmissionScheduler
+
 
 log = logging.getLogger(__name__)
 
