@@ -1,10 +1,11 @@
+import time
+import logging
+
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from interface.models import Submission
 
-import time
-import logging
 
 log = logging.getLogger(__name__)
 

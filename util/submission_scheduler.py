@@ -18,10 +18,8 @@ class SubQueue(object):
 
     def _run_submission(self):
         while True:
-            print("Done")
             _, sub = self.queue.get()
             self.sem.acquire()
-            print("Send submission")
             self._evaluate_submission(sub)
 
     def add_sub(self, sub):
@@ -34,11 +32,9 @@ class SubQueue(object):
         sub.save()
 
     def done_eval(self):
-        print("Done eval")
         self.sem.release()
 
     def _evaluate_submission(self, sub):
-        print("Eval")
         log.info(f"Evaluate submission #{sub.id}")
         sub.vmck_job_id = vmck.evaluate(sub)
         sub.state = sub.STATE_NEW
@@ -51,7 +47,7 @@ class SubQueue(object):
 
 class SubmissionScheduler(object):
     # Queue for all the assignments that are not prioritiezed
-    general_queue = SubQueue(2)
+    general_queue = SubQueue(4)
 
     def __init__(self):
         raise AttributeError("No init method for SubmissionScheduler")
@@ -73,4 +69,4 @@ class SubmissionScheduler(object):
     @staticmethod
     def show():
         print("General assignments")
-        print(SubmissionScheduler.general_queue)
+        print(str(SubmissionScheduler.general_queue))
