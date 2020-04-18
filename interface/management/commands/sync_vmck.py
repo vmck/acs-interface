@@ -14,15 +14,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         while True:
-            log.info("Check submissions status")
-
             submissions = (
                 Submission.objects
                 .exclude(state=Submission.STATE_DONE)
+                .exclude(state=Submission.STATE_QUEUED)
                 .order_by('-id')
             )
 
             for submission in submissions:
                 submission.update_state()
+                log.info(f"Check submission #{submission.id} status")
 
             time.sleep(settings.CHECK_INTERVAL_SUBS)
