@@ -22,6 +22,7 @@ from util.submission_scheduler import SubmissionScheduler
 
 log = logging.getLogger(__name__)
 
+
 class ActionLog(models.Model):
     timestamp = models.DateTimeField()
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
@@ -217,5 +218,6 @@ class Submission(models.Model):
                                      algorithms=['HS256'])
 
         return decoded_message['data'] == str(self.id)
+
 
 pre_save.connect(signals.update_total_score, sender=Submission)
