@@ -44,7 +44,9 @@ def test_submission(client, live_server):
 
     submission = Submission.objects.all()[0]
 
-    assert submission.state == submission.STATE_NEW
+    assert submission.state == submission.STATE_NEW \
+        or submission.state == submission.STATE_QUEUED
+    assert submission.assignment.code == 'a0'
     assert submission.archive_size > 0
     assert submission.vmck_job_id > 0
 
