@@ -40,7 +40,7 @@ def test_submission(client, live_server):
     assert len(Submission.objects.all()) == 1
     assert storage.exists('1.zip')
 
-    submission = Submission.objects.all()[0]
+    submission.refresh_from_db()
 
     assert submission.state == submission.STATE_NEW \
         or submission.state == submission.STATE_QUEUED
