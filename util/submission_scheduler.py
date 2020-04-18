@@ -1,8 +1,6 @@
-from queue import PriorityQueue, Empty
 import logging
+from queue import PriorityQueue
 from threading import Semaphore, Thread
-
-from django.utils import timezone
 
 from interface import vmck
 
@@ -32,6 +30,7 @@ class SubQueue(object):
         log.info(f"Add submission #{sub.id} to queue")
         self.queue.put((sub.timestamp, sub))
         sub.state = sub.STATE_QUEUED
+        sub.save()
 
     def done_eval(self):
         print("Done eval")
