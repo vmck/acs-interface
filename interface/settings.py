@@ -137,6 +137,8 @@ MOSS_USER_ID = int(os.environ.get('MOSS_USER_ID', 9999999))
 # Used for updating the status of homeworks
 CHECK_INTERVAL_SUBS = 2  # in seconds
 
+TOTAL_MACHINES = int(os.environ.get("TOTAL_MACHINES", 4))
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 import interface.backend.minio_api as storage
 from interface.models import Course, Submission
 
-
 @pytest.mark.django_db
 def test_submission(client, live_server):
     filepath = settings.BASE_DIR / 'testsuite' / 'test.zip'
@@ -42,10 +41,23 @@ def test_submission(client, live_server):
 
     submission = Submission.objects.all()[0]
 
+    # There is a delay before the general queue's threads starts so, depending
+    # on the system, the submission might be in the queue or already sent
     assert submission.state == submission.STATE_NEW \
         or submission.state == submission.STATE_QUEUED
     assert submission.assignment.code == 'a0'
     assert submission.archive_size > 0
+
+    # As the reason mentioned above, the submission might have been already
+    # submitted
+    start = time.time()
+    while submission.vmck_job_id is None:
+        time.sleep(0.5)
+        submission.refresh_from_db()
+
+        if time.time() - start >= 2:
+            assert False
+
     assert submission.vmck_job_id > 0
 
     start = time.time()
