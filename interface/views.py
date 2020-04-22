@@ -23,7 +23,7 @@ from interface import models
 from interface import utils
 from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Course, User
-from interface.backend.submission import handle_submission, \
+from interface.backend.submission.submission import handle_submission, \
     TooManySubmissionsError, \
     CorruptZipFile
 from .scoring import calculate_total_score
