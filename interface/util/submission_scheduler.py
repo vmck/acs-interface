@@ -73,7 +73,7 @@ class SubQueue(object):
 
 class SubmissionScheduler(object):
     # Queue for all the assignments that are not prioritiezed
-    general_queue = SubQueue(4)
+    general_queue = SubQueue(settings.TOTAL_MACHINES)
 
     def __init__(self):
         raise AttributeError("No init method for SubmissionScheduler")
