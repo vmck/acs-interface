@@ -17,7 +17,6 @@ steps:
   - vagrant up
   - vagrant ssh -- /vagrant/ci/test-pytest.sh
 
-
 ---
 kind: pipeline
 name: publish
