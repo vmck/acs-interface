@@ -172,7 +172,6 @@ class Submission(models.Model):
             self.state = state
 
             if state == Submission.STATE_DONE:
-                SubmissionScheduler.show()
                 SubmissionScheduler.done_evaluation()
 
             self.changeReason = f'Update state to {state}'
