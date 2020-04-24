@@ -81,10 +81,7 @@ def upload(request, course_code, assignment_code):
                     f'Please wait {e.wait_t}s between submissions',
                 )
 
-            except CorruptZipFile:
-                messages.error(request, 'The archive is corrupt')
-
-            except ValueError:
+            except (CorruptZipFile, ValueError):
                 messages.error(request, 'The archive is corrupt')
 
             except BadZipFile:
