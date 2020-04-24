@@ -1,5 +1,8 @@
 import time
+import filecmp
+from pathlib import Path
 from datetime import datetime, timezone
+from tempfile import TemporaryDirectory
 
 import pytest
 from django.conf import settings
@@ -61,12 +64,22 @@ def test_submission(client, live_server):
 
     client.post(
         '/submission/1/review',
-        data={'review-code': '+10.0: Good Job'},
+        data={'review-code': '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'},
         HTTP_REFERER='/',
     )
 
     submission.refresh_from_db()
 
     assert len(submission.review_message) > 0
-    assert submission.review_score == 10
-    assert submission.total_score == 110
+    assert submission.review_score == 5.5
+    assert submission.total_score == 105.5
+
+    response = client.get('submission/1/download')
+
+    with TemporaryDirectory() as _tmp:
+        tmp = Path(_tmp)
+
+        with open(tmp / 'test.zip', 'wb') as f:
+            f.write(response.content)
+
+        assert filecmp.cmp(tmp / 'test.zip', filepath)
