@@ -84,6 +84,9 @@ def upload(request, course_code, assignment_code):
             except CorruptZipFile:
                 messages.error(request, 'The archive is corrupt')
 
+            except ValueError:
+                messages.error(request, 'The archive is corrupt')
+
             except BadZipFile:
                 messages.error(request, 'File is not a valid zip archive')
 
