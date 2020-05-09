@@ -139,6 +139,15 @@ def review(request, pk):
 
 @login_required
 @staff_member_required
+def rerun_submission(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+    submission.state = Submission.STATE_NEW
+    submission.evaluate()
+    return redirect(request.META['HTTP_REFERER'])
+
+
+@login_required
+@staff_member_required
 def recompute_score(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
@@ -262,13 +271,3 @@ def subs_for_user(request, course_code, assignment_code, username):
         'assignment': assignment,
         'submissions': submissions,
     })
-
-@login_required
-def rerun_submission(request, pk):
-    submission = get_object_or_404(Submission, pk=pk)
-    submission.state = Submission.STATE_NEW
-    submission.evaluate()
-    from django.contrib.auth.models import Permission
-    perm_tuple = [(x.id, x.name) for x in Permission.objects.filter(user=request.user)]
-    print(perm_tuple)
-    return redirect(request.META['HTTP_REFERER'])
