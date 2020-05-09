@@ -114,7 +114,7 @@ def download(request, pk):
         submission.download(tmp / f'{submission.id}.zip')
 
         review_zip = (tmp / f'{submission.id}.zip').open('rb')
-        return FileResponse(review_zip)
+        return FileResponse(review_zip, as_attachment=True)
 
 
 @login_required

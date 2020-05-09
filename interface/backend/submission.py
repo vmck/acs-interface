@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from zipfile import ZipFile
 
 from django.db import transaction
@@ -18,7 +19,9 @@ class CorruptZipFile(Exception):
 def handle_submission(file, assignment, user):
     log.debug(f'Submission {file.name} received')
 
-    with ZipFile(file) as archive:
+    test_file = deepcopy(file)
+
+    with ZipFile(test_file) as archive:
         if archive.testzip():
             raise CorruptZipFile()
 

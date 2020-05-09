@@ -17,8 +17,8 @@ def is_number(string):
 
 
 def decode(message):
-    decoded_message = base64.decodestring(bytes(message,
-                                                encoding='latin-1'))
+    decoded_message = base64.decodebytes(bytes(message,
+                                               encoding='latin-1'))
 
     return str(decoded_message, encoding='latin-1')
 
