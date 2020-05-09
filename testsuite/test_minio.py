@@ -1,9 +1,7 @@
-import time
 import filecmp
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import pytest
 from django.conf import settings
 
 import interface.backend.minio_api as storage

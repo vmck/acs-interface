@@ -62,9 +62,10 @@ def test_submission(client, live_server):
     assert submission.score == 100
     assert submission.total_score == 100
 
+    review_message = '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'
     client.post(
         '/submission/1/review',
-        data={'review-code': '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'},
+        data={'review-code': review_message},
         HTTP_REFERER='/',
     )
 
@@ -74,12 +75,13 @@ def test_submission(client, live_server):
     assert submission.review_score == 5.5
     assert submission.total_score == 105.5
 
-    response = client.get('submission/1/download')
+    response = client.get('/submission/1/download')
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(_tmp)
 
         with open(tmp / 'test.zip', 'wb') as f:
-            f.write(response.content)
+            for data in response.streaming_content:
+                f.write(data)
 
-        assert filecmp.cmp(tmp / 'test.zip', filepath)
+        assert filecmp.cmp(tmp / 'test.zip', filepath, shallow=False)
