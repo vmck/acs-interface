@@ -33,8 +33,8 @@ class ActionLog(models.Model):
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=256, blank=True)
-    code = models.CharField(max_length=64, blank=True)
+    name = models.CharField(max_length=256, blank=False)
+    code = models.CharField(max_length=64, blank=False)
     teaching_assistants = models.ManyToManyField(User, blank=True)
     history = HistoricalRecords()
 
