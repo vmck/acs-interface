@@ -138,6 +138,18 @@ def review(request, pk):
 
 
 @login_required
+@staff_member_required
+def recompute_score(request, pk):
+    submission = get_object_or_404(models.Submission, pk=pk)
+
+    # Clear the penalty so it's calculated again
+    submission.penalty = None
+    submission.save()
+
+    return redirect(request.META['HTTP_REFERER'])
+
+
+@login_required
 def submission_list(request):
     submissions = Submission.objects.all().order_by('-id')
 
