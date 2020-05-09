@@ -196,18 +196,3 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
     search_fields = ['user__username']
-
-    def get_queryset(self, request):
-        qs = super(SubmissionAdmin, self).get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(assignment__course__teaching_assistants=request.user)
-
-    @log_action('Recompute score')
-    def recompute_score(self, request, submissions):
-        for submission in submissions:
-            # Clear the penalty so it's calculated again
-            submission.penalty = None
-            submission.save()
-
-    recompute_score.short_description = 'Recompute score'

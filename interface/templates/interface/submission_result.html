@@ -5,30 +5,34 @@
 
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
-  <div class="row">
-    <div class="col-1">
-      {% if user.is_staff %}
-        <p>
-          <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-        </p>
-      {% endif %}
-    </div>
+  <div class="btn-group" role="group" aria-label="Actions">
 
-    {% if user is sub.user or perms.interface.view_submission %}
-    <div class="col-1.5">
+    {% if user == sub.user or user in sub.assignment.course.teaching_assistants.all %}
       <form action="download">
         {% csrf_token %}
-        <input formmethod="post" class="btn btn-primary btn-sm" type="submit" value="Download archive">
+        <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Download archive">
       </form>
-    </div>
     {% endif %}
 
-    <div class="col-1">
+    {% if user in sub.assignment.course.teaching_assistants.all%}
+        <p>
+          <button type="button" class="btn btn-primary btn-sm mr-1" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+        </p>
+    {% endif %}
+
+    {% if user in sub.assignment.course.teaching_assistants.all %}
       <form action="rerun">
         {% csrf_token %}
-        <input formmethod="post" class="btn btn-primary btn-sm" type="submit" value="Rerun submission">
+        <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Rerun submission">
       </form>
-    </div>
+    {% endif %}
+
+    {% if user in sub.assignment.course.teaching_assistants.all %}
+      <form action="recompute">
+        {% csrf_token %}
+        <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Recompute score">
+      </form>
+    {% endif %}
   </div>
 
 
