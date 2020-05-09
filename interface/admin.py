@@ -77,10 +77,9 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
         return qs.filter(teaching_assistants=request.user)
 
     def save_model(self, request, obj, form, change):
-        if obj.id is None:
-            # New course was added
-            # need to save it to have access to member vars
-            super().save_model(request, obj, form, change)
+        # New course was added
+        # need to save it to have access to member vars
+        super().save_model(request, obj, form, change)
 
         if "teaching_assistants" not in form.changed_data:
             return
