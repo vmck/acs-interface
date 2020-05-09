@@ -56,8 +56,8 @@ class Assignment(models.Model):
     ])
 
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
-    code = models.CharField(max_length=64, blank=True)
-    name = models.CharField(max_length=256, blank=True)
+    code = models.CharField(max_length=64, blank=False)
+    name = models.CharField(max_length=256, blank=False)
     max_score = models.IntegerField(default=100)
     deadline_soft = models.DateTimeField()
     deadline_hard = models.DateTimeField()
