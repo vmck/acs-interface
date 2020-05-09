@@ -10,7 +10,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.models import Permission
 
 from interface.moss import moss_check
-from interface.actions_logger import log_action
+from interface.actions_logger import log_action_admin
 from interface.backend.minio_api import MissingFile
 from interface.utils import get_last_submissions_of_every_user
 from interface.models import Course, Assignment, Submission, ActionLog
@@ -136,7 +136,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
-    @log_action('Run moss check')
+    @log_action_admin('Run moss check')
     def run_moss(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -151,7 +151,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     run_moss.short_description = 'Run moss check on the selected assignment'
 
-    @log_action('Download last submissions')
+    @log_action_admin('Download last submissions')
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -167,7 +167,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     download_review_submissions.short_description = ('Download last '
                                                      'submissions for review')
 
-    @log_action('Download all submissions')
+    @log_action_admin('Download all submissions')
     def download_all_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -184,7 +184,6 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
-    actions = ['recompute_score']
     list_display = [
         '__str__', 'assignment', 'timestamp',
         'archive_size', 'total_score', 'state',

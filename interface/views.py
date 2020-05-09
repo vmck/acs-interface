@@ -27,6 +27,7 @@ from interface.backend.submission import handle_submission, \
     TooManySubmissionsError, \
     CorruptZipFile
 from .scoring import calculate_total_score
+from interface.actions_logger import log_action
 
 
 log = logging.getLogger(__name__)
@@ -104,6 +105,7 @@ def upload(request, course_code, assignment_code):
 @login_required
 def download(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
+    log_action("Download submission", request.user, submission)
 
     if submission.user != request.user:
         return Http404('You are not allowed!')
@@ -129,6 +131,7 @@ def homepage(request):
 @require_POST
 def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
+    log_action("Review submission", request.user, submission)
 
     submission.review_message = request.POST['review-code']
     submission.changeReason = 'Review'
@@ -141,6 +144,8 @@ def review(request, pk):
 @staff_member_required
 def rerun_submission(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
+    log_action("Rerun submission", request.user, submission)
+
     submission.state = Submission.STATE_NEW
     submission.evaluate()
     return redirect(request.META['HTTP_REFERER'])
@@ -150,6 +155,7 @@ def rerun_submission(request, pk):
 @staff_member_required
 def recompute_score(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
+    log_action("Recompute submission's score", request.user, submission)
 
     # Clear the penalty so it's calculated again
     submission.penalty = None
