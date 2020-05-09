@@ -12,7 +12,6 @@
             <th scope="col">Submission id</th>
             <th scope="col">Homework id</th>
             <th scope="col">Archive size</th>
-            <th scope="col">Download archive</th>
             <th scope="col">Score</th>
             <th scope="col">Status</th>
           </tr>
@@ -25,13 +24,6 @@
               <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
               <td>{{ sub.assignment.full_code }}</td>
               <td>{{ sub.archive_size|filesizeformat }}</td>
-              <td>
-                {% if sub.user == user %}
-                  <a href="/submission/{{ sub.id }}/download">Download</a>
-                {% else %}
-                  <p>Download</p>
-                {% endif %}
-              </td>
               <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
               <td>{{ sub.get_state_display }}</td>
             </tr>
