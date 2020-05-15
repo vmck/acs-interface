@@ -105,17 +105,20 @@ def upload(request, course_code, assignment_code):
 @login_required
 def download(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
-    log_action("Download submission", request.user, submission)
 
-    if submission.user != request.user:
+    if (submission.user != request.user
+            and request.user
+            not in submission.assignment.course.teaching_assistants.all()):
         return Http404('You are not allowed!')
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(_tmp)
 
         submission.download(tmp / f'{submission.id}.zip')
-
         review_zip = (tmp / f'{submission.id}.zip').open('rb')
+
+        log_action("Download submission", request.user, submission)
+
         return FileResponse(review_zip, as_attachment=True)
 
 
@@ -131,11 +134,16 @@ def homepage(request):
 @require_POST
 def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
-    log_action("Review submission", request.user, submission)
+
+    if (request.user
+            not in submission.assignment.course.teaching_assistants.all()):
+        return Http404('You are not allowed!')
 
     submission.review_message = request.POST['review-code']
     submission.changeReason = 'Review'
     submission.save()
+
+    log_action("Review submission", request.user, submission)
 
     return redirect(request.META['HTTP_REFERER'])
 
@@ -144,10 +152,16 @@ def review(request, pk):
 @staff_member_required
 def rerun_submission(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
-    log_action("Rerun submission", request.user, submission)
+
+    if (request.user
+            not in submission.assignment.course.teaching_assistants.all()):
+        return Http404('You are not allowed!')
 
     submission.state = Submission.STATE_NEW
     submission.evaluate()
+
+    log_action("Rerun submission", request.user, submission)
+
     return redirect(request.META['HTTP_REFERER'])
 
 
@@ -155,11 +169,16 @@ def rerun_submission(request, pk):
 @staff_member_required
 def recompute_score(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
-    log_action("Recompute submission's score", request.user, submission)
+
+    if (request.user
+            not in submission.assignment.course.teaching_assistants.all()):
+        return Http404('You are not allowed!')
 
     # Clear the penalty so it's calculated again
     submission.penalty = None
     submission.save()
+
+    log_action("Recompute submission's score", request.user, submission)
 
     return redirect(request.META['HTTP_REFERER'])
 
