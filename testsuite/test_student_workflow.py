@@ -20,6 +20,7 @@ def test_submission(client, live_server):
     User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
     pc = Course.objects.create(name='PC', code='pc')
+    pc.teaching_assistants.add(User.objects.get(username='user'))
     pc.assignment_set.create(
         code='a0',
         name='a0',
