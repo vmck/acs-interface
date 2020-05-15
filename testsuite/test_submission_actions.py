@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from interface.models import Course, Submission, ActionLog
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_submission(client):
     user = User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
@@ -33,7 +33,7 @@ def test_submission(client):
 
     review_message = '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'
     client.post(
-        '/submission/1/review',
+        f'/submission/{submission.id}/review',
         data={'review-code': review_message},
         HTTP_REFERER='/',
     )
@@ -47,7 +47,7 @@ def test_submission(client):
     assignment.deadline_soft = datetime(2000, 1, 1, tzinfo=timezone.utc)
     assignment.save()
 
-    client.post('/submission/1/recompute', HTTP_REFERER='/')
+    client.post(f'/submission/{submission.id}/recompute', HTTP_REFERER='/')
 
     submission.refresh_from_db()
 

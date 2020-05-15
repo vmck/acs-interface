@@ -13,7 +13,7 @@ import interface.backend.minio_api as storage
 from interface.models import Course, Submission
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_submission(client, live_server):
     filepath = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
