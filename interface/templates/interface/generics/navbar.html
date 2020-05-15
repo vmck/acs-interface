@@ -17,7 +17,7 @@
 
         {% if assignment and assignment.is_active %}
           <li class="nav-item">
-            <a class="nav-link" href="{%  url 'upload' assignment.course.code assignment.code %}">Upload</a>
+            <a class="nav-link" href="{%  url 'upload' assignment.course.pk assignment.pk %}">Upload</a>
           </li>
         {% endif %}
 

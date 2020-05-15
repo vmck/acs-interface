@@ -21,8 +21,7 @@
   "model": "interface.course",
   "pk": 1,
   "fields": {
-    "name": "Course 1",
-    "code": "c1"
+    "name": "Course 1"
   }
 },
 {
@@ -30,7 +29,6 @@
   "pk": 1,
   "fields": {
     "course": 1,
-    "code": "a1",
     "name": "Assignment 1",
     "max_score": 100,
     "deadline_soft": "2019-12-31T22:00:00Z",

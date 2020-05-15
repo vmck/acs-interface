@@ -19,10 +19,9 @@ def test_submission(client, live_server):
 
     User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
-    pc = Course.objects.create(name='PC', code='pc')
+    pc = Course.objects.create(name='PC')
     pc.assignment_set.create(
-        code='a0',
-        name='a0',
+        name='programming',
         max_score=100,
         deadline_soft=datetime(2100, 1, 1, tzinfo=timezone.utc),
         deadline_hard=datetime(2100, 1, 1, tzinfo=timezone.utc),
@@ -35,7 +34,7 @@ def test_submission(client, live_server):
                                     file.read(),
                                     content_type='application/zip')
         client.post(
-            '/assignment/pc/a0/upload/',
+            f'/assignment/pc/{pc.pk}/upload/',
             data={'name': filepath.name, 'file': upload},
             format='multipart',
         )
@@ -46,7 +45,6 @@ def test_submission(client, live_server):
     submission = Submission.objects.all()[0]
 
     assert submission.state == submission.STATE_NEW
-    assert submission.assignment.code == 'a0'
     assert submission.archive_size > 0
     assert submission.vmck_job_id > 0
 

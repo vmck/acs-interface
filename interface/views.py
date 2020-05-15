@@ -61,9 +61,9 @@ def logout_view(request):
 
 
 @login_required
-def upload(request, course_code, assignment_code):
-    course = get_object_or_404(Course.objects, code=course_code)
-    assignment = get_object_or_404(course.assignment_set, code=assignment_code)
+def upload(request, course_pk, assignment_pk):
+    course = get_object_or_404(Course, pk=course_pk)
+    assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
 
     if not assignment.is_active:
         raise Http404("You cannot upload! You are past the deadline!")
@@ -88,7 +88,7 @@ def upload(request, course_code, assignment_code):
                 messages.error(request, 'File is not a valid zip archive')
 
             else:
-                return redirect(users_list, course_code, assignment_code)
+                return redirect(users_list, course_pk, assignment_pk)
 
             return render(request, 'interface/upload.html', {
                 'form': form,
@@ -213,9 +213,9 @@ def alive(request):
 
 
 @login_required
-def users_list(request, course_code, assignment_code):
-    course = get_object_or_404(Course.objects, code=course_code)
-    assignment = get_object_or_404(course.assignment_set, code=assignment_code)
+def users_list(request, course_pk, assignment_pk):
+    course = get_object_or_404(Course, pk=course_pk)
+    assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
     submissions = assignment.submission_set.all()
     list_of_users = []
     for subm in submissions:
@@ -236,10 +236,10 @@ def users_list(request, course_code, assignment_code):
 
 
 @login_required
-def subs_for_user(request, course_code, assignment_code, username):
+def subs_for_user(request, course_pk, assignment_pk, username):
     user = User.objects.get(username=username)
-    course = get_object_or_404(Course.objects, code=course_code)
-    assignment = get_object_or_404(course.assignment_set, code=assignment_code)
+    course = get_object_or_404(Course, pk=course_pk)
+    assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
     submissions = (
         assignment.submission_set
         .filter(user=user)
