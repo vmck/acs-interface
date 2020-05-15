@@ -19,8 +19,8 @@ def test_submission(client, live_server):
 
     User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
-    pc = Course.objects.create(name='PC')
-    pc.assignment_set.create(
+    course = Course.objects.create(name='PC')
+    assign = course.assignment_set.create(
         name='programming',
         max_score=100,
         deadline_soft=datetime(2100, 1, 1, tzinfo=timezone.utc),
@@ -34,7 +34,7 @@ def test_submission(client, live_server):
                                     file.read(),
                                     content_type='application/zip')
         client.post(
-            f'/assignment/pc/{pc.pk}/upload/',
+            f'/assignment/{course.pk}/{assign.pk}/upload/',
             data={'name': filepath.name, 'file': upload},
             format='multipart',
         )
