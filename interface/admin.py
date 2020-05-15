@@ -70,7 +70,6 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     def get_queryset(self, request):
         qs = super(CourseAdmin, self).get_queryset(request)
-
         if request.user.is_superuser:
             return qs
 
@@ -106,11 +105,18 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         'run_moss',
     ]
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(AssignmentAdmin, self).get_form(request, obj, **kwargs)
+        qs = form.base_fields['course'].queryset
+        form.base_fields['course'].queryset = (
+            qs.filter(teaching_assistants=request.user)
+        )
+        return form
+
     def get_queryset(self, request):
         qs = super(AssignmentAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
-
         return qs.filter(course__teaching_assistants=request.user)
 
     def zip_submissions(self, request, submissions):
