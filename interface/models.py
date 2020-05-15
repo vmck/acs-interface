@@ -34,7 +34,6 @@ class ActionLog(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=256, blank=False)
-    code = models.CharField(max_length=64, blank=False)
     teaching_assistants = models.ManyToManyField(User, blank=True)
     history = HistoricalRecords()
 
@@ -56,7 +55,6 @@ class Assignment(models.Model):
     ])
 
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
-    code = models.CharField(max_length=64, blank=False)
     name = models.CharField(max_length=256, blank=False)
     max_score = models.IntegerField(default=100)
     deadline_soft = models.DateTimeField()
@@ -75,7 +73,7 @@ class Assignment(models.Model):
 
     @property
     def full_code(self):
-        return f'{self.course.code}-{self.code}'
+        return f'{self.course.pk}-{self.pk}'
 
     @property
     def is_active(self):
@@ -170,7 +168,7 @@ class Submission(models.Model):
             self.save()
 
     def download(self, path):
-        storage.download(f'{self.id}.zip', path)
+        storage.download(f'{self.pk}.zip', path)
 
     def get_script_url(self):
         return self.assignment.url_for('checker.sh')
@@ -183,14 +181,14 @@ class Submission(models.Model):
         return cached_get_file(url)
 
     def __str__(self):
-        return f"#{self.id} by {self.user}"
+        return f"#{self.pk} by {self.user}"
 
     @property
     def state_label(self):
         return self.STATE_CHOICES[self.state]
 
     def get_url(self):
-        return storage.get_link(f'{self.id}.zip')
+        return storage.get_link(f'{self.pk}.zip')
 
     def evaluate(self):
         self.vmck_job_id = vmck.evaluate(self)
@@ -201,7 +199,7 @@ class Submission(models.Model):
         """Generates a JWT token that the checker will use
         when it calls back with the result
         """
-        return jwt.encode({'data': str(self.id)},
+        return jwt.encode({'data': str(self.pk)},
                           settings.SECRET_KEY,
                           algorithm='HS256')
 
@@ -216,7 +214,7 @@ class Submission(models.Model):
                                      settings.SECRET_KEY,
                                      algorithms=['HS256'])
 
-        return decoded_message['data'] == str(self.id)
+        return decoded_message['data'] == str(self.pk)
 
 
 pre_save.connect(signals.update_total_score, sender=Submission)

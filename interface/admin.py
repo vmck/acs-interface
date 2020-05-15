@@ -120,15 +120,15 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             with ZipFile(tmp / 'review.zip', 'x') as zipfile:
                 for submission in submissions:
                     try:
-                        submission.download(tmp / f'{submission.id}.zip')
+                        submission.download(tmp / f'{submission.pk}.zip')
                     except MissingFile:
                         msg = f"File missing for {submission!r}"
                         messages.error(request, msg)
                         log.warning(msg)
                     else:
                         zipfile.write(
-                            tmp / f'{submission.id}.zip',
-                            f'{submission.user.username}-{submission.id}.zip',
+                            tmp / f'{submission.pk}.zip',
+                            f'{submission.user.username}-{submission.pk}.zip',
                         )
 
             review_zip = (tmp / 'review.zip').open('rb')
@@ -221,7 +221,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
             tmp = Path(_tmp)
 
             try:
-                submission.download(tmp / f'{submission.id}.zip')
+                submission.download(tmp / f'{submission.pk}.zip')
             except MissingFile:
                 msg = f"File missing for {submission!r}"
                 messages.error(request, msg)
@@ -229,7 +229,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
                 return
 
             else:
-                submission_zip = (tmp / f'{submission.id}.zip').open('rb')
+                submission_zip = (tmp / f'{submission.pk}.zip').open('rb')
                 return FileResponse(submission_zip)
 
     download_archive.short_description = 'Download submission archive'

@@ -4,11 +4,11 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title" id="reviewLabel">Review submission {{ sub.id }}</h5>
+        <h5 class="modal-title" id="reviewLabel">Review submission {{ sub.pk }}</h5>
       </div>
 
       <div class="modal-body">
-        <form id="reviewForm" method="post" action="{{ sub_base_url }}{{ sub.id }}/review">
+        <form id="reviewForm" method="post" action="{{ sub_base_url }}{{ sub.pk }}/review">
           {% csrf_token %}
           <div class="form-group">
             <label for="message-text" class="col-form-label">Review details:</label>
