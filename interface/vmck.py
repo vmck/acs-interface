@@ -28,11 +28,11 @@ def vmck_config(submission):
 
 
 def evaluate(submission):
-    callback = (f"submission/{submission.id}/done?"
+    callback = (f"submission/{submission.pk}/done?"
                 f"token={str(submission.generate_jwt(), encoding='latin1')}")
 
     options = vmck_config(submission)
-    name = f'{submission.assignment.full_code} submission #{submission.id}'
+    name = f'{submission.assignment.full_code} submission #{submission.pk}'
     options['name'] = name
     options['restrict_network'] = True
 
@@ -50,15 +50,15 @@ def evaluate(submission):
         callback,
     )
 
-    log.debug(f'Submission #{submission.id} config is done')
+    log.debug(f'Submission #{submission.pk} config is done')
     log.debug(f"Callback: {options['env']['VMCK_CALLBACK_URL']}")
 
     response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
                              json=options)
 
-    log.debug(f"Submission's #{submission.id} VMCK response:\n{response}")
+    log.debug(f"Submission's #{submission.pk} VMCK response:\n{response}")
 
-    return response.json()['id']
+    return response.json()['pk']
 
 
 def update(submission):

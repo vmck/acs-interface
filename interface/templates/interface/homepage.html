@@ -10,9 +10,9 @@
         <li>
           {{ assignment.name }}:
           {% if assignment.is_active %}
-            <a href="{% url "upload" course.id assignment.id %}">Upload</a>,
+            <a href="{% url "upload" course.pk assignment.pk %}">Upload</a>,
           {% endif %}
-          <a href="{% url "subs_for_assignment" course.id assignment.id %}">Results</a>
+          <a href="{% url "subs_for_assignment" course.pk assignment.pk %}">Results</a>
         </li>
       {% endfor %}
       </ul>

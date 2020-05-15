@@ -26,13 +26,13 @@ def moss_check(submissions, assignment, request):
 
         for submission in submissions:
             try:
-                submission.download(tmp / f'{submission.id}.zip')
+                submission.download(tmp / f'{submission.pk}.zip')
             except MissingFile:
                 msg = f"File missing for {submission!r}"
                 messages.error(request, msg)
                 log.warning(msg)
 
-            submission_archive = ZipFile(tmp / f'{submission.id}.zip')
+            submission_archive = ZipFile(tmp / f'{submission.pk}.zip')
             submission_archive.extractall(
                 tmp / f'{submission.user.username}',
             )

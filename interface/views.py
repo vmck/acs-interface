@@ -111,9 +111,9 @@ def download(request, pk):
     with TemporaryDirectory() as _tmp:
         tmp = Path(_tmp)
 
-        submission.download(tmp / f'{submission.id}.zip')
+        submission.download(tmp / f'{submission.pk}.zip')
 
-        review_zip = (tmp / f'{submission.id}.zip').open('rb')
+        review_zip = (tmp / f'{submission.pk}.zip').open('rb')
         return FileResponse(review_zip, as_attachment=True)
 
 
@@ -196,7 +196,7 @@ def done(request, pk):
     submission.stdout = stdout
     submission.state = Submission.STATE_DONE
 
-    log.debug(f'Submission #{submission.id}:')
+    log.debug(f'Submission #{submission.pk}:')
     log.debug(f'Stdout:\n{submission.stdout}')
     log.debug(f'Exit code:\n{exit_code}')
 
@@ -221,7 +221,6 @@ def users_list(request, course_pk, assignment_pk):
     for subm in submissions:
         list_of_users.append(subm.user)
     list_of_users = set(list_of_users)
-    list_of_users = (list(list_of_users))
     final_sub_list = []
     for user in list_of_users:
         submissions_list_aux = submissions.filter(user=user)
