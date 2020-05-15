@@ -20,7 +20,6 @@ def test_submission(client, live_server):
     User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
     pc = Course.objects.create(name='PC', code='pc')
-    pc.teaching_assistants.add(User.objects.get(username='user'))
     pc.assignment_set.create(
         code='a0',
         name='a0',
@@ -62,19 +61,6 @@ def test_submission(client, live_server):
 
     assert submission.score == 100
     assert submission.total_score == 100
-
-    review_message = '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'
-    client.post(
-        '/submission/1/review',
-        data={'review-code': review_message},
-        HTTP_REFERER='/',
-    )
-
-    submission.refresh_from_db()
-
-    assert len(submission.review_message) > 0
-    assert submission.review_score == 5.5
-    assert submission.total_score == 105.5
 
     response = client.get('/submission/1/download')
 

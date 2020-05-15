@@ -115,5 +115,4 @@ def calculate_total_score(submission):
     penalty = submission.penalty
 
     total_score = score + submission.review_score - penalty
-
     return total_score if total_score >= 0 else 0
