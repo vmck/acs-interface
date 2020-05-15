@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from interface.models import Course, Submission, ActionLog
 
 
-@pytest.mark.django_db
-def test_submission(client, live_server):
+@pytest.mark.django_db(transaction=True)
+def test_submission(client):
     user = User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
 

@@ -7,7 +7,7 @@ from django.conf import settings
 import interface.backend.minio_api as storage
 
 
-def test_minio(client, live_server):
+def test_minio(client):
     filepath = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
     with open(filepath, 'rb') as f:
