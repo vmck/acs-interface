@@ -58,7 +58,7 @@ def evaluate(submission):
 
     log.debug(f"Submission's #{submission.pk} VMCK response:\n{response}")
 
-    return response.json()['pk']
+    return response.json()['id']
 
 
 def update(submission):
