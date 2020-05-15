@@ -34,7 +34,6 @@ class ActionLog(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=256, blank=False)
-    code = models.CharField(max_length=64, blank=False)
     teaching_assistants = models.ManyToManyField(User, blank=True)
     history = HistoricalRecords()
 
@@ -56,7 +55,6 @@ class Assignment(models.Model):
     ])
 
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
-    code = models.CharField(max_length=64, blank=False)
     name = models.CharField(max_length=256, blank=False)
     max_score = models.IntegerField(default=100)
     deadline_soft = models.DateTimeField()
@@ -75,7 +73,7 @@ class Assignment(models.Model):
 
     @property
     def full_code(self):
-        return f'{self.course.code}-{self.code}'
+        return f'{self.course.id}-{self.id}'
 
     @property
     def is_active(self):
