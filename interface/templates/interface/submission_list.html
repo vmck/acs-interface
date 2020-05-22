@@ -21,7 +21,7 @@
           {% for sub in subs %}
             <tr>
               <td>{{ sub.user.username }}</td>
-              <td><a href="{{ sub_base_url }}{{ sub.id }}">{{ sub.id }}</a></td>
+              <td><a href="{{ sub_base_url }}{{ sub.pk }}">{{ sub.pk }}</a></td>
               <td>{{ sub.assignment.full_code }}</td>
               <td>{{ sub.archive_size|filesizeformat }}</td>
               <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>

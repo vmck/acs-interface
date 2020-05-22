@@ -55,13 +55,13 @@ def handle_submission(file, assignment, user):
             archive_size=file.size,
         )
 
-    log.debug(f'Submission #{submission.id} created')
+    log.debug(f'Submission #{submission.pk} created')
 
-    storage.upload(f'{submission.id}.zip', file.read())
-    log.debug(f"Submission's #{submission.id} zipfile was uploaded")
+    storage.upload(f'{submission.pk}.zip', file.read())
+    log.debug(f"Submission's #{submission.pk} zipfile was uploaded")
 
     submission.evaluate()
-    log.debug(f'Submission #{submission.id} was sent to VMCK '
+    log.debug(f'Submission #{submission.pk} was sent to VMCK '
               f'as #{submission.vmck_job_id}')
 
 
