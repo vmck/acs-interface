@@ -113,10 +113,10 @@ def download(request, pk):
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(_tmp)
-       
+
         submission.download(tmp / f'{submission.pk}.zip')
         review_zip = (tmp / f'{submission.pk}.zip').open('rb')
-    
+
         log_action("Download submission", request.user, submission)
 
         return FileResponse(review_zip, as_attachment=True)
