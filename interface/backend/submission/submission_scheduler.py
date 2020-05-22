@@ -81,11 +81,6 @@ class SubmissionScheduler(object):
     @staticmethod
     def add_submission(sub):
         queue = SubmissionScheduler.general_queue
-
-        if queue is None:
-            log.error("Queue to place a submission is None!")
-            return
-
         queue.add_sub(sub)
 
     @staticmethod

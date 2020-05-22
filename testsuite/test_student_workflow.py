@@ -2,7 +2,7 @@ import time
 import filecmp
 from pathlib import Path
 from datetime import datetime, timezone
-from tempfile import TemporaryDirectory
+from tempfile import NamedTemporaryFile
 
 import pytest
 from django.conf import settings
@@ -59,8 +59,7 @@ def test_submission(client, live_server):
         time.sleep(0.5)
         submission.refresh_from_db()
 
-        if time.time() - start >= 2:
-            assert False
+        assert time.time() - start < 2
 
     assert submission.vmck_job_id > 0
 
@@ -91,11 +90,8 @@ def test_submission(client, live_server):
 
     response = client.get('/submission/1/download')
 
-    with TemporaryDirectory() as _tmp:
-        tmp = Path(_tmp)
+    with NamedTemporaryFile(delete=False) as f:
+        for data in response.streaming_content:
+            f.write(data)
 
-        with open(tmp / 'test.zip', 'wb') as f:
-            for data in response.streaming_content:
-                f.write(data)
-
-        assert filecmp.cmp(tmp / 'test.zip', filepath, shallow=False)
+    assert filecmp.cmp(f.name, filepath, shallow=False)
