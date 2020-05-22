@@ -1,6 +1,5 @@
 import time
 import filecmp
-from pathlib import Path
 from datetime import datetime, timezone
 from tempfile import NamedTemporaryFile
 
