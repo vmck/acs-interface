@@ -47,7 +47,6 @@ def test_submission(client, live_server):
     # on the system, the submission might be in the queue or already sent
     assert submission.state == submission.STATE_NEW \
         or submission.state == submission.STATE_QUEUED
-    assert submission.assignment.code == 'a0'
     assert submission.archive_size > 0
 
     # As the reason mentioned above, the submission might have been already
