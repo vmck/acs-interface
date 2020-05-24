@@ -1,8 +1,7 @@
 import time
 import filecmp
-from pathlib import Path
 from datetime import datetime, timezone
-from tempfile import TemporaryDirectory
+from tempfile import NamedTemporaryFile
 
 import pytest
 from django.conf import settings
@@ -44,8 +43,21 @@ def test_submission(client, live_server):
 
     submission = Submission.objects.all()[0]
 
-    assert submission.state == submission.STATE_NEW
+    # There is a delay before the general queue's threads starts so, depending
+    # on the system, the submission might be in the queue or already sent
+    assert submission.state == submission.STATE_NEW \
+        or submission.state == submission.STATE_QUEUED
     assert submission.archive_size > 0
+
+    # As the reason mentioned above, the submission might have been already
+    # submitted
+    start = time.time()
+    while submission.vmck_job_id is None:
+        time.sleep(0.5)
+        submission.refresh_from_db()
+
+        assert time.time() - start < 2
+
     assert submission.vmck_job_id > 0
 
     start = time.time()
@@ -75,11 +87,8 @@ def test_submission(client, live_server):
 
     response = client.get('/submission/1/download')
 
-    with TemporaryDirectory() as _tmp:
-        tmp = Path(_tmp)
+    with NamedTemporaryFile(delete=False) as f:
+        for data in response.streaming_content:
+            f.write(data)
 
-        with open(tmp / 'test.zip', 'wb') as f:
-            for data in response.streaming_content:
-                f.write(data)
-
-        assert filecmp.cmp(tmp / 'test.zip', filepath, shallow=False)
+    assert filecmp.cmp(f.name, filepath, shallow=False)

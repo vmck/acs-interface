@@ -23,7 +23,7 @@ from interface import models
 from interface import utils
 from interface.forms import UploadFileForm, LoginForm
 from interface.models import Submission, Course, User
-from interface.backend.submission import handle_submission, \
+from interface.backend.submission.submission import handle_submission, \
     TooManySubmissionsError, \
     CorruptZipFile
 from .scoring import calculate_total_score
@@ -194,7 +194,7 @@ def done(request, pk):
     submission.score = decimal.Decimal(points)
     submission.total_score = calculate_total_score(submission)
     submission.stdout = stdout
-    submission.state = Submission.STATE_DONE
+    submission.update_state()
 
     log.debug(f'Submission #{submission.pk}:')
     log.debug(f'Stdout:\n{submission.stdout}')

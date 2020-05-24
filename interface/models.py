@@ -17,6 +17,8 @@ import interface.backend.minio_api as storage
 from interface import signals
 from interface import vmck
 from interface.utils import cached_get_file
+from interface.backend.submission.submission_scheduler import \
+    SubmissionScheduler
 
 
 log = logging.getLogger(__name__)
@@ -115,11 +117,13 @@ class Submission(models.Model):
     STATE_NEW = 'new'
     STATE_RUNNING = 'running'
     STATE_DONE = 'done'
+    STATE_QUEUED = 'queued'
 
     STATE_CHOICES = OrderedDict([
         (STATE_NEW, 'New'),
         (STATE_RUNNING, 'Running'),
         (STATE_DONE, 'Done'),
+        (STATE_QUEUED, 'Queue'),
     ])
 
     assignment = models.ForeignKey(Assignment,
@@ -164,6 +168,10 @@ class Submission(models.Model):
         state = vmck.update(self)
         if state != self.state:
             self.state = state
+
+            if state == Submission.STATE_DONE:
+                SubmissionScheduler.done_evaluation()
+
             self.changeReason = f'Update state to {state}'
             self.save()
 
@@ -191,9 +199,7 @@ class Submission(models.Model):
         return storage.get_link(f'{self.pk}.zip')
 
     def evaluate(self):
-        self.vmck_job_id = vmck.evaluate(self)
-        self.changeReason = 'VMCK id'
-        self.save()
+        SubmissionScheduler.add_submission(self)
 
     def generate_jwt(self):
         """Generates a JWT token that the checker will use
@@ -214,7 +220,7 @@ class Submission(models.Model):
                                      settings.SECRET_KEY,
                                      algorithms=['HS256'])
 
-        return decoded_message['data'] == str(self.pk)
+        return decoded_message['data'] == str(self.id)
 
 
 pre_save.connect(signals.update_total_score, sender=Submission)
