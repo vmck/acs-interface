@@ -11,11 +11,10 @@ def test_submission(client):
     user = User.objects.create_user('user', password='pw', is_staff=True)
     client.login(username='user', password='pw')
 
-    pc = Course.objects.create(name='PC', code='pc')
+    pc = Course.objects.create(name='PC')
     pc.teaching_assistants.add(user)
 
     assignment = pc.assignment_set.create(
-        code='a0',
         name='a0',
         max_score=100,
         deadline_soft=datetime(2000, 1, 2, tzinfo=timezone.utc),
