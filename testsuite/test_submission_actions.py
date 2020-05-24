@@ -1,28 +1,14 @@
 from datetime import datetime, timezone
 
 import pytest
-from django.contrib.auth.models import User
 
-from interface.models import Course, Submission, ActionLog
+from interface.models import Submission, ActionLog
 
 
-@pytest.mark.django_db
-def test_submission(client):
-    user = User.objects.create_user('user', password='pw', is_staff=True)
-    client.login(username='user', password='pw')
+pytestmark = [pytest.mark.django_db]
 
-    pc = Course.objects.create(name='PC')
-    pc.teaching_assistants.add(user)
 
-    assignment = pc.assignment_set.create(
-        name='a0',
-        max_score=100,
-        deadline_soft=datetime(2000, 1, 2, tzinfo=timezone.utc),
-        deadline_hard=datetime(2000, 1, 5, tzinfo=timezone.utc),
-        repo_url='https://github.com/vmck/assignment',
-        repo_path='pc-00',
-    )
-
+def create_submission(assignment):
     submission = assignment.submission_set.create(
         score=100.00,
         state=Submission.STATE_DONE,
@@ -30,9 +16,19 @@ def test_submission(client):
     submission.timestamp = datetime(2000, 1, 2, tzinfo=timezone.utc)
     submission.save()
 
+    return submission
+
+
+def test_review(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    client.login(username='user', password='pw')
+    course.teaching_assistants.add(user)
+
+    submission = create_submission(assignment)
+
     review_message = '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'
     client.post(
-        f'/submission/{submission.id}/review',
+        f'/submission/{submission.pk}/review',
         data={'review-code': review_message},
         HTTP_REFERER='/',
     )
@@ -43,16 +39,28 @@ def test_submission(client):
     assert submission.review_score == 5.5
     assert submission.total_score == 105.5
 
+    assert len(ActionLog.objects.all()) == 1
+    assert ActionLog.objects.all()[0].content_object == submission
+    assert ActionLog.objects.all()[0].action == 'Review submission'
+
+
+def test_recompute(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    client.login(username='user', password='pw')
+    course.teaching_assistants.add(user)
+
     assignment.deadline_soft = datetime(2000, 1, 1, tzinfo=timezone.utc)
     assignment.save()
 
-    client.post(f'/submission/{submission.id}/recompute', HTTP_REFERER='/')
+    submission = create_submission(assignment)
+
+    client.post(f'/submission/{submission.pk}/recompute', HTTP_REFERER='/')
 
     submission.refresh_from_db()
 
-    assert submission.total_score == 104.5
+    assert submission.total_score == 99
     assert submission.penalty == 1
 
-    assert len(ActionLog.objects.all()) == 2
+    assert len(ActionLog.objects.all()) == 1
     assert ActionLog.objects.all()[0].content_object == submission
-    assert ActionLog.objects.all()[0].action == 'Review submission'
+    assert ActionLog.objects.all()[0].action == 'Recompute submission\'s score'
