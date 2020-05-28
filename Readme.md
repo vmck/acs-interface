@@ -3,7 +3,7 @@ Rewrite of the [original vmchecker](https://vmchecker.cs.pub.ro/). This repo is
 for the student portal. It runs at https://v2.vmchecker.cs.pub.ro/.
 
 [![Build Status](https://frisbee.vmchecker.cs.pub.ro/api/badges/vmck/acs-interface/status.svg)](https://frisbee.vmchecker.cs.pub.ro/vmck/acs-interface)
-
+[![codecov](https://codecov.io/gh/vmck/acs-interface/branch/master/graph/badge.svg)](https://codecov.io/gh/vmck/acs-interface)
 
 ## Development
 
