@@ -4,5 +4,3 @@ branch = True
 [report]
 omit =  testsuite/*
         interface/migrations/*
-
-ignore_errors = True
