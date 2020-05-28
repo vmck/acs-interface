@@ -2,4 +2,4 @@
 
 cd /vagrant
 
-exec pipenv run codecov --token=$CODECOV_TOKEN
+pipenv run bash <(curl -s https://codecov.io/bash)
