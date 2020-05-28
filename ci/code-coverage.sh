@@ -2,4 +2,4 @@
 
 cd /vagrant
 
-exec pipenv run codecov --token=CODECOV_TOKEN
+exec pipenv run codecov --token=$CODECOV_TOKEN
