@@ -17,7 +17,7 @@ steps:
   - trap "vagrant destroy -f"  EXIT
   - vagrant up
   - vagrant ssh -- /vagrant/ci/test-pytest.sh
-  - vagrant ssh -- /vagrant/ci/codecov.sh
+  - vagrant ssh -- /vagrant/ci/code-coverage.sh
   environment:
     CODECOV_TOKEN:
       from_secret: codecov_token
