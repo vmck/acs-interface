@@ -2,4 +2,4 @@
 
 cd /vagrant
 
-pipenv run bash <(curl -s https://codecov.io/bash)
+exec pipenv run bash <(curl -s https://codecov.io/bash)
