@@ -51,7 +51,6 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
                 Permission.objects
                 .filter(codename__in=CourseAdmin._ta_permissions)
             )
-        print(user)
 
         if not user.is_staff:
             user.is_staff = True
