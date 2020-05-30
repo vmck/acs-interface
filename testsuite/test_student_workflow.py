@@ -205,5 +205,52 @@ def test_anonymous(client, STC):
     response = client.get('/homepage/')
     STC.assertRedirects(response, '/?next=/homepage/')
 
-    response = client.get('/submission/')
-    STC.assertRedirects(response, '/?next=/submission/')
+    # because we use @staff_member_required we are redirected to the admin
+    # page to login with an actual admin account
+    assert response.status_code == 302
+    assert response.url \
+        == f'/admin/login/?next=/submission/{submission.pk}/review'
+
+
+@pytest.mark.django_db
+def test_user_cannot_recompute(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    user.is_staff = False
+    user.save()
+
+    client.login(username='user', password='pw')
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+    )
+
+    response = client.post(f'/submission/{submission.pk}/recompute')
+
+    # because we use @staff_member_required we are redirected to the admin
+    # page to login with an actual admin account
+    assert response.status_code == 302
+    assert response.url \
+        == f'/admin/login/?next=/submission/{submission.pk}/recompute'
+
+
+@pytest.mark.django_db
+def test_user_cannot_rerun(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    user.is_staff = False
+    user.save()
+
+    client.login(username='user', password='pw')
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+    )
+
+    response = client.post(f'/submission/{submission.pk}/rerun')
+
+    # because we use @staff_member_required we are redirected to the admin
+    # page to login with an actual admin account
+    assert response.status_code == 302
+    assert response.url \
+        == f'/admin/login/?next=/submission/{submission.pk}/rerun'

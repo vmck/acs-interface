@@ -50,13 +50,7 @@ def test_review(client, base_db_setup):
 def test_recompute(client, base_db_setup):
     (_, user, _, course, assignment) = base_db_setup
 
-<<<<<<< HEAD
     client.login(username=user.username, password='pw')
-=======
-    assignment.deadline_soft = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    assignment.deadline_hard = datetime(2000, 1, 5, tzinfo=timezone.utc)
-    assignment.save()
->>>>>>> Test too many uploads
 
     submission = create_submission(assignment)
 
