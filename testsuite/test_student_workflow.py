@@ -114,11 +114,11 @@ def test_download_from_someone_else(client, base_db_setup):
     )
 
     response = client.get(f'/submission/{submission.pk}/download')
-    assert response.status_code == 404
+    assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_no_review(client, base_db_setup):
+def test_user_cannot_review(client, base_db_setup):
     (user, course, assignment) = base_db_setup
     user.is_staff = False
     user.save()
@@ -138,7 +138,50 @@ def test_no_review(client, base_db_setup):
 
     # because we use @staff_member_required we are redirected to the admin
     # page to login with an actual admin account
-    assert user.is_staff is False
     assert response.status_code == 302
     assert response.url \
         == f'/admin/login/?next=/submission/{submission.pk}/review'
+
+
+@pytest.mark.django_db
+def test_user_cannot_recompute(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    user.is_staff = False
+    user.save()
+
+    client.login(username='user', password='pw')
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+    )
+
+    response = client.post(f'/submission/{submission.pk}/recompute')
+
+    # because we use @staff_member_required we are redirected to the admin
+    # page to login with an actual admin account
+    assert response.status_code == 302
+    assert response.url \
+        == f'/admin/login/?next=/submission/{submission.pk}/recompute'
+
+
+@pytest.mark.django_db
+def test_user_cannot_rerun(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    user.is_staff = False
+    user.save()
+
+    client.login(username='user', password='pw')
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+    )
+
+    response = client.post(f'/submission/{submission.pk}/rerun')
+
+    # because we use @staff_member_required we are redirected to the admin
+    # page to login with an actual admin account
+    assert response.status_code == 302
+    assert response.url \
+        == f'/admin/login/?next=/submission/{submission.pk}/rerun'

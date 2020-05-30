@@ -58,7 +58,7 @@ def test_recompute(client, base_db_setup):
 
     submission = create_submission(assignment)
 
-    client.post(f'/submission/{submission.pk}/recompute', HTTP_REFERER='/')
+    client.post(f'/submission/{submission.pk}/recompute')
 
     submission.refresh_from_db()
 
