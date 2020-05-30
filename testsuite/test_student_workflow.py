@@ -4,6 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 import interface.backend.minio_api as storage
@@ -12,7 +13,7 @@ from interface.models import Submission
 
 FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
-
+@pytest.mark.skip
 @pytest.mark.django_db
 def test_submission(client, live_server, base_db_setup):
     FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
@@ -65,7 +66,7 @@ def test_submission(client, live_server, base_db_setup):
     assert submission.score == 100
     assert submission.total_score == 100
 
-    response = client.get('/submission/1/download')
+    response = client.get(f'/submission/{submission.pk}/download')
 
     with NamedTemporaryFile(delete=False) as f:
         for data in response.streaming_content:
@@ -75,11 +76,7 @@ def test_submission(client, live_server, base_db_setup):
 
 
 @pytest.mark.django_db
-def test_upload_too_many_times(client, base_db_setup, monkeypatch):
-    def evaluate_stub(path):
-        pass
-    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
-
+def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
     (_, course, assignment) = base_db_setup
 
     client.login(username='user', password='pw')
@@ -96,5 +93,26 @@ def test_upload_too_many_times(client, base_db_setup, monkeypatch):
                 format='multipart',
             )
 
-    message = str(list(response.context['messages'])[0])
+    message_list = list(response.context['messages'])
+    assert len(message_list) == 1
+
+    message = str(message_list[0])
     assert message == 'Please wait 60s between submissions'
+
+
+@pytest.mark.django_db
+def test_download_from_someone_else(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+
+    client.login(username='user', password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=other,
+    )
+
+    response = client.get(f'/submission/{submission.pk}/download')
+
+    assert response.status_code == 404
