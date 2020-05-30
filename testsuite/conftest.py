@@ -2,16 +2,21 @@ from datetime import datetime, timezone
 
 import pytest
 from django.test import SimpleTestCase
-from django.contrib.auth.models import User
+from django.http import JsonResponse
 
+from django.contrib.auth.models import User
 from interface.models import Course, Submission
+from interface.admin import CourseAdmin, AssignmentAdmin
+from django.contrib.admin.sites import AdminSite
 
 
 @pytest.fixture
 def base_db_setup():
     user = User.objects.create_user('user', password='pw')
 
-    ta = User.objects.create_user('ta', password='pw', is_staff=True)
+    ta = User.objects.create_user('ta', password='pw')
+    course_admin = CourseAdmin(model=Course, admin_site=AdminSite())
+    course_admin._add_new_ta(ta)
 
     super_user = User.objects.create_user(
         'root',
@@ -43,7 +48,29 @@ def STC():
 
 @pytest.fixture
 def mock_evaluate(monkeypatch):
+
     def evaluate_stub(path):
         pass
 
+    def run_moss_stub(assignment, request, queryset):
+        return JsonResponse({'type': 'run_moss'})
+
+    def download_review_submissions_stub(assignment, request, queryset):
+        return JsonResponse({'type': 'download_review_submissions'})
+
+    def download_all_submissions_stub(assignment, request, queryset):
+        return JsonResponse({'type': 'download_all_submissions'})
+
     monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
+    monkeypatch.setattr(AssignmentAdmin, 'run_moss', run_moss_stub)
+
+    monkeypatch.setattr(
+        AssignmentAdmin,
+        'download_review_submissions',
+        download_review_submissions_stub
+    )
+    monkeypatch.setattr(
+        AssignmentAdmin,
+        'download_all_submissions',
+        download_all_submissions_stub
+    )
