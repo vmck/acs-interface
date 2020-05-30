@@ -15,8 +15,8 @@ def base_db_setup():
     assignment = course.assignment_set.create(
         name='a0',
         max_score=100,
-        deadline_soft=datetime(2000, 1, 2, tzinfo=timezone.utc),
-        deadline_hard=datetime(2000, 1, 5, tzinfo=timezone.utc),
+        deadline_soft=datetime(2050, 1, 1, tzinfo=timezone.utc),
+        deadline_hard=datetime(2050, 1, 1, tzinfo=timezone.utc),
         repo_url='https://github.com/vmck/assignment',
         repo_path='pc-00',
     )
