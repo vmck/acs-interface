@@ -145,7 +145,7 @@ def review(request, pk):
 
     log_action("Review submission", request.user, submission)
 
-    return redirect(request.META['HTTP_REFERER'])
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
@@ -162,7 +162,7 @@ def rerun_submission(request, pk):
 
     log_action("Rerun submission", request.user, submission)
 
-    return redirect(request.META['HTTP_REFERER'])
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
@@ -180,7 +180,7 @@ def recompute_score(request, pk):
 
     log_action("Recompute submission's score", request.user, submission)
 
-    return redirect(request.META['HTTP_REFERER'])
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
