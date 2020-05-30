@@ -114,5 +114,31 @@ def test_download_from_someone_else(client, base_db_setup):
     )
 
     response = client.get(f'/submission/{submission.pk}/download')
-
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_no_review(client, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    user.is_staff = False
+    user.save()
+
+    client.login(username='user', password='pw')
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+    )
+
+    review_message = '+10.0: Hacker'
+    response = client.post(
+        f'/submission/{submission.pk}/review',
+        data={'review-code': review_message},
+    )
+
+    # because we use @staff_member_required we are redirected to the admin
+    # page to login with an actual admin account
+    assert user.is_staff is False
+    assert response.status_code == 302
+    assert response.url \
+        == f'/admin/login/?next=/submission/{submission.pk}/review'

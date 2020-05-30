@@ -34,7 +34,6 @@ def test_review(client, base_db_setup):
     client.post(
         f'/submission/{submission.pk}/review',
         data={'review-code': review_message},
-        HTTP_REFERER='/',
     )
 
     submission.refresh_from_db()
