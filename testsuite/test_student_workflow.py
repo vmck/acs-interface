@@ -13,7 +13,7 @@ from interface.models import Submission
 
 FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
-@pytest.mark.skip
+
 @pytest.mark.django_db
 def test_submission(client, live_server, base_db_setup):
     FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
