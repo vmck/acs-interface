@@ -4,7 +4,7 @@ import pytest
 from django.test import SimpleTestCase
 from django.contrib.auth.models import User
 
-from interface.models import Course
+from interface.models import Course, Submission
 
 
 @pytest.fixture
