@@ -6,34 +6,28 @@ from tempfile import NamedTemporaryFile
 import pytest
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.auth.models import User
 
 import interface.backend.minio_api as storage
-from interface.models import Course, Submission
+from interface.models import Submission
 
 
 @pytest.mark.django_db
-def test_submission(client, live_server):
+def test_submission(client, live_server, base_db_setup):
     filepath = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
-    User.objects.create_user('user', password='pw', is_staff=True)
+    (_, course, assignment) = base_db_setup
+    assignment.deadline_soft = datetime(2050, 1, 2, tzinfo=timezone.utc)
+    assignment.deadline_hard = datetime(2050, 1, 2, tzinfo=timezone.utc)
+    assignment.save()
+
     client.login(username='user', password='pw')
-    course = Course.objects.create(name='PC')
-    assign = course.assignment_set.create(
-        name='programming',
-        max_score=100,
-        deadline_soft=datetime(2100, 1, 1, tzinfo=timezone.utc),
-        deadline_hard=datetime(2100, 1, 1, tzinfo=timezone.utc),
-        repo_url='https://github.com/vmck/assignment',
-        repo_path='pc-00',
-    )
 
     with open(filepath, 'rb') as file:
         upload = SimpleUploadedFile(filepath.name,
                                     file.read(),
                                     content_type='application/zip')
         client.post(
-            f'/assignment/{course.pk}/{assign.pk}/upload/',
+            f'/assignment/{course.pk}/{assignment.pk}/upload/',
             data={'name': filepath.name, 'file': upload},
             format='multipart',
         )
@@ -71,19 +65,6 @@ def test_submission(client, live_server):
 
     assert submission.score == 100
     assert submission.total_score == 100
-
-    review_message = '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'
-    client.post(
-        '/submission/1/review',
-        data={'review-code': review_message},
-        HTTP_REFERER='/',
-    )
-
-    submission.refresh_from_db()
-
-    assert len(submission.review_message) > 0
-    assert submission.review_score == 5.5
-    assert submission.total_score == 105.5
 
     response = client.get('/submission/1/download')
 

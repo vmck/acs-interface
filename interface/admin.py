@@ -10,7 +10,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.models import Permission
 
 from interface.moss import moss_check
-from interface.actions_logger import log_action
+from interface.actions_logger import log_action_admin
 from interface.backend.minio_api import MissingFile
 from interface.utils import get_last_submissions_of_every_user
 from interface.models import Course, Assignment, Submission, ActionLog
@@ -134,7 +134,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             review_zip = (tmp / 'review.zip').open('rb')
             return FileResponse(review_zip)
 
-    @log_action('Run moss check')
+    @log_action_admin('Run moss check')
     def run_moss(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -149,7 +149,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     run_moss.short_description = 'Run moss check on the selected assignment'
 
-    @log_action('Download last submissions')
+    @log_action_admin('Download last submissions')
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -165,7 +165,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     download_review_submissions.short_description = ('Download last '
                                                      'submissions for review')
 
-    @log_action('Download all submissions')
+    @log_action_admin('Download all submissions')
     def download_all_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, 'Only one assignment can be selected')
@@ -182,7 +182,6 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
-    actions = ['rerun_submissions', 'download_archive', 'recompute_score']
     list_display = [
         '__str__', 'assignment', 'timestamp',
         'archive_size', 'total_score', 'state',
@@ -194,51 +193,3 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
     search_fields = ['user__username']
-
-    def get_queryset(self, request):
-        qs = super(SubmissionAdmin, self).get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(assignment__course__teaching_assistants=request.user)
-
-    @log_action('Rerun submission')
-    def rerun_submissions(self, request, submissions):
-        for submission in submissions:
-            submission.state = Submission.STATE_NEW
-            submission.evaluate()
-
-    rerun_submissions.short_description = 'Re-run submissions'
-
-    @log_action('Donwload submission archive')
-    def download_archive(self, request, queryset):
-        if queryset.count() != 1:
-            messages.error(request, 'Only one submission can be selected')
-            return
-
-        submission = queryset[0]
-
-        with TemporaryDirectory() as _tmp:
-            tmp = Path(_tmp)
-
-            try:
-                submission.download(tmp / f'{submission.pk}.zip')
-            except MissingFile:
-                msg = f"File missing for {submission!r}"
-                messages.error(request, msg)
-                log.warning(msg)
-                return
-
-            else:
-                submission_zip = (tmp / f'{submission.pk}.zip').open('rb')
-                return FileResponse(submission_zip)
-
-    download_archive.short_description = 'Download submission archive'
-
-    @log_action('Recompute score')
-    def recompute_score(self, request, submissions):
-        for submission in submissions:
-            # Clear the penalty so it's calculated again
-            submission.penalty = None
-            submission.save()
-
-    recompute_score.short_description = 'Recompute score'

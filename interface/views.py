@@ -27,6 +27,7 @@ from interface.backend.submission.submission import handle_submission, \
     TooManySubmissionsError, \
     CorruptZipFile
 from .scoring import calculate_total_score
+from interface.actions_logger import log_action
 
 
 log = logging.getLogger(__name__)
@@ -105,15 +106,19 @@ def upload(request, course_pk, assignment_pk):
 def download(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
 
-    if submission.user != request.user:
+    if (submission.user != request.user
+            and request.user
+            not in submission.assignment.course.teaching_assistants.all()):
         return Http404('You are not allowed!')
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(_tmp)
 
         submission.download(tmp / f'{submission.pk}.zip')
-
         review_zip = (tmp / f'{submission.pk}.zip').open('rb')
+
+        log_action("Download submission", request.user, submission)
+
         return FileResponse(review_zip, as_attachment=True)
 
 
@@ -130,11 +135,52 @@ def homepage(request):
 def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
+    if (request.user
+            not in submission.assignment.course.teaching_assistants.all()):
+        return Http404('You are not allowed!')
+
     submission.review_message = request.POST['review-code']
     submission.changeReason = 'Review'
     submission.save()
 
-    return redirect(request.META['HTTP_REFERER'])
+    log_action("Review submission", request.user, submission)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+@staff_member_required
+def rerun_submission(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+
+    if (request.user
+            not in submission.assignment.course.teaching_assistants.all()):
+        return Http404('You are not allowed!')
+
+    submission.state = Submission.STATE_NEW
+    submission.evaluate()
+
+    log_action("Rerun submission", request.user, submission)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+@staff_member_required
+def recompute_score(request, pk):
+    submission = get_object_or_404(models.Submission, pk=pk)
+
+    if (request.user
+            not in submission.assignment.course.teaching_assistants.all()):
+        return Http404('You are not allowed!')
+
+    # Clear the penalty so it's calculated again
+    submission.penalty = None
+    submission.save()
+
+    log_action("Recompute submission's score", request.user, submission)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required

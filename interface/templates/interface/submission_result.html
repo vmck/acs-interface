@@ -5,11 +5,35 @@
 
   <h1>Submission {{ sub }} ({{ sub.state }})</h1>
 
-  {% if user.is_staff %}
-    <p>
-      <button type="button" class="btn btn-primary btn-sm align-middle" data-toggle="modal" data-target="#review" data-id="{{ sub.pk }}">Review</button>
-    </p>
-  {% endif %}
+  <div class="btn-group" role="group" aria-label="Actions">
+
+    {% if user == sub.user or user in sub.assignment.course.teaching_assistants.all %}
+      <form action="download">
+        {% csrf_token %}
+        <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Download archive">
+      </form>
+    {% endif %}
+
+    {% if user in sub.assignment.course.teaching_assistants.all%}
+        <p>
+          <button type="button" class="btn btn-primary btn-sm mr-1" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
+        </p>
+    {% endif %}
+
+    {% if user in sub.assignment.course.teaching_assistants.all %}
+      <form action="rerun">
+        {% csrf_token %}
+        <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Rerun submission">
+      </form>
+    {% endif %}
+
+    {% if user in sub.assignment.course.teaching_assistants.all %}
+      <form action="recompute">
+        {% csrf_token %}
+        <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Recompute score">
+      </form>
+    {% endif %}
+  </div>
 
   {% if sub.state == sub.STATE_DONE %}
 
