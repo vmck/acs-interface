@@ -254,3 +254,24 @@ def test_user_cannot_rerun(client, base_db_setup):
     assert response.status_code == 302
     assert response.url \
         == f'/admin/login/?next=/submission/{submission.pk}/rerun'
+
+
+@pytest.mark.django_db
+def test_user_login(client):
+    User.objects.create_user(username='user', password='pw')
+
+    response = client.post('/', {'username': 'user', 'password': 'pw'})
+
+    assert response.status_code == 302
+    assert response.url == '/homepage/'
+
+
+@pytest.mark.django_db
+def test_user_logout(client):
+    User.objects.create_user(username='user', password='pw')
+
+    client.post('/', {'username': 'user', 'password': 'pw'})
+    response = client.post('/logout/')
+
+    assert response.status_code == 302
+    assert response.url == '/'
