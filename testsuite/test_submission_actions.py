@@ -23,12 +23,9 @@ def test_review(client, base_db_setup):
     (user, course, assignment) = base_db_setup
     user.is_staff = True
     user.save()
+
     client.login(username='user', password='pw')
     course.teaching_assistants.add(user)
-
-    assignment.deadline_soft = datetime(2000, 1, 2, tzinfo=timezone.utc)
-    assignment.deadline_hard = datetime(2000, 1, 5, tzinfo=timezone.utc)
-    assignment.save()
 
     submission = create_submission(assignment)
 
@@ -53,14 +50,15 @@ def test_recompute(client, base_db_setup):
     (user, course, assignment) = base_db_setup
     user.is_staff = True
     user.save()
+
     client.login(username='user', password='pw')
     course.teaching_assistants.add(user)
+
+    submission = create_submission(assignment)
 
     assignment.deadline_soft = datetime(2000, 1, 1, tzinfo=timezone.utc)
     assignment.deadline_hard = datetime(2000, 1, 5, tzinfo=timezone.utc)
     assignment.save()
-
-    submission = create_submission(assignment)
 
     client.post(f'/submission/{submission.pk}/recompute')
 
