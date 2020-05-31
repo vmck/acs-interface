@@ -275,3 +275,15 @@ def test_user_logout(client):
 
     assert response.status_code == 302
     assert response.url == '/'
+
+
+def test_anonymous(client):
+    response = client.get('/homepage/')
+
+    assert response.status_code == 302
+    assert response.url.startswith('/?next=')
+
+    response = client.get('/submission/')
+
+    assert response.status_code == 302
+    assert response.url.startswith('/?next=')
