@@ -24,10 +24,6 @@ def test_review(client, base_db_setup):
 
     client.login(username=user.username, password='pw')
 
-    assignment.deadline_soft = datetime(2000, 1, 2, tzinfo=timezone.utc)
-    assignment.deadline_hard = datetime(2000, 1, 5, tzinfo=timezone.utc)
-    assignment.save()
-
     submission = create_submission(assignment)
 
     review_message = '+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme'

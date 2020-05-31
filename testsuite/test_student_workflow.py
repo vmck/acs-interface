@@ -208,8 +208,8 @@ def test_anonymous(client, STC):
     # because we use @staff_member_required we are redirected to the admin
     # page to login with an actual admin account
     assert response.status_code == 302
-    assert response.url \
-        == f'/admin/login/?next=/submission/{submission.pk}/review'
+    assert (response.url
+            == f'/admin/login/?next=/submission/{submission.pk}/review')
 
 
 @pytest.mark.django_db
