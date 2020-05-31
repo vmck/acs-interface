@@ -8,7 +8,7 @@ from interface.models import Course, Submission
 
 @pytest.fixture
 def base_db_setup():
-    user = User.objects.create_user('user', password='pw', is_staff=True)
+    user = User.objects.create_user('user', password='pw')
 
     course = Course.objects.create(name='PC')
 

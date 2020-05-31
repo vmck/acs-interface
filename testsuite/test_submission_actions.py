@@ -21,6 +21,8 @@ def create_submission(assignment):
 
 def test_review(client, base_db_setup):
     (user, course, assignment) = base_db_setup
+    user.is_staff = True
+    user.save()
     client.login(username='user', password='pw')
     course.teaching_assistants.add(user)
 
@@ -49,6 +51,8 @@ def test_review(client, base_db_setup):
 
 def test_recompute(client, base_db_setup):
     (user, course, assignment) = base_db_setup
+    user.is_staff = True
+    user.save()
     client.login(username='user', password='pw')
     course.teaching_assistants.add(user)
 
