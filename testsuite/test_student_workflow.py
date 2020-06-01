@@ -14,6 +14,14 @@ from interface.models import Submission
 FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
 
+@pytest.fixture
+def mock_evaluate(monkeypatch):
+    def evaluate_stub(path):
+        pass
+
+    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
+
+
 @pytest.mark.django_db
 def test_submission(client, live_server, base_db_setup):
     FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
@@ -118,7 +126,7 @@ def test_download_from_someone_else(client, base_db_setup):
 
 
 @pytest.mark.django_db
-def test_user_cannot_review(client, base_db_setup):
+def test_user_cannot_review(client, STC, base_db_setup):
     (user, course, assignment) = base_db_setup
     user.is_staff = False
     user.save()
@@ -135,16 +143,14 @@ def test_user_cannot_review(client, base_db_setup):
         f'/submission/{submission.pk}/review',
         data={'review-code': review_message},
     )
-
-    # because we use @staff_member_required we are redirected to the admin
-    # page to login with an actual admin account
-    assert response.status_code == 302
-    assert (response.url
-            == f'/admin/login/?next=/submission/{submission.pk}/review')
+    STC.assertRedirects(
+        response,
+        f'/admin/login/?next=/submission/{submission.pk}/review',
+    )
 
 
 @pytest.mark.django_db
-def test_user_cannot_recompute(client, base_db_setup):
+def test_user_cannot_recompute(client, STC, base_db_setup):
     (user, course, assignment) = base_db_setup
     user.is_staff = False
     user.save()
@@ -157,16 +163,14 @@ def test_user_cannot_recompute(client, base_db_setup):
     )
 
     response = client.post(f'/submission/{submission.pk}/recompute')
-
-    # because we use @staff_member_required we are redirected to the admin
-    # page to login with an actual admin account
-    assert response.status_code == 302
-    assert response.url \
-        == f'/admin/login/?next=/submission/{submission.pk}/recompute'
+    STC.assertRedirects(
+        response,
+        f'/admin/login/?next=/submission/{submission.pk}/recompute',
+    )
 
 
 @pytest.mark.django_db
-def test_user_cannot_rerun(client, base_db_setup):
+def test_user_cannot_rerun(client, STC, base_db_setup):
     (user, course, assignment) = base_db_setup
     user.is_staff = False
     user.save()
@@ -179,42 +183,33 @@ def test_user_cannot_rerun(client, base_db_setup):
     )
 
     response = client.post(f'/submission/{submission.pk}/rerun')
-
-    # because we use @staff_member_required we are redirected to the admin
-    # page to login with an actual admin account
-    assert response.status_code == 302
-    assert response.url \
-        == f'/admin/login/?next=/submission/{submission.pk}/rerun'
+    STC.assertRedirects(
+        response,
+        f'/admin/login/?next=/submission/{submission.pk}/rerun',
+    )
 
 
 @pytest.mark.django_db
-def test_user_login(client):
+def test_user_login(client, STC):
     User.objects.create_user(username='user', password='pw')
 
     response = client.post('/', {'username': 'user', 'password': 'pw'})
-
-    assert response.status_code == 302
-    assert response.url == '/homepage/'
+    STC.assertRedirects(response, '/homepage/')
 
 
 @pytest.mark.django_db
-def test_user_logout(client):
+def test_user_logout(client, STC):
     User.objects.create_user(username='user', password='pw')
 
     client.post('/', {'username': 'user', 'password': 'pw'})
+
     response = client.post('/logout/')
-
-    assert response.status_code == 302
-    assert response.url == '/'
+    STC.assertRedirects(response, '/')
 
 
-def test_anonymous(client):
+def test_anonymous(client, STC):
     response = client.get('/homepage/')
-
-    assert response.status_code == 302
-    assert response.url.startswith('/?next=')
+    STC.assertRedirects(response, '/?next=/homepage/')
 
     response = client.get('/submission/')
-
-    assert response.status_code == 302
-    assert response.url.startswith('/?next=')
+    STC.assertRedirects(response, '/?next=/submission/')
