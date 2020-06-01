@@ -2,7 +2,7 @@ import pytest
 
 from django.conf import settings
 
-from interface.models import Submission
+from interface.models import User, Submission
 
 
 def test_login(client, STC):
@@ -56,9 +56,6 @@ def test_submission_list(client, STC, base_db_setup):
     assert response.context['subs']
     assert len(response.context['subs']) == settings.SUBMISSIONS_PER_PAGE
 
-    for i, submission in enumerate(response.context['subs']):
-        assert submission.pk == 30 - i
-
 
 @pytest.mark.django_db
 def test_submission_result_done(client, STC, base_db_setup):
@@ -94,7 +91,61 @@ def test_submission_result_new(client, STC, base_db_setup):
     STC.assertTemplateUsed(response, 'interface/submission_result.html')
     STC.assertNotContains(response, submission.stdout)
 
+
 @pytest.mark.django_db
 def test_user_list(client, STC, base_db_setup):
     (user, course, assignment) = base_db_setup
     client.login(username='user', password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+
+    submission1 = assignment.submission_set.create(
+        user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+    submission2 = assignment.submission_set.create(
+        user=other,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+    submission3 = assignment.submission_set.create(
+        user=other,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+
+    response = client.get(f'/assignment/{course.pk}/{assignment.pk}')
+    STC.assertTemplateUsed(response, 'interface/users_list.html')
+    STC.assertContains(response, user.username)
+    STC.assertContains(response, other.username)
+    assert submission1 in response.context['submissions']
+    assert submission2 not in response.context['submissions']
+    assert submission3 in response.context['submissions']
+    assert response.context['assignment'] == assignment
+
+
+@pytest.mark.django_db
+def test_subs_for_user(client, STC, base_db_setup):
+    (user, course, assignment) = base_db_setup
+    client.login(username='user', password='pw')
+
+    submission1 = assignment.submission_set.create(
+        user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+    submission2 = assignment.submission_set.create(
+        user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+
+    response = client.get(
+        f'/assignment/{course.pk}/{assignment.pk}/user/{user.username}',
+    )
+    STC.assertTemplateUsed(response, 'interface/subs_for_user.html')
+    STC.assertContains(response, user.username)
+    assert submission1 in response.context['submissions']
+    assert submission2 in response.context['submissions']
+    assert response.context['assignment'] == assignment
