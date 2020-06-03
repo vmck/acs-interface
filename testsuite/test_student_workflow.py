@@ -14,14 +14,6 @@ from interface.models import Submission
 FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
 
-@pytest.fixture
-def mock_evaluate(monkeypatch):
-    def evaluate_stub(path):
-        pass
-
-    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
-
-
 @pytest.mark.django_db
 def test_submission(client, live_server, base_db_setup):
     FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'

@@ -4,7 +4,7 @@ import pytest
 from django.test import SimpleTestCase
 from django.contrib.auth.models import User
 
-from interface.models import Course
+from interface.models import Course, Submission
 
 
 @pytest.fixture
@@ -42,3 +42,11 @@ def base_db_setup():
 @pytest.fixture
 def STC():
     return SimpleTestCase()
+
+
+@pytest.fixture
+def mock_evaluate(monkeypatch):
+    def evaluate_stub(path):
+        pass
+
+    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
