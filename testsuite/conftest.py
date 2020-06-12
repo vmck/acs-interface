@@ -8,9 +8,18 @@ from interface.models import Course
 
 @pytest.fixture
 def base_db_setup():
-    user = User.objects.create_user('user', password='pw', is_staff=True)
+    user = User.objects.create_user('user', password='pw')
+
+    ta = User.objects.create_user('ta', password='ta', is_staff=True)
+
+    super_user = User.objects.create_user('root',
+                                          password='root',
+                                          is_superuser=True,
+                                          is_staff=True)
 
     course = Course.objects.create(name='PC')
+    course.teaching_assistants.set([ta])
+    course.save()
 
     assignment = course.assignment_set.create(
         name='a0',
@@ -21,4 +30,4 @@ def base_db_setup():
         repo_path='pc-00',
     )
 
-    return (user, course, assignment)
+    return (super_user, user, ta, course, assignment)
