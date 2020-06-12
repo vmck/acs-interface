@@ -11,11 +11,11 @@ from interface.models import Course
 def base_db_setup():
     user = User.objects.create_user('user', password='pw')
 
-    ta = User.objects.create_user('ta', password='ta', is_staff=True)
+    ta = User.objects.create_user('ta', password='pw', is_staff=True)
 
     super_user = User.objects.create_user(
         'root',
-        password='root',
+        password='pw',
         is_superuser=True,
         is_staff=True,
     )
