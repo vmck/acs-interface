@@ -12,11 +12,12 @@ def base_db_setup():
 
     ta = User.objects.create_user('ta', password='ta', is_staff=True)
 
-    super_user = User.objects.create_user('root',
-                                          password='root',
-                                          is_superuser=True,
-                                          is_staff=True,
-                 )
+    super_user = User.objects.create_user(
+        'root',
+        password='root',
+        is_superuser=True,
+        is_staff=True,
+     )
 
     course = Course.objects.create(name='PC')
     course.teaching_assistants.set([ta])
