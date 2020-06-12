@@ -17,7 +17,7 @@ def base_db_setup():
         password='root',
         is_superuser=True,
         is_staff=True,
-     )
+    )
 
     course = Course.objects.create(name='PC')
     course.teaching_assistants.set([ta])
