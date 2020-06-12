@@ -30,4 +30,4 @@ def base_db_setup():
         repo_path='pc-00',
     )
 
-    return (super_user, user, ta, course, assignment)
+    return (super_user, ta, user, course, assignment)
