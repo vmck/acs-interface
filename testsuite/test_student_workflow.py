@@ -1,6 +1,8 @@
 import time
 import filecmp
+import threading
 from tempfile import NamedTemporaryFile
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 import pytest
 from django.conf import settings
@@ -8,7 +10,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 import interface.backend.minio_api as storage
-from interface.models import Submission
+from interface.models import Submission, Assignment
 
 
 FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
@@ -22,13 +24,40 @@ def mock_evaluate(monkeypatch):
     monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
 
 
+@pytest.fixture
+def mock_config(monkeypatch):
+    class Server:
+        def __init__(self):
+            self.server = HTTPServer(
+                ('10.66.60.1', 4000),
+                SimpleHTTPRequestHandler,
+            )
+
+        def start_server(self):
+            thread = threading.Thread(target=self.server.serve_forever)
+            thread.daemon = True
+            thread.start()
+
+        def stop_server(self):
+            self.server.shutdown()
+
+    def url_for(self, filename):
+        return f'http://10.66.60.1:4000/testsuite/{filename}'
+
+    monkeypatch.setattr(Assignment, 'url_for', url_for)
+
+    return Server()
+
+
 @pytest.mark.django_db
-def test_submission(client, live_server, base_db_setup):
+def test_submission(client, live_server, base_db_setup, mock_config):
     FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
     (_, course, assignment) = base_db_setup
 
     client.login(username='user', password='pw')
+
+    mock_config.start_server()
 
     with open(FILEPATH, 'rb') as file:
         upload = SimpleUploadedFile(FILEPATH.name,
@@ -40,7 +69,7 @@ def test_submission(client, live_server, base_db_setup):
             format='multipart',
         )
 
-    assert len(Submission.objects.all()) == 1
+    assert Submission.objects.all().count() == 1
     assert storage.exists('1.zip')
 
     submission = Submission.objects.all()[0]
@@ -59,6 +88,8 @@ def test_submission(client, live_server, base_db_setup):
         submission.refresh_from_db()
 
         assert time.time() - start < 2
+
+    mock_config.stop_server()
 
     assert submission.vmck_job_id > 0
 
