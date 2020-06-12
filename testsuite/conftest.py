@@ -10,7 +10,6 @@ from interface.models import Course, Submission
 @pytest.fixture
 def base_db_setup():
     user = User.objects.create_user('user', password='pw')
-<<<<<<< HEAD
 
     ta = User.objects.create_user('ta', password='pw', is_staff=True)
 
@@ -20,8 +19,6 @@ def base_db_setup():
         is_superuser=True,
         is_staff=True,
     )
-=======
->>>>>>> Test login and logout
 
     course = Course.objects.create(name='PC')
     course.teaching_assistants.set([ta])

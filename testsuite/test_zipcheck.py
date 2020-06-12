@@ -8,7 +8,7 @@ from interface.models import Submission
 @pytest.mark.django_db
 def test_zip_bad_zipfile(client, base_db_setup, mock_evaluate):
     FILEPATH = FILEPATH = settings.BASE_DIR / 'testsuite' / 'not_a_zip.zip'
-    (_, course, assignment) = base_db_setup
+    (_, _, _, course, assignment) = base_db_setup
 
     client.login(username='user', password='pw')
 
@@ -35,7 +35,7 @@ def test_zip_bad_zipfile(client, base_db_setup, mock_evaluate):
 @pytest.mark.django_db
 def test_zip_corrupt_zipfile(client, base_db_setup, mock_evaluate):
     FILEPATH = FILEPATH = settings.BASE_DIR / 'testsuite' / 'corrupt.zip'
-    (_, course, assignment) = base_db_setup
+    (_, _, _, course, assignment) = base_db_setup
 
     client.login(username='user', password='pw')
 
