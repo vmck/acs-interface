@@ -14,8 +14,8 @@ def test_login(client, STC):
 
 @pytest.mark.django_db
 def test_upload(client, STC, base_db_setup):
-    (_, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     response = client.get(f'/assignment/{course.pk}/{assignment.pk}/upload/')
 
@@ -25,8 +25,8 @@ def test_upload(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_homepage(client, STC, base_db_setup):
-    (_, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     response = client.get(f'/homepage/')
 
@@ -40,8 +40,8 @@ def test_homepage(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_submission_list(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     for i in range(30):
         assignment.submission_set.create(
@@ -59,8 +59,8 @@ def test_submission_list(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_submission_result_done(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     submission = assignment.submission_set.create(
         user=user,
@@ -77,8 +77,8 @@ def test_submission_result_done(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_submission_result_new(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     submission = assignment.submission_set.create(
         user=user,
@@ -94,8 +94,8 @@ def test_submission_result_new(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_user_list(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     other = User.objects.create_user('other', password='pw')
 
@@ -127,8 +127,8 @@ def test_user_list(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_subs_for_user(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
 
     submission1 = assignment.submission_set.create(
         user=user,
