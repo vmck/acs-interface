@@ -8,6 +8,7 @@ from pathlib import Path
 from zipfile import BadZipFile
 from tempfile import TemporaryDirectory
 
+from django.http import HttpResponse
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -109,7 +110,7 @@ def download(request, pk):
     if (submission.user != request.user
             and request.user
             not in submission.assignment.course.teaching_assistants.all()):
-        return Http404('You are not allowed!')
+        return HttpResponse(status=403)
 
     with TemporaryDirectory() as _tmp:
         tmp = Path(_tmp)
@@ -137,7 +138,7 @@ def review(request, pk):
 
     if (request.user
             not in submission.assignment.course.teaching_assistants.all()):
-        return Http404('You are not allowed!')
+        return HttpResponse(status=403)
 
     submission.review_message = request.POST['review-code']
     submission.changeReason = 'Review'
@@ -155,7 +156,7 @@ def rerun_submission(request, pk):
 
     if (request.user
             not in submission.assignment.course.teaching_assistants.all()):
-        return Http404('You are not allowed!')
+        return HttpResponse(status=403)
 
     submission.state = Submission.STATE_NEW
     submission.evaluate()
@@ -172,7 +173,7 @@ def recompute_score(request, pk):
 
     if (request.user
             not in submission.assignment.course.teaching_assistants.all()):
-        return Http404('You are not allowed!')
+        return HttpResponse(status=403)
 
     # Clear the penalty so it's calculated again
     submission.penalty = None
