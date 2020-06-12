@@ -20,9 +20,9 @@ def create_submission(assignment):
 
 
 def test_review(client, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
-    course.teaching_assistants.add(user)
+    (_, user, _, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
 
     submission = create_submission(assignment)
 
@@ -30,7 +30,6 @@ def test_review(client, base_db_setup):
     client.post(
         f'/submission/{submission.pk}/review',
         data={'review-code': review_message},
-        HTTP_REFERER='/',
     )
 
     submission.refresh_from_db()
@@ -45,16 +44,17 @@ def test_review(client, base_db_setup):
 
 
 def test_recompute(client, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    client.login(username='user', password='pw')
-    course.teaching_assistants.add(user)
+    (_, user, _, course, assignment) = base_db_setup
 
-    assignment.deadline_soft = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    assignment.save()
+    client.login(username=user.username, password='pw')
 
     submission = create_submission(assignment)
 
-    client.post(f'/submission/{submission.pk}/recompute', HTTP_REFERER='/')
+    assignment.deadline_soft = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    assignment.deadline_hard = datetime(2000, 1, 5, tzinfo=timezone.utc)
+    assignment.save()
+
+    client.post(f'/submission/{submission.pk}/recompute')
 
     submission.refresh_from_db()
 
