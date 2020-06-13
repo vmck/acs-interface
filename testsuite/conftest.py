@@ -4,14 +4,25 @@ import pytest
 from django.test import SimpleTestCase
 from django.contrib.auth.models import User
 
-from interface.models import Course
+from interface.models import Course, Submission
 
 
 @pytest.fixture
 def base_db_setup():
     user = User.objects.create_user('user', password='pw')
 
+    ta = User.objects.create_user('ta', password='pw', is_staff=True)
+
+    super_user = User.objects.create_user(
+        'root',
+        password='pw',
+        is_superuser=True,
+        is_staff=True,
+    )
+
     course = Course.objects.create(name='PC')
+    course.teaching_assistants.set([ta])
+    course.save()
 
     assignment = course.assignment_set.create(
         name='a0',
@@ -22,9 +33,17 @@ def base_db_setup():
         repo_path='pc-00',
     )
 
-    return (user, course, assignment)
+    return (super_user, ta, user, course, assignment)
 
 
 @pytest.fixture
 def STC():
     return SimpleTestCase()
+
+
+@pytest.fixture
+def mock_evaluate(monkeypatch):
+    def evaluate_stub(path):
+        pass
+
+    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)

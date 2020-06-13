@@ -17,14 +17,6 @@ FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
 
 @pytest.fixture
-def mock_evaluate(monkeypatch):
-    def evaluate_stub(path):
-        pass
-
-    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
-
-
-@pytest.fixture
 def mock_config(monkeypatch):
     ADDR = '10.66.60.1'
     PORT = 5000
@@ -53,13 +45,16 @@ def mock_config(monkeypatch):
     return Server()
 
 
+FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
+
+
 @pytest.mark.django_db
 def test_submission(client, live_server, base_db_setup, mock_config):
     FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
-    (_, course, assignment) = base_db_setup
+    (_, _, user, course, assignment) = base_db_setup
 
-    client.login(username='user', password='pw')
+    client.login(username=user.username, password='pw')
 
     mock_config.start_server()
 
@@ -120,9 +115,9 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
 @pytest.mark.django_db
 def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
-    (_, course, assignment) = base_db_setup
+    (_, _, user, course, assignment) = base_db_setup
 
-    client.login(username='user', password='pw')
+    client.login(username=user.username, password='pw')
 
     for _ in range(2):
         with open(FILEPATH, 'rb') as file:
@@ -145,9 +140,9 @@ def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
 
 @pytest.mark.django_db
 def test_download_from_someone_else(client, base_db_setup):
-    (user, course, assignment) = base_db_setup
+    (_, _, user, course, assignment) = base_db_setup
 
-    client.login(username='user', password='pw')
+    client.login(username=user.username, password='pw')
 
     other = User.objects.create_user('other', password='pw')
     submission = assignment.submission_set.create(
@@ -162,11 +157,9 @@ def test_download_from_someone_else(client, base_db_setup):
 
 @pytest.mark.django_db
 def test_user_cannot_review(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    user.is_staff = False
-    user.save()
+    (_, _, user, course, assignment) = base_db_setup
 
-    client.login(username='user', password='pw')
+    client.login(username=user.username, password='pw')
     submission = assignment.submission_set.create(
         score=100.00,
         state=Submission.STATE_DONE,
@@ -186,11 +179,9 @@ def test_user_cannot_review(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_user_cannot_recompute(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    user.is_staff = False
-    user.save()
+    (_, _, user, course, assignment) = base_db_setup
 
-    client.login(username='user', password='pw')
+    client.login(username=user.username, password='pw')
     submission = assignment.submission_set.create(
         score=100.00,
         state=Submission.STATE_DONE,
@@ -206,11 +197,9 @@ def test_user_cannot_recompute(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_user_cannot_rerun(client, STC, base_db_setup):
-    (user, course, assignment) = base_db_setup
-    user.is_staff = False
-    user.save()
+    (_, _, user, course, assignment) = base_db_setup
 
-    client.login(username='user', password='pw')
+    client.login(username=user.username, password='pw')
     submission = assignment.submission_set.create(
         score=100.00,
         state=Submission.STATE_DONE,
