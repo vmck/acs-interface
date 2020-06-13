@@ -26,10 +26,13 @@ def mock_evaluate(monkeypatch):
 
 @pytest.fixture
 def mock_config(monkeypatch):
+    ADDR = '10.66.60.1'
+    PORT = 5000
+
     class Server:
         def __init__(self):
             self.server = HTTPServer(
-                ('10.66.60.1', 4000),
+                (ADDR, PORT),
                 SimpleHTTPRequestHandler,
             )
 
@@ -40,9 +43,10 @@ def mock_config(monkeypatch):
 
         def stop_server(self):
             self.server.shutdown()
+            self.server.server_close()
 
     def url_for(self, filename):
-        return f'http://10.66.60.1:4000/testsuite/{filename}'
+        return f'http://{ADDR}:{PORT}/testsuite/{filename}'
 
     monkeypatch.setattr(Assignment, 'url_for', url_for)
 
@@ -89,8 +93,6 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
         assert time.time() - start < 2
 
-    mock_config.stop_server()
-
     assert submission.vmck_job_id > 0
 
     start = time.time()
@@ -101,6 +103,8 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
         if time.time() - start >= 180:
             assert False
+
+    mock_config.stop_server()
 
     assert submission.score == 100
     assert submission.total_score == 100
