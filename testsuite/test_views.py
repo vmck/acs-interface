@@ -43,7 +43,7 @@ def test_submission_list(client, STC, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
     client.login(username=user.username, password='pw')
 
-    for i in range(30):
+    for _ in range(30):
         assignment.submission_set.create(
             user=user,
             score=100.00,
