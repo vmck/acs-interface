@@ -20,9 +20,9 @@ def create_submission(assignment):
 
 
 def test_review(client, base_db_setup):
-    (_, user, _, course, assignment) = base_db_setup
+    (_, ta, _, course, assignment) = base_db_setup
 
-    client.login(username=user.username, password='pw')
+    client.login(username=ta.username, password='pw')
 
     submission = create_submission(assignment)
 
@@ -44,9 +44,9 @@ def test_review(client, base_db_setup):
 
 
 def test_recompute(client, base_db_setup):
-    (_, user, _, course, assignment) = base_db_setup
+    (_, ta, _, course, assignment) = base_db_setup
 
-    client.login(username=user.username, password='pw')
+    client.login(username=ta.username, password='pw')
 
     submission = create_submission(assignment)
 
