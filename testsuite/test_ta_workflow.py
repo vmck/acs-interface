@@ -363,7 +363,7 @@ def test_ta_cannot_remove_assignment(client, STC, base_db_setup):
         a teaching assistant
     '''
 
-    (_, ta, _, _, assignment) = base_db_setup
+    (_, ta, _, _, _) = base_db_setup
     client.login(username=ta.username, password='pw')
 
     course = Course.objects.create(name='PP')
@@ -595,7 +595,7 @@ def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
         Check if users can not rerun a submission that is from a
         different course and they are not teaching assistants there
     '''
-    (_, ta, user, _, assignment) = base_db_setup
+    (_, ta, user, _, _) = base_db_setup
 
     course = Course.objects.create(name='PC')
     assignment = course.assignment_set.create(
@@ -629,7 +629,7 @@ def test_ta_recompute_score(STC, client, base_db_setup):
         Test if a teaching assistant can recompute the score of a
         submission if the checker changed
     '''
-    (_, ta, user, course, assignment) = base_db_setup
+    (_, ta, user, _, assignment) = base_db_setup
 
     client.login(username=ta.username, password='pw')
     submission = assignment.submission_set.create(
@@ -653,7 +653,7 @@ def test_ta_cannot_recompute_score(STC, client, base_db_setup):
         that are from a course where they are not teaching assistants
     '''
 
-    (_, ta, user, course, _) = base_db_setup
+    (_, ta, user, _, _) = base_db_setup
 
     course = Course.objects.create(name='PC')
     assignment = course.assignment_set.create(
@@ -735,7 +735,7 @@ def test_ta_run_moss(client, base_db_setup, mock_evaluate):
         Check if users can run moss if they are teaching assistants
     '''
 
-    (_, ta, user, course, assignment) = base_db_setup
+    (_, ta, user, _, _) = base_db_setup
 
     client.login(username=ta.username, password='pw')
 
