@@ -1,18 +1,9 @@
-import time
-import filecmp
-import datetime
-from pathlib import Path
 from datetime import datetime, timezone
-from tempfile import TemporaryDirectory
 
 import pytest
-from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.auth.models import User
 
 from django.contrib.admin.sites import AdminSite
 
-import interface.backend.minio_api as storage
 from interface.models import Course, Submission
 from interface.admin import CourseAdmin
 
@@ -437,6 +428,7 @@ def test_ta_check_possible_courses(client, base_db_setup):
     # Default value
     course_names_ta.add('---------')
     assert found_courses == course_names_ta
+
 
 @pytest.mark.django_db
 def test_ta_download_submission(client, STC, base_db_setup):
