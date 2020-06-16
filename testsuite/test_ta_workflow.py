@@ -1,7 +1,5 @@
-from datetime import datetime, timezone
-
 import pytest
-
+from datetime import datetime, timezone
 from django.contrib.admin.sites import AdminSite
 
 from interface.models import Course, Submission
@@ -36,10 +34,11 @@ def test_ta_add_new_ta(client, STC, base_db_setup):
 
     test_course_admin = CourseAdmin(model=Course, admin_site=AdminSite())
     test_course_admin.save_model(
-                obj=course,
-                request=request,
-                form=form,
-                change=True)
+        obj=course,
+        request=request,
+        form=form,
+        change=True,
+    )
 
     course.teaching_assistants.add(user)
     course.save()
@@ -170,16 +169,16 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         'deadline_hard_1': date.time(),
         'min_time_between_uploads': 30,
         'language': 'c',
-        'value': 'Save'
+        'value': 'Save',
     }
     response = client.post(
         f'/admin/interface/assignment/add/',
-        data=assignment_params
+        data=assignment_params,
     )
 
     STC.assertRedirects(
         response,
-        '/admin/interface/assignment/'
+        '/admin/interface/assignment/',
     )
 
     response = client.get('/admin/interface/assignment/')
@@ -217,11 +216,11 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
         'deadline_hard_1': date.time(),
         'min_time_between_uploads': 30,
         'language': 'c',
-        'value': 'Save'
+        'value': 'Save',
     }
     response = client.post(
         f'/admin/interface/assignment/add/',
-        data=assignment_params
+        data=assignment_params,
     )
 
     errors = response.context['errors']
@@ -255,18 +254,18 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
         'deadline_hard_1': assignment.deadline_hard.time(),
         'min_time_between_uploads': assignment.min_time_between_uploads,
         'language': assignment.language,
-        'value': 'Save'
+        'value': 'Save',
 
     }
 
     response = client.post(
         f'/admin/interface/assignment/{assignment.pk}/change/',
-        data=assignment_change_params
+        data=assignment_change_params,
     )
 
     STC.assertRedirects(
         response,
-        '/admin/interface/assignment/'
+        '/admin/interface/assignment/',
     )
 
     response = client.get('/admin/interface/assignment/')
@@ -319,7 +318,7 @@ def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
     response = client.post(
         f'/admin/interface/assignment/{assignment.pk}/change/',
         data=assignment_change_params,
-        follow=True
+        follow=True,
     )
 
     message_list = list(response.context['messages'])
@@ -350,7 +349,7 @@ def test_ta_remove_assignment(client, STC, base_db_setup):
 
     STC.assertRedirects(
         response,
-        '/admin/interface/assignment/'
+        '/admin/interface/assignment/',
     )
     response = client.get('/admin/interface/assignment/')
     assert len(response.context['results']) == 0
@@ -379,7 +378,7 @@ def test_ta_cannot_remove_assignment(client, STC, base_db_setup):
     response = client.post(
         f'/admin/interface/assignment/{assignment.pk}/delete/',
         data={"post": "yes"},
-        follow=True
+        follow=True,
     )
 
     message_list = list(response.context['messages'])
@@ -422,7 +421,7 @@ def test_ta_check_possible_courses(client, base_db_setup):
 
     found_courses = set(map(
         lambda x: x[1][0]['label'],
-        response.context['widget']['optgroups']
+        response.context['widget']['optgroups'],
     ))
 
     # Default value
@@ -471,7 +470,7 @@ def test_ta_cannot_download_submission(client, base_db_setup):
     submission = assignment.submission_set.create(
         score=100.00,
         state=Submission.STATE_DONE,
-        user=user
+        user=user,
     )
 
     client.login(username=ta.username, password='pw')
@@ -583,7 +582,7 @@ def test_ta_rerun_submission(STC, client, base_db_setup):
 
     response = client.post(
         f'/submission/{submission.pk}/rerun',
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 200
@@ -617,7 +616,7 @@ def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
 
     response = client.post(
         f'/submission/{submission.pk}/rerun',
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 403
@@ -640,7 +639,7 @@ def test_ta_recompute_score(STC, client, base_db_setup):
 
     response = client.post(
         f'/submission/{submission.pk}/recompute',
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 200
@@ -675,14 +674,14 @@ def test_ta_cannot_recompute_score(STC, client, base_db_setup):
 
     response = client.post(
         f'/submission/{submission.pk}/recompute',
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_ta_download_last_sub(client, base_db_setup, mock_evaluate):
+def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
     '''
         Check if users can download the last submission for review
         if they are teaching assistants
@@ -698,7 +697,7 @@ def test_ta_download_last_sub(client, base_db_setup, mock_evaluate):
             'action': 'download_review_submissions',
             '_selected_action': '1'
         },
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 200
@@ -706,7 +705,7 @@ def test_ta_download_last_sub(client, base_db_setup, mock_evaluate):
 
 
 @pytest.mark.django_db
-def test_ta_download_all_subs(client, base_db_setup, mock_evaluate):
+def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
     '''
         Check if users can download all the submissions for review
         if they are teaching assistants
@@ -722,7 +721,7 @@ def test_ta_download_all_subs(client, base_db_setup, mock_evaluate):
             'action': 'download_all_submissions',
             '_selected_action': '1'
         },
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 200
@@ -730,7 +729,7 @@ def test_ta_download_all_subs(client, base_db_setup, mock_evaluate):
 
 
 @pytest.mark.django_db
-def test_ta_run_moss(client, base_db_setup, mock_evaluate):
+def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
     '''
         Check if users can run moss if they are teaching assistants
     '''
@@ -745,7 +744,7 @@ def test_ta_run_moss(client, base_db_setup, mock_evaluate):
             'action': 'run_moss',
             '_selected_action': '1'
         },
-        follow=True
+        follow=True,
     )
 
     assert response.status_code == 200
@@ -755,14 +754,9 @@ def test_ta_run_moss(client, base_db_setup, mock_evaluate):
 @pytest.mark.django_db
 def test_ta_login(client, STC, base_db_setup):
     (_, ta, _, _, _) = base_db_setup
-    client.post(
-        '/',
-        {'username': ta.username, 'password': 'pw'}
-    )
+    client.post('/', {'username': ta.username, 'password': 'pw'})
 
-    response = client.post(
-        '/admin/'
-    )
+    response = client.post('/admin/')
 
     assert response.status_code == 200
 

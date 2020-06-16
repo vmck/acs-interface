@@ -109,8 +109,8 @@ class Submission(models.Model):
     stdout -- the output message of the checker
     stderr -- the error message of the checker
     score -- the score of the submission given by the checker
-    review_score - score set by the assignment reviewer
-    total_score - score + review_score
+    review_score -- score set by the assignment reviewer
+    total_score -- score + review_score
     max_score -- the maximum score for the submission
     archive_size -- archive, sent to server, size in KB
     '''

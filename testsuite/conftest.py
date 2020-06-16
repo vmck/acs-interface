@@ -1,13 +1,13 @@
 from datetime import datetime, timezone
-
 import pytest
+
 from django.test import SimpleTestCase
 from django.http import JsonResponse
-
 from django.contrib.auth.models import User
+from django.contrib.admin.sites import AdminSite
+
 from interface.models import Course, Submission
 from interface.admin import CourseAdmin, AssignmentAdmin
-from django.contrib.admin.sites import AdminSite
 
 
 @pytest.fixture
@@ -52,6 +52,7 @@ def mock_evaluate(monkeypatch):
     def evaluate_stub(path):
         pass
 
+    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
     def run_moss_stub(assignment, request, queryset):
         return JsonResponse({'type': 'run_moss'})
 
@@ -61,7 +62,32 @@ def mock_evaluate(monkeypatch):
     def download_all_submissions_stub(assignment, request, queryset):
         return JsonResponse({'type': 'download_all_submissions'})
 
-    monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
+    monkeypatch.setattr(AssignmentAdmin, 'run_moss', run_moss_stub)
+
+    monkeypatch.setattr(
+        AssignmentAdmin,
+        'download_review_submissions',
+        download_review_submissions_stub
+    )
+    monkeypatch.setattr(
+        AssignmentAdmin,
+        'download_all_submissions',
+        download_all_submissions_stub
+    )
+
+
+@pytest.fixture
+def mock_admin_assignment(monkeypatch):
+
+    def run_moss_stub(assignment, request, queryset):
+        return JsonResponse({'type': 'run_moss'})
+
+    def download_review_submissions_stub(assignment, request, queryset):
+        return JsonResponse({'type': 'download_review_submissions'})
+
+    def download_all_submissions_stub(assignment, request, queryset):
+        return JsonResponse({'type': 'download_all_submissions'})
+
     monkeypatch.setattr(AssignmentAdmin, 'run_moss', run_moss_stub)
 
     monkeypatch.setattr(
