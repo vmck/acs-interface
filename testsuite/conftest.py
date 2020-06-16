@@ -53,27 +53,6 @@ def mock_evaluate(monkeypatch):
         pass
 
     monkeypatch.setattr(Submission, 'evaluate', evaluate_stub)
-    def run_moss_stub(assignment, request, queryset):
-        return JsonResponse({'type': 'run_moss'})
-
-    def download_review_submissions_stub(assignment, request, queryset):
-        return JsonResponse({'type': 'download_review_submissions'})
-
-    def download_all_submissions_stub(assignment, request, queryset):
-        return JsonResponse({'type': 'download_all_submissions'})
-
-    monkeypatch.setattr(AssignmentAdmin, 'run_moss', run_moss_stub)
-
-    monkeypatch.setattr(
-        AssignmentAdmin,
-        'download_review_submissions',
-        download_review_submissions_stub
-    )
-    monkeypatch.setattr(
-        AssignmentAdmin,
-        'download_all_submissions',
-        download_all_submissions_stub
-    )
 
 
 @pytest.fixture
