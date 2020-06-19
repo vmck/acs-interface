@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractstaticmethod
 
 
 class Evaluator(ABC):
-    @abstractmethod
+    @abstractstaticmethod
     def evaluate(submission):
         pass
 
-    @abstractmethod
+    @abstractstaticmethod
     def update(submission):
         pass
