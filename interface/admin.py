@@ -60,7 +60,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
     def _remove_ta(self, user, course):
         tas_courses = (
                     Course.objects.all()
-                    .exclude(code=course.code)
+                    .exclude(pk=course.pk)
                     .filter(teaching_assistants=user)
                 )
         if not tas_courses:
@@ -202,3 +202,9 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
     search_fields = ['user__username']
+
+    def get_queryset(self, request):
+        qs = super(SubmissionAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(assignment__course__teaching_assistants=request.user)

@@ -96,7 +96,7 @@ def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
     message_list = list(response.context['messages'])
     assert len(message_list) == 1
 
-    message = str(message_list[0])
+    message = message_list[0].message
     assert message == 'Please wait 60s between submissions'
 
 
@@ -140,7 +140,7 @@ def test_user_cannot_review(client, STC, base_db_setup):
 
 
 @pytest.mark.django_db
-def test_user_cannot_recompute(client, STC, base_db_setup):
+def test_user_cannot_recompute_score(client, STC, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password='pw')
@@ -176,18 +176,17 @@ def test_user_cannot_rerun(client, STC, base_db_setup):
 
 
 @pytest.mark.django_db
-def test_user_login(client, STC):
-    User.objects.create_user(username='user', password='pw')
+def test_user_login(client, STC, base_db_setup):
+    (_, _, user, _, _) = base_db_setup
 
     response = client.post('/', {'username': 'user', 'password': 'pw'})
     STC.assertRedirects(response, '/homepage/')
 
 
 @pytest.mark.django_db
-def test_user_logout(client, STC):
-    User.objects.create_user(username='user', password='pw')
-
-    client.post('/', {'username': 'user', 'password': 'pw'})
+def test_user_logout(client, STC, base_db_setup):
+    (_, _, user, _, _) = base_db_setup
+    client.post('/', {'username': user.username, 'password': 'pw'})
 
     response = client.post('/logout/')
     STC.assertRedirects(response, '/')
