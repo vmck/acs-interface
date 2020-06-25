@@ -1,9 +1,12 @@
 from django import forms
+from django.conf import settings
 
 
 class UploadFileForm(forms.Form):
-    file = forms.FileField(label='Select archive',
-                           widget=forms.FileInput(attrs={'accept': 'application/zip'}))  # noqa: E501
+    file = forms.FileField(
+        label='Select archive',
+        widget=forms.FileInput(attrs={'accept': 'application/zip'}),
+    )
 
 
 class LoginForm(forms.Form):
