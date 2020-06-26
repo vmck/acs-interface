@@ -88,9 +88,13 @@ _postgres_db = {
     'HOST': os.getenv('POSTGRES_ADDRESS'),
     'PORT': os.getenv('POSTGRES_PORT'),
 }
+
 _sqlite_db = {
     'ENGINE': 'django.db.backends.sqlite3',
     'NAME': str(BASE_DIR / 'data' / 'db.sqlite3'),
+    'OPTIONS': {
+        'timeout': 20,  # in seconds
+    }
 }
 
 default_db = _postgres_db if os.getenv('POSTGRES_DB') else _sqlite_db
