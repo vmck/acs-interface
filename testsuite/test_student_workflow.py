@@ -1,5 +1,7 @@
 import time
 import filecmp
+import zipfile
+from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 import pytest
@@ -198,3 +200,28 @@ def test_anonymous(client, STC):
 
     response = client.get('/submission/')
     STC.assertRedirects(response, '/?next=/submission/')
+
+
+@pytest.mark.django_db
+def test_filesize_limit(client, base_db_setup, mock_evaluate):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    buff = BytesIO()
+    zip_archive = zipfile.ZipFile(buff, mode='w')
+    zip_archive.writestr('test.c', 'aaaa'*2**20)
+
+    upload = SimpleUploadedFile(
+        FILEPATH.name,
+        buff.read(),
+        content_type='application/zip',
+    )
+
+    client.post(
+        f'/assignment/{course.pk}/{assignment.pk}/upload/',
+        data={'name': FILEPATH.name, 'file': upload},
+        format='multipart',
+    )
+
+    assert Submission.objects.all().count() == 0

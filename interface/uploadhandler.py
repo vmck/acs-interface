@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.template.defaultfilters import filesizeformat
 from django.core.files.uploadhandler import MemoryFileUploadHandler, StopUpload
 
 
@@ -20,9 +19,6 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
 
     def receive_data_chunk(self, raw_data, start):
         if self.too_big:
-            raise StopUpload((
-                'File must be below '
-                f'{filesizeformat(settings.FILE_UPLOAD_MAX_MEMORY_SIZE)}'
-            ))
+            raise StopUpload()
 
         super().receive_data_chunk(raw_data, start)
