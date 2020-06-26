@@ -5,24 +5,22 @@ from threading import Semaphore, Thread
 
 from django.conf import settings
 
-from interface import vmck
-from interface import models
+from interface import models, vmck
 
 
 log = logging.getLogger(__name__)
 
 
 class SubQueue(object):
-
     def __init__(self, free_machines=1):
         self.queue = PriorityQueue()
         self.max_machines = free_machines
         self.sem = Semaphore(free_machines)
-        self.consumer = Thread(target=self._run_submission)
-        self.sync = Thread(target=self._sync_vmck)
+        self.consumer = Thread(target=self._run_submission, daemon=True)
+        self.sync = Thread(target=self._sync_vmck, daemon=True)
 
-        self.consumer.daemon = True
-        self.sync.daemon = True
+        self.consumer.start()
+        self.sync.start()
 
     def _run_submission(self):
         while True:
@@ -46,16 +44,10 @@ class SubQueue(object):
             time.sleep(settings.CHECK_INTERVAL_SUBS)
 
     def add_sub(self, sub):
-        if not self.consumer.is_alive():
-            self.consumer.start()
-
-        if not self.sync.is_alive():
-            self.sync.start()
-
         log.info(f"Add submission #{sub.id} to queue")
-        self.queue.put((sub.timestamp, sub))
         sub.state = sub.STATE_QUEUED
         sub.save()
+        self.queue.put((sub.timestamp, sub))
 
     def done_eval(self):
         self.sem.release()
@@ -72,22 +64,29 @@ class SubQueue(object):
 
 
 class SubmissionScheduler(object):
-    # Queue for all the assignments that are not prioritiezed
-    general_queue = SubQueue(settings.TOTAL_MACHINES)
+    _instance = None
+
+    @staticmethod
+    def get_instance():
+        if SubmissionScheduler._instance is None:
+            SubmissionScheduler()
+
+        return SubmissionScheduler._instance
 
     def __init__(self):
-        raise AttributeError("No init method for SubmissionScheduler")
+        if SubmissionScheduler._instance is not None:
+            raise Exception("SubmissionScheduler already initialized")
+        else:
+            # Queue for all the assignments that are not prioritiezed
+            self.general_queue = SubQueue(settings.TOTAL_MACHINES)
+            SubmissionScheduler._instance = self
 
-    @staticmethod
-    def add_submission(sub):
-        queue = SubmissionScheduler.general_queue
-        queue.add_sub(sub)
+    def add_submission(self, sub):
+        self.general_queue.add_sub(sub)
 
-    @staticmethod
-    def done_evaluation():
-        SubmissionScheduler.general_queue.done_eval()
+    def done_evaluation(self):
+        self.general_queue.done_eval()
 
-    @staticmethod
-    def show():
+    def show(self):
         print("General assignments")
-        print(str(SubmissionScheduler.general_queue))
+        print(str(self.general_queue))
