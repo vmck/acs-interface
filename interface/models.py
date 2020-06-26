@@ -20,7 +20,6 @@ from interface.utils import cached_get_file
 from interface.backend.submission.submission_scheduler import \
     SubmissionScheduler
 
-
 log = logging.getLogger(__name__)
 
 
@@ -171,7 +170,7 @@ class Submission(models.Model):
             self.state = state
 
             if state == Submission.STATE_DONE:
-                SubmissionScheduler.done_evaluation()
+                SubmissionScheduler.get_instance().done_evaluation()
 
             self.changeReason = f'Update state to {state}'
             self.save()
@@ -200,7 +199,7 @@ class Submission(models.Model):
         return storage.get_link(f'{self.pk}.zip')
 
     def evaluate(self):
-        SubmissionScheduler.add_submission(self)
+        SubmissionScheduler.get_instance().add_submission(self)
 
     def generate_jwt(self):
         """Generates a JWT token that the checker will use
