@@ -38,7 +38,7 @@ def test_review(client, base_db_setup):
     assert submission.review_score == 5.5
     assert submission.total_score == 105.5
 
-    assert len(ActionLog.objects.all()) == 1
+    assert ActionLog.objects.all().count() == 1
     assert ActionLog.objects.all()[0].content_object == submission
     assert ActionLog.objects.all()[0].action == 'Review submission'
 
@@ -61,6 +61,6 @@ def test_recompute(client, base_db_setup):
     assert submission.total_score == 99
     assert submission.penalty == 1
 
-    assert len(ActionLog.objects.all()) == 1
+    assert ActionLog.objects.all().count() == 1
     assert ActionLog.objects.all()[0].content_object == submission
     assert ActionLog.objects.all()[0].action == 'Recompute submission\'s score'
