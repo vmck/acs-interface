@@ -45,9 +45,9 @@ class SubQueue(object):
 
     def add_sub(self, sub):
         log.info(f"Add submission #{sub.id} to queue")
-        self.queue.put((sub.timestamp, sub))
         sub.state = sub.STATE_QUEUED
         sub.save()
+        self.queue.put((sub.timestamp, sub))
 
     def done_eval(self):
         self.sem.release()
