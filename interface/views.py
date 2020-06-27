@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.template.defaultfilters import filesizeformat
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse, FileResponse, Http404
@@ -92,9 +93,13 @@ def upload(request, course_pk, assignment_pk):
             else:
                 return redirect(users_list, course_pk, assignment_pk)
 
-            return render(request, 'interface/upload.html', {
-                'form': form,
-            })
+        elif request.FILES.get('file_size_warning', None):
+            msg = (
+                f"Filesize is bigger than "
+                f"{filesizeformat(settings.FILE_UPLOAD_MAX_MEMORY_SIZE)}"
+            )
+            messages.error(request, msg)
+
     else:
         form = UploadFileForm()
 

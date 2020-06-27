@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.files.uploadhandler import MemoryFileUploadHandler, StopUpload
+from django.core.files.uploadhandler import MemoryFileUploadHandler
 
 
 class RestrictedFileUploadHandler(MemoryFileUploadHandler):
@@ -13,12 +13,8 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
             encoding=None,
         )
 
-        self.too_big = False
         if content_length > settings.FILE_UPLOAD_MAX_MEMORY_SIZE:
-            self.too_big = True
-
-    def receive_data_chunk(self, raw_data, start):
-        if self.too_big:
-            raise StopUpload()
-
-        super().receive_data_chunk(raw_data, start)
+            return (
+                {'csrfmiddlewaretoken': META['CSRF_COOKIE']},
+                {'file_size_warning': 'error'},
+            )
