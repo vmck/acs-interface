@@ -214,14 +214,20 @@ def test_filesize_limit(client, base_db_setup, mock_evaluate):
 
     upload = SimpleUploadedFile(
         FILEPATH.name,
-        buff.read(),
+        buff.getvalue(),
         content_type='application/zip',
     )
 
-    client.post(
+    response = client.post(
         f'/assignment/{course.pk}/{assignment.pk}/upload/',
         data={'name': FILEPATH.name, 'file': upload},
         format='multipart',
     )
 
     assert Submission.objects.all().count() == 0
+
+    message_list = list(response.context['messages'])
+    assert len(message_list) == 1
+
+    message = message_list[0].message
+    assert message.startswith('Filesize is bigger than')

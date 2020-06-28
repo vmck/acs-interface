@@ -15,6 +15,6 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
 
         if content_length > settings.FILE_UPLOAD_MAX_MEMORY_SIZE:
             return (
-                {'csrfmiddlewaretoken': META['CSRF_COOKIE']},
+                {'csrfmiddlewaretoken': META.get('CSRF_COOKIE', '')},
                 {'file_size_warning': 'error'},
             )
