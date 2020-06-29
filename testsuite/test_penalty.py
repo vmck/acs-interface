@@ -11,7 +11,7 @@ def test_no_holiday():
         DAILY_PENALTIES,
     )
     assert penalty_score == 0
-
+    # blabla bla
     # random date between soft and hard deadline
     penalty_score = scoring.compute_penalty(
         "2019.12.10 10:00:00",
