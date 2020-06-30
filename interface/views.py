@@ -93,13 +93,6 @@ def upload(request, course_pk, assignment_pk):
             else:
                 return redirect(users_list, course_pk, assignment_pk)
 
-        elif request.FILES.get('file_size_warning', None):
-            msg = (
-                f"Filesize is bigger than "
-                f"{filesizeformat(settings.FILE_UPLOAD_MAX_MEMORY_SIZE)}"
-            )
-            messages.error(request, msg)
-
     else:
         form = UploadFileForm()
 

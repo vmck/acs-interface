@@ -203,7 +203,7 @@ def test_anonymous(client, STC):
 
 
 @pytest.mark.django_db
-def test_filesize_limit(client, base_db_setup, mock_evaluate):
+def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password='pw')
@@ -226,8 +226,4 @@ def test_filesize_limit(client, base_db_setup, mock_evaluate):
 
     assert Submission.objects.all().count() == 0
 
-    message_list = list(response.context['messages'])
-    assert len(message_list) == 1
-
-    message = message_list[0].message
-    assert message.startswith('Filesize is bigger than')
+    STC.assertContains(response, 'Keep files below')

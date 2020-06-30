@@ -1,4 +1,6 @@
 from django import forms
+from django.conf import settings
+from django.template.defaultfilters import filesizeformat
 
 
 class UploadFileForm(forms.Form):
@@ -6,6 +8,16 @@ class UploadFileForm(forms.Form):
         label='Select archive',
         widget=forms.FileInput(attrs={'accept': 'application/zip'}),
     )
+
+    def clean_file(self):
+        data = self.cleaned_data['file']
+
+        if data.size >= settings.FILE_UPLOAD_MAX_MEMORY_SIZE:
+            raise forms.ValidationError(
+                f'Keep files below {filesizeformat(data.size)}',
+            )
+
+        return data
 
 
 class LoginForm(forms.Form):

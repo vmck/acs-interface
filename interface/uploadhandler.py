@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.uploadhandler import MemoryFileUploadHandler
 
 
@@ -13,8 +14,16 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
             encoding=None,
         )
 
-        if content_length > settings.FILE_UPLOAD_MAX_MEMORY_SIZE:
+        if content_length >= settings.FILE_UPLOAD_MAX_MEMORY_SIZE:
             return (
                 {'csrfmiddlewaretoken': META.get('CSRF_COOKIE', '')},
-                {'file_size_warning': 'error'},
+                {'file': InMemoryUploadedFile(
+                            file=None,
+                            field_name=None,
+                            name='FileTooBig',
+                            content_type=None,
+                            size=content_length,
+                            charset=None,
+                            content_type_extra=None,
+                )},
             )
