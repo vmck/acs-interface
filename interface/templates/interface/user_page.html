@@ -18,7 +18,6 @@
             <tbody>
             {% for sub in submissions %}
                 <tr>
-            <!--    <td><a href="{% url 'subs_for_user' sub.assignment.course.pk sub.assignment.pk sub.user.username %}">{{ sub.user.username }}</a></td> -->
                 <td><a href="{% url 'submission_result' sub.pk %}">{{sub.pk}}</a></td>
                 <td>{{ sub.assignment.name }}</td>
                 <td>{{ sub.assignment.course.name }}</td>

@@ -297,13 +297,15 @@ def subs_for_user(request, course_pk, assignment_pk, username):
         'submissions': submissions,
     })
 
+
 @login_required
 def user_page(request, username):
     user = get_object_or_404(User, username=username)
     submissions_aux = Submission.objects.all().order_by('-timestamp')
     submissions = submissions_aux.filter(user=user)
     if request.user.username != username:
-        log.warning(f"User attempted to access {username}")
+        log.warning(f'User attempted to access {username}')
         raise Http404("You are not allowed to access this page.")
-    return render(request, 'interface/subs_for_user.html', { 'submissions': submissions })
-    
+    return render(request, 'interface/subs_for_user.html', {
+        'submissions': submissions,
+    })
