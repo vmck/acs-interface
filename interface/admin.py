@@ -198,7 +198,7 @@ class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
     list_display_links = ['__str__', 'assignment']
     list_filter = ['state', 'assignment__course', 'assignment', 'user']
     readonly_fields = [
-        'user', 'assignment', 'archive_size', 'vmck_job_id', 'state',
+        'user', 'assignment', 'archive_size', 'evaluator_job_id', 'state',
         'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
     ]
     search_fields = ['user__username']

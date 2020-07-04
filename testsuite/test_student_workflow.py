@@ -48,13 +48,13 @@ def test_submission(client, live_server, base_db_setup):
     # As the reason mentioned above, the submission might have been already
     # submitted
     start = time.time()
-    while submission.vmck_job_id is None:
+    while submission.evaluator_job_id is None:
         time.sleep(0.5)
         submission.refresh_from_db()
 
         assert time.time() - start < 2
 
-    assert submission.vmck_job_id > 0
+    assert submission.evaluator_job_id > 0
 
     start = time.time()
     while submission.state != submission.STATE_DONE:
