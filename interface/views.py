@@ -306,6 +306,6 @@ def user_page(request, username):
     if request.user.username != username:
         log.warning(f'User attempted to access {username}')
         raise Http404("You are not allowed to access this page.")
-    return render(request, 'interface/subs_for_user.html', {
+    return render(request, 'interface/user_page.html', {
         'submissions': submissions,
     })

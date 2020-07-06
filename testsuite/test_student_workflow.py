@@ -198,3 +198,17 @@ def test_anonymous(client, STC):
 
     response = client.get('/submission/')
     STC.assertRedirects(response, '/?next=/submission/')
+
+
+@pytest.mark.django_db
+def test_a(client, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+
+    response = client.get(
+        f'/mysubmissions/{other.username}',
+    )
+    assert response.status_code == 404
