@@ -201,7 +201,7 @@ def test_anonymous(client, STC):
 
 
 @pytest.mark.django_db
-def test_a(client, base_db_setup):
+def test_user_cannot_see_another_userpage(client, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password='pw')
