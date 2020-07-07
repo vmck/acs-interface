@@ -92,9 +92,6 @@ def upload(request, course_pk, assignment_pk):
             else:
                 return redirect(users_list, course_pk, assignment_pk)
 
-            return render(request, 'interface/upload.html', {
-                'form': form,
-            })
     else:
         form = UploadFileForm()
 
