@@ -203,6 +203,20 @@ def test_anonymous(client, STC):
 
 
 @pytest.mark.django_db
+def test_user_cannot_see_another_userpage(client, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+
+    response = client.get(
+        f'/mysubmissions/{other.username}',
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
 def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
     (_, _, user, course, assignment) = base_db_setup
 

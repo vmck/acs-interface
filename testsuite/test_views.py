@@ -149,3 +149,38 @@ def test_subs_for_user(client, STC, base_db_setup):
     assert submission1 in response.context['submissions']
     assert submission2 in response.context['submissions']
     assert response.context['assignment'] == assignment
+
+
+@pytest.mark.django_db
+def test_user_page(client, STC, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+
+    submission1 = assignment.submission_set.create(
+        user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+    submission2 = assignment.submission_set.create(
+        user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+    submission3 = assignment.submission_set.create(
+        user=other,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+
+    response = client.get(
+        f'/mysubmissions/{user.username}',
+    )
+
+    STC.assertTemplateUsed(response, 'interface/user_page.html')
+    STC.assertContains(response, assignment.name)
+    STC.assertContains(response, course.name)
+    assert submission1 in response.context['submissions']
+    assert submission2 in response.context['submissions']
+    assert submission3 not in response.context['submissions']
