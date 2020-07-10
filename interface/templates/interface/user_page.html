@@ -22,9 +22,13 @@
                 <td>{{ sub.assignment.name }}</td>
                 <td>{{ sub.assignment.course.name }}</td>
                 <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
-                <td>{{ sub.total_score }}</td>
+                {% if not sub.assignment.hidden_score %}
+                    <td>{{ sub.total_score }}</td>
+                {% else %}
+                    <td> N/A </td>
+                {% endif %}
                 <td>{{ sub.get_state_display }}</td>
-                
+
                 <td class="text-center">
                     {% if sub.review_message %}
                         &#x2713;
@@ -36,4 +40,3 @@
         </table>
   </div>
 {% endblock %}
-

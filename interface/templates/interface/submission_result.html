@@ -37,14 +37,21 @@
 
   {% if sub.state == sub.STATE_DONE %}
 
-    <p>Score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
-    {% if sub.review_message %}
-      <h2>Review</h2>
-      <div class="card">
-        <div class="card-body">
-          <pre><code>{{ sub.review_message }}</code></pre>
+    {% if not sub.assignment.hidden_score %}
+
+      <p>Score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
+      {% if sub.review_message %}
+        <h2>Review</h2>
+        <div class="card">
+          <div class="card-body">
+            <pre><code>{{ sub.review_message }}</code></pre>
+          </div>
         </div>
-      </div>
+      {% endif %}
+
+    {% else %}
+      <p>Score: -/{{ sub.assignment.max_score }}</p>
+
     {% endif %}
 
     <h2>Output</h2>
@@ -72,4 +79,3 @@
 {% include "interface/generics/review_modal.html" %}
 
 {% endblock %}
-

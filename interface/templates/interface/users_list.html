@@ -7,6 +7,13 @@
     <h5><b>Deadline soft:</b> {{ assignment.deadline_soft|date:'Y-m-d H:i' }}</h5>
     <h5><b>Deadline hard:</b> {{ assignment.deadline_hard|date:'Y-m-d H:i' }}</h5>
     <h5><b>Scor maxim:</b> {{ assignment.max_score }}</h5>
+    {% if user in assignment.course.teaching_assistants.all %}
+      <form action="reveal">
+        {% csrf_token %}
+        <a formmethod="post" href="{% url 'reveal' assignment.course.pk assignment.pk %}" class="btn btn-primary btn-sm mr-1" type="submit">Reveal</a>
+      </form>
+    {% endif %}
+
     <table class="table table-striped table-bordered table-sm">
       <thead class="text-center">
         <tr>
@@ -23,7 +30,11 @@
           <tr>
             <td><a href="{% url 'subs_for_user' sub.assignment.course.pk sub.assignment.pk sub.user.username %}">{{ sub.user.username }}</a></td>
             <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
-            <td>{{ sub.total_score }}</td>
+            {% if not assignment.hidden_score %}
+              <td>{{ sub.total_score }}</td>
+            {% else %}
+              <td> N/A </td>
+            {% endif %}
             <td>{{ sub.get_state_display }}</td>
             <td><a href="{% url 'submission_result' sub.pk %}">{{sub.pk}}</a></td>
             <td class="text-center">
