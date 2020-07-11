@@ -29,8 +29,10 @@ def mock_config(monkeypatch):
             )
 
         def start_server(self):
-            thread = threading.Thread(target=self.server.serve_forever)
-            thread.daemon = True
+            thread = threading.Thread(
+                target=self.server.serve_forever,
+                daemon=True,
+            )
             thread.start()
 
         def stop_server(self):
