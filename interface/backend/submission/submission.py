@@ -62,7 +62,7 @@ def handle_submission(file, assignment, user):
 
     submission.evaluate()
     log.debug(f'Submission #{submission.pk} was sent to VMCK '
-              f'as #{submission.vmck_job_id}')
+              f'as #{submission.evaluator_job_id}')
 
 
 class TooManySubmissionsError(Exception):

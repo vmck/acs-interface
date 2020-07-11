@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 
 import ldap
 from django_auth_ldap.config import LDAPSearch
+
 from interface.utils import is_true
-from pathlib import Path
 
 
 BASE_DIR = Path(__file__).parent.parent
@@ -128,13 +129,22 @@ MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', '1234')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', '123456789')
 MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'test')
 
-ACS_INTERFACE_ADDRESS = os.environ.get('ACS_INTERFACE_ADDRESS', 'localhost:8100')  # noqa: E501
+ACS_INTERFACE_ADDRESS = os.environ.get(
+    'ACS_INTERFACE_ADDRESS',
+    'localhost:8100',
+)
 
 MANAGER_MEMORY = int(os.environ.get('MANAGER_MEMORY', 50))
 MANAGER_MHZ = int(os.environ.get('MANAGER_MHZ', 30))
 MANAGER_TAG = os.environ.get('MANAGER_TAG', 'master')
 
 SUBMISSIONS_PER_PAGE = 20
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = int(
+    os.environ.get('FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440),  # 2.5 MB
+)
+
+FILE_UPLOAD_HANDLERS = ['interface.uploadhandler.RestrictedFileUploadHandler']
 
 MOSS_USER_ID = int(os.environ.get('MOSS_USER_ID', 9999999))
 

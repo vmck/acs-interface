@@ -12,6 +12,8 @@ def test_no_holiday():
     )
     assert penalty_score == 0
 
+
+def test_rand_soft_hard():
     # random date between soft and hard deadline
     penalty_score = scoring.compute_penalty(
         "2019.12.10 10:00:00",
@@ -20,6 +22,8 @@ def test_no_holiday():
     )
     assert penalty_score == 5
 
+
+def test_soft_deadline():
     # soft deadline
     penalty_score = scoring.compute_penalty(
         "2019.12.05 23:55:01",
@@ -28,6 +32,8 @@ def test_no_holiday():
     )
     assert penalty_score == 1
 
+
+def test_over_no_days():
     # over the number of days of penalyt
     penalty_score = scoring.compute_penalty(
         "2019.12.15 10:55:01",
@@ -36,6 +42,8 @@ def test_no_holiday():
     )
     assert penalty_score == 7
 
+
+def test_hard_deadline():
     # hard deadline
     penalty_score = scoring.compute_penalty(
         "2019.12.12 10:00:00",
@@ -44,6 +52,8 @@ def test_no_holiday():
     )
     assert penalty_score == 7
 
+
+def test_upload_deadline_hour():
     penalty_score = scoring.compute_penalty(
         "2019.12.10 23:55:00",
         "2019.12.05 23:55:00",
@@ -51,6 +61,8 @@ def test_no_holiday():
     )
     assert penalty_score == 5
 
+
+def test_upload_deadline_1sec_after():
     penalty_score = scoring.compute_penalty(
         "2019.12.10 23:55:01",
         "2019.12.05 23:55:00",
@@ -69,6 +81,8 @@ def test_holiday_at_start():
     )
     assert penalty_score == 1
 
+
+def test_holiday_at_start_first_24h():
     penalty_score = scoring.compute_penalty(
         "2019.12.10 10:00:00",
         "2019.12.05 23:55:00",
@@ -78,6 +92,8 @@ def test_holiday_at_start():
     )
     assert penalty_score == 1
 
+
+def test_holiday_at_start_more_24h():
     penalty_score = scoring.compute_penalty(
         "2019.12.10 10:00:00",
         "2019.12.05 23:55:00",
@@ -87,6 +103,8 @@ def test_holiday_at_start():
     )
     assert penalty_score == 2
 
+
+def test_holiday_before_deadline():
     penalty_score = scoring.compute_penalty(
         "2019.12.10 10:00:00",
         "2019.12.05 23:55:00",
@@ -107,6 +125,8 @@ def test_holiday_in_middle_or_end():
     )
     assert penalty_score == 3
 
+
+def test_holiday_at_end():
     penalty_score = scoring.compute_penalty(
         "2019.12.12 00:00:01",
         "2019.12.05 23:55:00",
