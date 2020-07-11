@@ -1,6 +1,9 @@
 import time
 import filecmp
+import zipfile
 import threading
+from io import BytesIO
+
 from tempfile import NamedTemporaryFile
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -82,13 +85,13 @@ def test_submission(client, live_server, base_db_setup, mock_config):
     # As the reason mentioned above, the submission might have been already
     # submitted
     start = time.time()
-    while submission.vmck_job_id is None:
+    while submission.evaluator_job_id is None:
         time.sleep(0.5)
         submission.refresh_from_db()
 
         assert time.time() - start < 2
 
-    assert submission.vmck_job_id > 0
+    assert submission.evaluator_job_id > 0
 
     start = time.time()
     while submission.state != submission.STATE_DONE:
@@ -236,3 +239,44 @@ def test_anonymous(client, STC):
 
     response = client.get('/submission/')
     STC.assertRedirects(response, '/?next=/submission/')
+
+
+@pytest.mark.django_db
+def test_user_cannot_see_another_userpage(client, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+
+    response = client.get(
+        f'/mysubmissions/{other.username}',
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    buff = BytesIO()
+    zip_archive = zipfile.ZipFile(buff, mode='w')
+    zip_archive.writestr('test.c', 'aaaa'*2**20)
+
+    upload = SimpleUploadedFile(
+        FILEPATH.name,
+        buff.getvalue(),
+        content_type='application/zip',
+    )
+
+    response = client.post(
+        f'/assignment/{course.pk}/{assignment.pk}/upload/',
+        data={'name': FILEPATH.name, 'file': upload},
+        format='multipart',
+    )
+
+    assert Submission.objects.all().count() == 0
+
+    STC.assertContains(response, 'Keep files below')

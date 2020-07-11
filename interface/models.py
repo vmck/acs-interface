@@ -15,7 +15,6 @@ from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
 from interface import signals
-from interface import vmck
 from interface.utils import cached_get_file
 from interface.backend.submission.submission_scheduler import \
     SubmissionScheduler
@@ -157,15 +156,15 @@ class Submission(models.Model):
                                   decimal_places=2,
                                   null=True)
     archive_size = models.IntegerField(null=True)
-    vmck_job_id = models.IntegerField(null=True)
+    evaluator_job_id = models.IntegerField(null=True)
 
     history = HistoricalRecords()
 
     def update_state(self):
-        if self.state == self.STATE_DONE or self.vmck_job_id is None:
+        if self.state == self.STATE_DONE or self.evaluator_job_id is None:
             return
 
-        state = vmck.update(self)
+        state = SubmissionScheduler.evaluator.update(self)
         if state != self.state:
             self.state = state
 

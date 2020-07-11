@@ -92,9 +92,6 @@ def upload(request, course_pk, assignment_pk):
             else:
                 return redirect(users_list, course_pk, assignment_pk)
 
-            return render(request, 'interface/upload.html', {
-                'form': form,
-            })
     else:
         form = UploadFileForm()
 
@@ -294,5 +291,19 @@ def subs_for_user(request, course_pk, assignment_pk, username):
 
     return render(request, 'interface/subs_for_user.html', {
         'assignment': assignment,
+        'submissions': submissions,
+    })
+
+
+@login_required
+def user_page(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.user.username != username:
+        log.warning(f'User attempted to access {username}')
+        raise Http404("You are not allowed to access this page.")
+    submissions = \
+        Submission.objects.all().filter(user=user).order_by('-timestamp')
+
+    return render(request, 'interface/user_page.html', {
         'submissions': submissions,
     })
