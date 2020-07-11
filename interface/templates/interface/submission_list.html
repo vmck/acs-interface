@@ -12,7 +12,7 @@
             <th scope="col">Submission id</th>
             <th scope="col">Homework id</th>
             <th scope="col">Archive size</th>
-            <th scope="col">Score</th>
+            <th scope="col">Preliminary score</th>
             <th scope="col">Status</th>
           </tr>
         </thead>
@@ -24,12 +24,11 @@
               <td><a href="{{ sub_base_url }}{{ sub.pk }}">{{ sub.pk }}</a></td>
               <td>{{ sub.assignment.full_code }}</td>
               <td>{{ sub.archive_size|filesizeformat }}</td>
-              {% if not sub.assignment.hidden_score %}
-                <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
+              {% if sub.user.username == user.username or user in sub.assignment.course.teaching_assistants.all%}
+                <td>{{ sub.score }}</td>
               {% else %}
-                <td>-/{{ sub.assignment.max_score }}</td>
+              <td> N/A </td>
               {% endif %}
-
               <td>{{ sub.get_state_display }}</td>
             </tr>
           {% endfor %}

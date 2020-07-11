@@ -19,7 +19,8 @@
         <tr>
           <th scope="col">Username</th>
           <th scope="col">Time</th>
-          <th scope="col">Score</th>
+          <th scope="col">Preliminary score</th>
+          <th scope="col">Final score</th>
           <th scope="col">Status</th>
           <th scope="col">Submission id</th>
           <th scope="col">Reviewed</th>
@@ -30,16 +31,19 @@
           <tr>
             <td><a href="{% url 'subs_for_user' sub.assignment.course.pk sub.assignment.pk sub.user.username %}">{{ sub.user.username }}</a></td>
             <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
-            {% if not assignment.hidden_score %}
-              <td>{{ sub.total_score }}</td>
+            <td>{{ sub.score }}</td>
+            {% if not sub.assignment.hidden_score and sub.user.username == user.username %}
+              <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
             {% else %}
               <td> N/A </td>
             {% endif %}
             <td>{{ sub.get_state_display }}</td>
             <td><a href="{% url 'submission_result' sub.pk %}">{{sub.pk}}</a></td>
             <td class="text-center">
-                {% if sub.review_message %}
+                {% if user.username == sub.user.username or user in sub.assignment.course.teaching_assistants.all %}
+                  {% if sub.review_message %}
                     &#x2713;
+                  {% endif %}
                 {% endif %}
             </td>
           </tr>
