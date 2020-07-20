@@ -316,11 +316,14 @@ def reveal(request, course_pk, assignment_pk):
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
 
     if (request.user
-            not in assignment.course.teaching_assistants.all()):
-        return HttpResponse(status=404)
+            not in course.teaching_assistants.all()):
+        return HttpResponse(status=403)
 
     assignment.hidden_score = False
     assignment.save()
 
     log_action("Reveal score", request.user, assignment)
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect(request.META.get(
+        'HTTP_REFERER',
+        f'/assignment/{course.pk}/{assignment.pk}'
+    ))

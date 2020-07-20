@@ -32,7 +32,7 @@
             <td><a href="{% url 'subs_for_user' sub.assignment.course.pk sub.assignment.pk sub.user.username %}">{{ sub.user.username }}</a></td>
             <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
             <td>{{ sub.score }}</td>
-            {% if not sub.assignment.hidden_score and sub.user.username == user.username %}
+            {% if not sub.assignment.hidden_score and sub.user.username == user.username or not sub.assignment.hidden_score and user in sub.assignment.course.teaching_assistants.all %}
               <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
             {% else %}
               <td> N/A </td>

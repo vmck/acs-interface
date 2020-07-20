@@ -241,3 +241,42 @@ def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
     assert Submission.objects.all().count() == 0
 
     STC.assertContains(response, 'Keep files below')
+
+
+@pytest.mark.django_db
+def test_user_cannot_reveal(client, STC, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    response = client.post(
+        f'/assignment/{course.pk}/{assignment.pk}/reveal',
+    )
+    STC.assertRedirects(
+        response,
+        f'/admin/login/?next=/assignment/{course.pk}/{assignment.pk}/reveal',
+    )
+
+
+@pytest.mark.django_db
+def test_user_cannot_see_another_submission_score(client, STC, base_db_setup):
+    (_, _, user, _, assignment) = base_db_setup
+    client.login(username=user.username, password='pw')
+
+    other = User.objects.create_user('other', password='pw')
+
+    submission = assignment.submission_set.create(
+        user=other,
+        score=100.00,
+        state=Submission.STATE_DONE,
+    )
+
+    response = client.get(
+        f'/submission/{submission.pk}/',
+    )
+
+    assert response.status_code == 200
+    STC.assertTemplateUsed(response, 'interface/submission_result.html')
+    STC.assertContains(response, other.username)
+    STC.assertContains(response, "N/A")
+    STC.assertNotContains(response, "TOTAL")

@@ -768,3 +768,14 @@ def test_ta_logout(client, STC, base_db_setup):
 
     response = client.post('/logout/')
     STC.assertRedirects(response, '/')
+
+
+@pytest.mark.django_db
+def test_ta_reveal(client, STC, base_db_setup):
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password='pw')
+
+    response = client.get(f'/assignment/{course.pk}/{assignment.pk}/reveal')
+
+    STC.assertRedirects(response, f'/assignment/{course.pk}/{assignment.pk}')
