@@ -325,5 +325,5 @@ def reveal(request, course_pk, assignment_pk):
     log_action("Reveal score", request.user, assignment)
     return redirect(request.META.get(
         'HTTP_REFERER',
-        f'/assignment/{course.pk}/{assignment.pk}'
+        f'/assignment/{course.pk}/{assignment.pk}',
     ))

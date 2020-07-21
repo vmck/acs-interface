@@ -41,15 +41,13 @@
 
       <p>Final score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
 
-      {% if sub.review_message %}
-        {% if sub.user.username == user.username %}
-          <h2>Review</h2>
-          <div class="card">
-            <div class="card-body">
-              <pre><code>{{ sub.review_message }}</code></pre>
-            </div>
+      {% if sub.review_message and sub.user.username == user.username %}
+        <h2>Review</h2>
+        <div class="card">
+          <div class="card-body">
+            <pre><code>{{ sub.review_message }}</code></pre>
           </div>
-        {% endif %}
+        </div>
       {% endif %}
 
     {% else %}

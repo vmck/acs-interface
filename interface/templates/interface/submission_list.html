@@ -24,7 +24,7 @@
               <td><a href="{{ sub_base_url }}{{ sub.pk }}">{{ sub.pk }}</a></td>
               <td>{{ sub.assignment.full_code }}</td>
               <td>{{ sub.archive_size|filesizeformat }}</td>
-              {% if sub.user.username == user.username or user in sub.assignment.course.teaching_assistants.all%}
+              {% if sub.user.username == user.username or user in sub.assignment.course.teaching_assistants.all %}
                 <td>{{ sub.score }}</td>
               {% else %}
               <td> N/A </td>

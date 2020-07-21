@@ -772,10 +772,26 @@ def test_ta_logout(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_ta_reveal(client, STC, base_db_setup):
-    (_, ta, _, course, assignment) = base_db_setup
+    (_, ta, user, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password='pw')
 
     response = client.get(f'/assignment/{course.pk}/{assignment.pk}/reveal')
 
     STC.assertRedirects(response, f'/assignment/{course.pk}/{assignment.pk}')
+
+    if not assignment.hidden_score:
+        assert False
+
+
+@pytest.mark.django_db
+def test_ta_see_revealed_score(client, STC, base_db_setup):
+    (_, ta, user, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password='pw')
+
+    assignment.hidden_score = False
+    assignment.save()
+
+    response = client.get(f'/assignment/{course.pk}/{assignment.pk}')
+    STC.assertNotContains(response, "N/A")
