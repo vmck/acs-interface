@@ -19,7 +19,11 @@
           <tr>
             <td>{{ sub.timestamp|date:'Y-m-d H:i' }}</td>
             <td><a href="{% url 'submission_result' sub.pk %}">{{ sub.pk }}</a></td>
-            <td>{{ sub.total_score }}</td>
+            {% if not sub.assignment.hidden_score %}
+              <td>{{ sub.total_score }}/{{ sub.assignment.max_score }}</td>
+            {% else %}
+              <td> N/A </td>
+            {% endif %}
             <td>{{ sub.get_state_display }}</td>
           </tr>
         {% endfor %}

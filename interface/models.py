@@ -70,6 +70,7 @@ class Assignment(models.Model):
     )
 
     history = HistoricalRecords()
+    hidden_score = models.BooleanField(default=True)
 
     @property
     def full_code(self):

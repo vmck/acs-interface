@@ -20,6 +20,8 @@ urlpatterns = [
     path('', views.login_view, name='login'),
     path('assignment/<course_pk>/<assignment_pk>',
          views.users_list, name='subs_for_assignment'),
+    path('assignment/<course_pk>/<assignment_pk>/reveal',
+         views.reveal, name='reveal'),
     path('assignment/<course_pk>/<assignment_pk>/user/<username>',
          views.subs_for_user, name='subs_for_user'),
     path('mysubmissions/<username>', views.user_page, name='user_page'),

@@ -37,23 +37,33 @@
 
   {% if sub.state == sub.STATE_DONE %}
 
-    <p>Score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
-    {% if sub.review_message %}
-      <h2>Review</h2>
-      <div class="card">
-        <div class="card-body">
-          <pre><code>{{ sub.review_message }}</code></pre>
+    {% if not sub.assignment.hidden_score or user in sub.assignment.course.teaching_assistants.all %}
+
+      <p>Final score: {{ sub.total_score }}/{{ sub.assignment.max_score }}</p>
+
+      {% if sub.review_message and sub.user.username == user.username %}
+        <h2>Review</h2>
+        <div class="card">
+          <div class="card-body">
+            <pre><code>{{ sub.review_message }}</code></pre>
+          </div>
         </div>
-      </div>
+      {% endif %}
+
+    {% else %}
+      <p>Score: N/A </p>
+
     {% endif %}
 
-    <h2>Output</h2>
-    <div class="card">
-      <div class="card-body">
-        <pre><code>{{ sub.stdout }}</code></pre>
+    {% if sub.user.username == user.username or user in sub.assignment.course.teaching_assistants.all %}
+      <h2>Output</h2>
+      <div class="card">
+        <div class="card-body">
+          <pre><code>{{ sub.stdout }}</code></pre>
+        </div>
       </div>
-    </div>
-
+      <p>Preliminary score: {{ sub.score }}/{{ sub.assignment.max_score }}</p>
+    {% endif %}
   {% else %}
 
     <h2>Fortune teller</h2>
@@ -72,4 +82,3 @@
 {% include "interface/generics/review_modal.html" %}
 
 {% endblock %}
-
