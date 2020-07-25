@@ -1,9 +1,6 @@
 from pathlib import Path
-import random
 
 from locust import HttpUser, between, task
-
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 FILEPATH = Path('testsuite') / 'test.zip'
@@ -53,7 +50,6 @@ class StudentUser(HttpUser):
                 data={"id": "42"},
                 timeout=5,
             )
-
 
     def on_stop(self):
         response = self.client.get('/assignment/1/2/upload/')
