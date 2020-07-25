@@ -50,12 +50,8 @@ def mock_config(monkeypatch):
     return Server()
 
 
-FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
-
-
 @pytest.mark.django_db
 def test_submission(client, live_server, base_db_setup, mock_config):
-    FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
     (_, _, user, course, assignment) = base_db_setup
 

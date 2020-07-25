@@ -77,18 +77,7 @@ required - [liquid/cluster][] - to run `vmck`.
 [vmck]: https://github.com/vmck/vmck
 [liquid-cluster]: https://github.com/liquidinvestigations/cluster
 
-You need to set up some enviromental vars. For that, you can
-create the file `.env` at the root of this project  where you
-add your variabiles. The following example is enough to start you:
-
-```
-#DEBUG=True
-MINIO_ACCESS_KEY=1234
-MINIO_SECRET_KEY=123456789
-VMCK_API_URL=http://www.example.com/v0/
-```
-Please add it to your `.env` file
-Now run:
+Run:
 
 ```shell
 pipenv run ./examples/minio.sh
@@ -136,3 +125,46 @@ production.
   - Add a repo URL - when evaluating a homework the repo URL and the below specified branch will be used for testing;
   - Set `repo_branch`, or leave blank to use `master`
   - Set `repo_path` to a folder of the repository that contains the assignment files
+
+## Running tests
+
+### Unit + Integration tests
+
+For running the tests you need to:
+
+1. Have the vagrant machine up
+2. Access vagrant using:
+```
+vagrant ssh
+```
+3. Go to */vagrant*
+4. Run:
+```
+pipenv run pytest --liveserver 10.66.60.1:8000 testsuite
+```
+
+### Stress Tests
+We are using [locust.io](https://locust.io/) for running the stress tests.
+You need to install it:
+```
+pip install locust
+```
+
+For running the tests you need to do the following:
+
+If you want to test locally:
+
+1. Have the vagrant machine up
+2. Access vagrant using:
+```
+vagrant ssh
+```
+3. Start the server using:
+```
+pipenv run ./manage.py runserver 10.66.60.1:8000
+```
+4. Run (not in the *vagrant ssh* session):
+```
+locust -f testsuite/stress/locust.py
+```
+5. Open *http://localhost:8089/* and specify the wanted parameters and run it!
