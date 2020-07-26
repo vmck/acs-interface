@@ -1,17 +1,15 @@
-import glob
 import logging
-import os
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from django.conf import settings
 from django.contrib import messages
 
 from interface.backend.minio_api import MissingFile
 
 
 log = logging.getLogger(__name__)
+
 
 def submission_cut(request, submission, filename):
     with TemporaryDirectory() as _tmp:

@@ -25,5 +25,6 @@ urlpatterns = [
     path('assignment/<course_pk>/<assignment_pk>/user/<username>',
          views.subs_for_user, name='subs_for_user'),
     path('mysubmissions/<username>', views.user_page, name='user_page'),
-    path('submission/<int:pk>/<str:filename>/', views.code_view, name='code_view'),
+    path('submission/<int:pk>/<str:filename>/',
+         views.code_view, name='code_view'),
 ]
