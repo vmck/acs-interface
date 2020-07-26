@@ -1,33 +1,26 @@
+import io
 import logging
-from pathlib import Path
 from zipfile import ZipFile
-from tempfile import TemporaryDirectory
 
-from django.contrib import messages
-
-from interface.backend.minio_api import MissingFile
-
+from interface.backend.minio_api import MissingFile, download_buffer
 
 log = logging.getLogger(__name__)
 
 
 def submission_cut(request, submission, filename):
-    with TemporaryDirectory() as _tmp:
-        tmp = Path(_tmp)
-        try:
-            submission.download(tmp / f'{submission.pk}.zip')
-        except MissingFile:
-            msg = f"File missing for {submission!r}"
-            messages.error(request, msg)
-            log.warning(msg)
+    buff = io.BytesIO()
+    try:
+        download_buffer(f'{submission.pk}.zip', buff)
+    except MissingFile:
+        return io.StringIO("The archive is missing!")
 
-        submission_archive = ZipFile(tmp / f'{submission.pk}.zip')
-        submission_archive.extract(
+    submission_archive = ZipFile(buff)
+    try:
+        file = submission_archive.read(
             filename,
-            path=tmp,
             pwd=None,
         )
-        path = Path(tmp / f'{filename}')
-        file = open(path, "r")
+    except MissingFile:
+        return io.StringIO("The file is missing!")
 
-    return file
+    return io.StringIO(str(file, encoding="ascii"))

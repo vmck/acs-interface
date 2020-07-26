@@ -31,6 +31,15 @@ def copy(source_file, destination_file):
                         f'/{settings.MINIO_BUCKET}/{source_file}')
 
 
+def download_buffer(filename, buffer):
+    try:
+        data = _client.get_object(settings.MINIO_BUCKET, filename)
+    except NoSuchKey:
+        raise MissingFile(filename)
+    for chunck in data.stream(32*1024):
+        buffer.write(chunck)
+
+
 def download(filename, path):
     try:
         data = _client.get_object(settings.MINIO_BUCKET, filename)
