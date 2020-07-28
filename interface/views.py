@@ -29,7 +29,7 @@ from interface.backend.submission.submission import handle_submission, \
     CorruptZipFile
 from .scoring import calculate_total_score
 from interface.actions_logger import log_action
-from interface.codeview import submission_cut
+from interface.codeview import extract_file
 
 
 log = logging.getLogger(__name__)
@@ -334,15 +334,14 @@ def reveal(request, course_pk, assignment_pk):
 @staff_member_required
 def code_view(request, pk, filename):
     submission = get_object_or_404(Submission, pk=pk)
+    all_tas = submission.assignment.course.teaching_assistants.all()
 
-    if (request.user
-            not in submission.assignment.course.teaching_assistants.all()):
+    if (request.user not in all_tas):
         return HttpResponse(status=403)
 
-    file = submission_cut(request, submission, filename)
+    file = extract_file(request, submission, filename)
 
-    file_content = file.read()
-
+    context = {'file_content': file.read()}
     file.close()
-    context = {'file_content': file_content}
+
     return render(request, "interface/code_view.html", context)

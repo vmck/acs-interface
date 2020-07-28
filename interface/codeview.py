@@ -7,7 +7,7 @@ from interface.backend.minio_api import MissingFile, download_buffer
 log = logging.getLogger(__name__)
 
 
-def submission_cut(request, submission, filename):
+def extract_file(request, submission, filename):
     buff = io.BytesIO()
     try:
         download_buffer(f'{submission.pk}.zip', buff)
@@ -16,11 +16,8 @@ def submission_cut(request, submission, filename):
 
     submission_archive = ZipFile(buff)
     try:
-        file = submission_archive.read(
-            filename,
-            pwd=None,
-        )
-    except MissingFile:
+        file = submission_archive.read(filename)
+    except Exception:
         return io.StringIO("The file is missing!")
 
     return io.StringIO(str(file, encoding="ascii"))

@@ -2,6 +2,9 @@ import pytest
 from datetime import datetime, timezone
 from django.contrib.admin.sites import AdminSite
 
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from interface.models import Course, Submission
 from interface.admin import CourseAdmin
 
@@ -795,3 +798,31 @@ def test_ta_see_revealed_score(client, STC, base_db_setup):
 
     response = client.get(f'/assignment/{course.pk}/{assignment.pk}')
     STC.assertNotContains(response, "N/A")
+
+
+@pytest.mark.django_db
+def test_ta_code_view(client, STC, base_db_setup):
+    FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
+
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password='pw')
+
+    with open(FILEPATH, 'rb') as file:
+        upload = SimpleUploadedFile(FILEPATH.name,
+                                    file.read(),
+                                    content_type='application/zip')
+        client.post(
+            f'/assignment/{course.pk}/{assignment.pk}/upload/',
+            data={'name': FILEPATH.name, 'file': upload},
+            format='multipart',
+        )
+
+    submission = Submission.objects.all()[0]
+
+    response = client.get(
+        f'/submission/{submission.pk}/test',
+        follow=True,
+    )
+
+    assert response.status_code == 200
