@@ -355,9 +355,11 @@ def test_user_code_view(client, STC, base_db_setup):
     client.login(username=user.username, password='pw')
 
     with open(FILEPATH, 'rb') as file:
-        upload = SimpleUploadedFile(FILEPATH.name,
-                                    file.read(),
-                                    content_type='application/zip')
+        upload = SimpleUploadedFile(
+            FILEPATH.name,
+            file.read(),
+            content_type='application/zip',
+        )
         client.post(
             f'/assignment/{course.pk}/{assignment.pk}/upload/',
             data={'name': FILEPATH.name, 'file': upload},
@@ -367,7 +369,13 @@ def test_user_code_view(client, STC, base_db_setup):
     submission = Submission.objects.all()[0]
 
     response = client.get(
-        f'/submission/{submission.pk}/test',
+        f'/submission/{submission.pk}/test/',
         follow=True,
     )
+
     STC.assertTemplateNotUsed(response, 'interface/code_view.html')
+    assert response.status_code == 200
+    STC.assertRedirects(
+        response,
+        f'/admin/login/?next=/submission/{submission.pk}/test/',
+    )

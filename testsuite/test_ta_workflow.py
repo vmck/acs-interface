@@ -809,9 +809,11 @@ def test_ta_code_view(client, STC, base_db_setup):
     client.login(username=ta.username, password='pw')
 
     with open(FILEPATH, 'rb') as file:
-        upload = SimpleUploadedFile(FILEPATH.name,
-                                    file.read(),
-                                    content_type='application/zip')
+        upload = SimpleUploadedFile(
+            FILEPATH.name,
+            file.read(),
+            content_type='application/zip',
+        )
         client.post(
             f'/assignment/{course.pk}/{assignment.pk}/upload/',
             data={'name': FILEPATH.name, 'file': upload},

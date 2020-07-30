@@ -9,6 +9,8 @@ from interface.utils import is_true
 
 BASE_DIR = Path(__file__).parent.parent
 
+BLOCK_SIZE = 32*1024
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
