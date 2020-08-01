@@ -37,5 +37,21 @@
     "repo_path": "pc-00",
     "language": "c"
   }
+},
+{
+  "model": "interface.assignment",
+  "pk": 2,
+  "fields": {
+    "course": 1,
+    "name": "Assignment Stress",
+    "max_score": 100,
+    "min_time_between_uploads": 0,
+    "deadline_soft": "2019-12-31T22:00:00Z",
+    "deadline_hard": "2050-10-10T22:00:00Z",
+    "repo_url": "https://github.com/vmck/assignment",
+    "repo_path": "pc-00",
+    "language": "c"
+  }
 }
+
 ]
