@@ -17,7 +17,7 @@ class StudentUser(HttpUser):
         csrftoken = response.cookies['csrftoken']
         login_info = {
             "username": self.username,
-            "password": self.password
+            "password": self.password,
         }
 
         self.client.post("/", login_info, headers={"X-CSRFToken": csrftoken})
@@ -36,7 +36,6 @@ class StudentUser(HttpUser):
 
     @task
     def upload_homework(self):
-
         response = self.client.get('/assignment/1/2/upload/')
         csrftoken = response.cookies['csrftoken']
 
