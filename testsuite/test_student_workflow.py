@@ -348,8 +348,6 @@ def test_user_see_revealed_score(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_user_code_view(client, STC, base_db_setup):
-    FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
-
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password='pw')

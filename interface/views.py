@@ -336,7 +336,7 @@ def code_view(request, pk, filename):
     submission = get_object_or_404(Submission, pk=pk)
     all_tas = submission.assignment.course.teaching_assistants.all()
 
-    if (request.user not in all_tas):
+    if request.user not in all_tas:
         return HttpResponse(status=403)
 
     file = extract_file(request, submission, filename)
