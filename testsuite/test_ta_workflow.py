@@ -2,8 +2,14 @@ import pytest
 from datetime import datetime, timezone
 from django.contrib.admin.sites import AdminSite
 
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from interface.models import Course, Submission
 from interface.admin import CourseAdmin
+
+
+FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
 
 
 class MockObject(object):
@@ -795,3 +801,85 @@ def test_ta_see_revealed_score(client, STC, base_db_setup):
 
     response = client.get(f'/assignment/{course.pk}/{assignment.pk}')
     STC.assertNotContains(response, "N/A")
+
+
+@pytest.mark.django_db
+def test_ta_code_view(client, STC, base_db_setup):
+    FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
+
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password='pw')
+
+    with open(FILEPATH, 'rb') as file:
+        upload = SimpleUploadedFile(
+            FILEPATH.name,
+            file.read(),
+            content_type='application/zip',
+        )
+        client.post(
+            f'/assignment/{course.pk}/{assignment.pk}/upload/',
+            data={'name': FILEPATH.name, 'file': upload},
+            format='multipart',
+        )
+
+    submission = Submission.objects.all()[0]
+
+    response = client.get(
+        f'/submission/{submission.pk}/test',
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    STC.assertNotContains(response, "N/A")
+
+
+@pytest.mark.django_db
+def test_ta_code_view_file_missing(client, STC, base_db_setup):
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password='pw')
+
+    with open(FILEPATH, 'rb') as file:
+        upload = SimpleUploadedFile(
+            FILEPATH.name,
+            file.read(),
+            content_type='application/zip',
+        )
+        client.post(
+            f'/assignment/{course.pk}/{assignment.pk}/upload/',
+            data={'name': FILEPATH.name, 'file': upload},
+            format='multipart',
+        )
+
+    submission = Submission.objects.all()[0]
+
+    response = client.get(
+        f'/submission/{submission.pk}/test1',
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    STC.assertContains(response, "The file is missing!")
+
+
+@pytest.mark.django_db
+def test_ta_code_view_archive_missing(client, STC, base_db_setup):
+    (_, ta, user, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password='pw')
+
+    submission = assignment.submission_set.create(
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+        id=1000,
+    )
+
+    response = client.get(
+        f'/submission/{submission.pk}/test',
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    STC.assertContains(response, "The archive is missing!")

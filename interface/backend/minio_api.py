@@ -7,6 +7,7 @@ from django.conf import settings
 
 import io
 
+
 _client = Minio(settings.MINIO_ADDRESS,
                 access_key=settings.MINIO_ACCESS_KEY,
                 secret_key=settings.MINIO_SECRET_KEY,
@@ -31,13 +32,22 @@ def copy(source_file, destination_file):
                         f'/{settings.MINIO_BUCKET}/{source_file}')
 
 
+def download_buffer(filename, buffer):
+    try:
+        data = _client.get_object(settings.MINIO_BUCKET, filename)
+    except NoSuchKey:
+        raise MissingFile(filename)
+    for chunck in data.stream(settings.BLOCK_SIZE):
+        buffer.write(chunck)
+
+
 def download(filename, path):
     try:
         data = _client.get_object(settings.MINIO_BUCKET, filename)
     except NoSuchKey:
         raise MissingFile(filename)
     with open(path, 'wb') as file:
-        for chunck in data.stream(32*1024):
+        for chunck in data.stream(settings.BLOCK_SIZE):
             file.write(chunck)
 
 

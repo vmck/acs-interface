@@ -340,3 +340,36 @@ def test_user_see_revealed_score(client, STC, base_db_setup):
     )
     STC.assertNotContains(response, "N/A")
     STC.assertContains(response, "Final score")
+
+
+@pytest.mark.django_db
+def test_user_code_view(client, STC, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password='pw')
+
+    with open(FILEPATH, 'rb') as file:
+        upload = SimpleUploadedFile(
+            FILEPATH.name,
+            file.read(),
+            content_type='application/zip',
+        )
+        client.post(
+            f'/assignment/{course.pk}/{assignment.pk}/upload/',
+            data={'name': FILEPATH.name, 'file': upload},
+            format='multipart',
+        )
+
+    submission = Submission.objects.all()[0]
+
+    response = client.get(
+        f'/submission/{submission.pk}/test/',
+        follow=True,
+    )
+
+    STC.assertTemplateNotUsed(response, 'interface/code_view.html')
+    assert response.status_code == 200
+    STC.assertRedirects(
+        response,
+        f'/admin/login/?next=/submission/{submission.pk}/test/',
+    )
