@@ -1,7 +1,6 @@
+import io
 import logging
-from pathlib import Path
 from zipfile import ZipFile
-from tempfile import TemporaryDirectory
 
 import simple_history
 from django.db import transaction
@@ -123,25 +122,29 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         return qs.filter(course__teaching_assistants=request.user)
 
     def zip_submissions(self, request, submissions):
-        with TemporaryDirectory() as _tmp:
-            tmp = Path(_tmp)
+        big_buff = io.BytesIO()
+        with ZipFile(big_buff, "a") as zip_archive:
+            for submission in submissions:
+                buff = io.BytesIO()
+                try:
+                    submission.download(buff)
+                except MissingFile:
+                    msg = f"File missing for {submission!r}"
+                    messages.error(request, msg)
+                    log.warning(msg)
+                else:
+                    buff.name = (
+                        f'{submission.user.username}'
+                        f'-{submission.pk}.zip'
+                    )
+                    zip_archive.writestr(buff.name, buff.getvalue())
 
-            with ZipFile(tmp / 'review.zip', 'x') as zipfile:
-                for submission in submissions:
-                    try:
-                        submission.download(tmp / f'{submission.pk}.zip')
-                    except MissingFile:
-                        msg = f"File missing for {submission!r}"
-                        messages.error(request, msg)
-                        log.warning(msg)
-                    else:
-                        zipfile.write(
-                            tmp / f'{submission.pk}.zip',
-                            f'{submission.user.username}-{submission.pk}.zip',
-                        )
-
-            review_zip = (tmp / 'review.zip').open('rb')
-            return FileResponse(review_zip)
+        big_buff.seek(0)
+        return FileResponse(
+            big_buff,
+            as_attachment=True,
+            filename='Submissions.zip'
+        )
 
     @log_action_admin('Run moss check')
     def run_moss(self, request, queryset):
