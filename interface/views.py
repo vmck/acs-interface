@@ -111,12 +111,15 @@ def download(request, pk):
 
     buff = io.BytesIO()
     submission.download(buff)
-    buff.name = f'{submission.pk}.zip'
     buff.seek(0)
 
     log_action("Download submission", request.user, submission)
 
-    return FileResponse(buff, as_attachment=True)
+    return FileResponse(
+            buff,
+            as_attachment=True,
+            filename=f'{submission.pk}.zip',
+        )
 
 
 @login_required

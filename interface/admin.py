@@ -143,7 +143,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         return FileResponse(
             big_buff,
             as_attachment=True,
-            filename='Submissions.zip'
+            filename='Submissions.zip',
         )
 
     @log_action_admin('Run moss check')
