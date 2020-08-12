@@ -175,8 +175,8 @@ class Submission(models.Model):
             self.changeReason = f'Update state to {state}'
             self.save()
 
-    def download(self, path):
-        storage.download(f'{self.pk}.zip', path)
+    def download(self, buff):
+        storage.download_buffer(f'{self.pk}.zip', buff)
 
     def get_script_url(self):
         return self.assignment.url_for('checker.sh')

@@ -805,8 +805,6 @@ def test_ta_see_revealed_score(client, STC, base_db_setup):
 
 @pytest.mark.django_db
 def test_ta_code_view(client, STC, base_db_setup):
-    FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
-
     (_, ta, _, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password='pw')

@@ -1,12 +1,11 @@
 import re
+import io
 import json
 import pprint
 import logging
 import decimal
 import subprocess
-from pathlib import Path
 from zipfile import BadZipFile
-from tempfile import TemporaryDirectory
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -110,15 +109,17 @@ def download(request, pk):
             not in submission.assignment.course.teaching_assistants.all()):
         return HttpResponse(status=403)
 
-    with TemporaryDirectory() as _tmp:
-        tmp = Path(_tmp)
+    buff = io.BytesIO()
+    submission.download(buff)
+    buff.seek(0)
 
-        submission.download(tmp / f'{submission.pk}.zip')
-        review_zip = (tmp / f'{submission.pk}.zip').open('rb')
+    log_action("Download submission", request.user, submission)
 
-        log_action("Download submission", request.user, submission)
-
-        return FileResponse(review_zip, as_attachment=True)
+    return FileResponse(
+            buff,
+            as_attachment=True,
+            filename=f'{submission.pk}.zip',
+        )
 
 
 @login_required
