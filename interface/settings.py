@@ -11,6 +11,9 @@ BASE_DIR = Path(__file__).parent.parent
 
 BLOCK_SIZE = 32*1024
 
+MEDIA_ROOT = 'interface/templates/interface/media'
+MEDIA_URL = '/media/'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
