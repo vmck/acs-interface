@@ -5,7 +5,7 @@ import base64
 import requests
 from cachetools import cached, TTLCache
 
-vocabulary_64 = string.ascii_letters + string.digits + '.+'
+vocabulary_64 = string.ascii_letters + string.digits + ".+"
 
 
 def is_number(string):
@@ -17,19 +17,18 @@ def is_number(string):
 
 
 def decode(message):
-    decoded_message = base64.decodebytes(bytes(message,
-                                               encoding='latin-1'))
+    decoded_message = base64.decodebytes(bytes(message, encoding="latin-1"))
 
-    return str(decoded_message, encoding='latin-1')
+    return str(decoded_message, encoding="latin-1")
 
 
 def random_code(length, vocabulary=vocabulary_64):
-    return ''.join(secrets.choice(vocabulary) for _ in range(length))
+    return "".join(secrets.choice(vocabulary) for _ in range(length))
 
 
 def is_true(value):
-    text = (value or '').lower().strip()
-    return text in ['1', 'yes', 'true', 'on', 'enabled']
+    text = (value or "").lower().strip()
+    return text in ["1", "yes", "true", "on", "enabled"]
 
 
 # cache for 10 seconds
@@ -39,7 +38,7 @@ def cached_get_file(url):
 
 
 def get_last_submissions_of_every_user(assignment):
-    submission_set = assignment.submission_set.order_by('timestamp')
+    submission_set = assignment.submission_set.order_by("timestamp")
 
     submissions = {}
 
