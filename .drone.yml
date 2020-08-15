@@ -5,7 +5,7 @@ steps:
 - name: black
   image: cytopia/black:latest-0.2
   commands:
-  - black --check
+  - black --check .
 
 - name: flake8
   image: alpine/flake8:3.7.8
