@@ -170,7 +170,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         )
 
     download_review_submissions.short_description = (
-        "Download last " "submissions for review"
+        "Download last submissions for review"
     )
 
     @log_action_admin("Download all submissions")
@@ -185,7 +185,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         return self.zip_submissions(request, submission_set)
 
     download_all_submissions.short_description = (
-        "Download all submissions " "for review"
+        "Download all submissions for review"
     )
 
 
