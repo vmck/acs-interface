@@ -1,0 +1,16 @@
+{% block body_content %}
+
+<ul>
+    {% for key, value in dict %}
+        {% if '$path' in value and value.items %}
+            <a href="{% url 'code_view' pk value|get_item:'$path' %}">{{ key }}</a><br>
+        {% else %}
+            {{ key }}
+            {% with dict=value.items template="interface/tree_view.html" %}
+                {% include template %}
+            {% endwith %}
+        {% endif %}
+    {% endfor %}
+</ul>
+
+{% endblock %}

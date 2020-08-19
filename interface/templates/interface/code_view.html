@@ -3,5 +3,12 @@
 {% block body_content %}
 <div class="entry-content">
     <pre> {{ file_content }} </pre>
- </div>
+</div>
+
+<div class='entry-content'>
+    {% with dict=tree.items template="interface/tree_view.html" %}
+        {% include template %}
+    {% endwith %}
+</div>
+
 {% endblock %}
