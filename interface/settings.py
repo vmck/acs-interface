@@ -6,6 +6,9 @@ from django_auth_ldap.config import LDAPSearch
 
 from interface.utils import is_true
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -178,3 +181,13 @@ LOGGING = {
         },
     },
 }
+
+SENTRY_DSN = os.environ.get('SENTRY_DSN')
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    integrations=[DjangoIntegration()],
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
