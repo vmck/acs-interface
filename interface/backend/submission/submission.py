@@ -17,7 +17,7 @@ class CorruptZipFile(Exception):
 
 
 def handle_submission(file, assignment, user):
-    log.debug(f'Submission {file.name} received')
+    log.debug(f"Submission {file.name} received")
 
     test_file = deepcopy(file)
 
@@ -30,14 +30,11 @@ def handle_submission(file, assignment, user):
             Computing time from the last upload by this user. We lock the
             assignment row to prevent simultaneous uploads (race condition).
         """
-        assignment = (
-            Assignment.objects.select_for_update()
-            .get(pk=assignment.pk)
+        assignment = Assignment.objects.select_for_update().get(
+            pk=assignment.pk
         )
-        entries = (
-            assignment.submission_set
-            .filter(user=user)
-            .order_by('-timestamp')
+        entries = assignment.submission_set.filter(user=user).order_by(
+            "-timestamp"
         )
 
         entry = entries.first()
@@ -45,24 +42,25 @@ def handle_submission(file, assignment, user):
         if entry:
             delta_t = timezone.now() - entry.timestamp
             if delta_t.seconds < assignment.min_time_between_uploads:
-                log.debug(f'Submission can be made after #{delta_t} seconds')
+                log.debug(f"Submission can be made after #{delta_t} seconds")
                 raise TooManySubmissionsError(
-                            assignment.min_time_between_uploads
-                        )
+                    assignment.min_time_between_uploads
+                )
 
         submission = assignment.submission_set.create(
-            user=user,
-            archive_size=file.size,
+            user=user, archive_size=file.size,
         )
 
-    log.debug(f'Submission #{submission.pk} created')
+    log.debug(f"Submission #{submission.pk} created")
 
-    storage.upload(f'{submission.pk}.zip', file.read())
+    storage.upload(f"{submission.pk}.zip", file.read())
     log.debug(f"Submission's #{submission.pk} zipfile was uploaded")
 
     submission.evaluate()
-    log.debug(f'Submission #{submission.pk} was sent to VMCK '
-              f'as #{submission.evaluator_job_id}')
+    log.debug(
+        f"Submission #{submission.pk} was sent to VMCK "
+        f"as #{submission.evaluator_job_id}"
+    )
 
 
 class TooManySubmissionsError(Exception):

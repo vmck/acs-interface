@@ -14,14 +14,13 @@ log.setLevel(log_level)
 
 
 class VMCK(Evaluator):
-
     def _vmck_config(submission):
         config_data = submission.get_config_ini()
 
         config = configparser.ConfigParser()
         config.read_string(config_data.text)
 
-        config_dict = dict(config['VMCK'])
+        config_dict = dict(config["VMCK"])
 
         for key, value in config_dict.items():
             if is_number(value):
@@ -36,36 +35,39 @@ class VMCK(Evaluator):
         )
 
         options = VMCK._vmck_config(submission)
-        name = f'{submission.assignment.full_code} submission #{submission.pk}'
-        options['name'] = name
-        options['restrict_network'] = True
+        name = f"{submission.assignment.full_code} submission #{submission.pk}"
+        options["name"] = name
+        options["restrict_network"] = True
 
-        options['manager'] = {}
-        options['manager']['vagrant_tag'] = settings.MANAGER_TAG
-        options['manager']['memory_mb'] = settings.MANAGER_MEMORY
-        options['manager']['cpu_mhz'] = settings.MANAGER_MHZ
+        options["manager"] = {}
+        options["manager"]["vagrant_tag"] = settings.MANAGER_TAG
+        options["manager"]["memory_mb"] = settings.MANAGER_MEMORY
+        options["manager"]["cpu_mhz"] = settings.MANAGER_MHZ
 
-        options['env'] = {}
-        options['env']['VMCK_ARCHIVE_URL'] = submission.get_url()
-        options['env']['VMCK_SCRIPT_URL'] = submission.get_script_url()
-        options['env']['VMCK_ARTIFACT_URL'] = submission.get_artifact_url()
-        options['env']['VMCK_CALLBACK_URL'] = urljoin(
-            settings.ACS_INTERFACE_ADDRESS,
-            callback,
+        options["env"] = {}
+        options["env"]["VMCK_ARCHIVE_URL"] = submission.get_url()
+        options["env"]["VMCK_SCRIPT_URL"] = submission.get_script_url()
+        options["env"]["VMCK_ARTIFACT_URL"] = submission.get_artifact_url()
+        options["env"]["VMCK_CALLBACK_URL"] = urljoin(
+            settings.ACS_INTERFACE_ADDRESS, callback,
         )
 
-        log.debug(f'Submission #{submission.pk} config is done')
+        log.debug(f"Submission #{submission.pk} config is done")
         log.debug(f"Callback: {options['env']['VMCK_CALLBACK_URL']}")
 
-        response = requests.post(urljoin(settings.VMCK_API_URL, 'jobs'),
-                                 json=options)
+        response = requests.post(
+            urljoin(settings.VMCK_API_URL, "jobs"), json=options
+        )
 
         log.debug(f"Submission's #{submission.pk} VMCK response:\n{response}")
 
-        return response.json()['id']
+        return response.json()["id"]
 
     def update(submission):
-        response = requests.get(urljoin(settings.VMCK_API_URL,
-                                        f'jobs/{submission.evaluator_job_id}'))
+        response = requests.get(
+            urljoin(
+                settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
+            )
+        )
 
-        return response.json()['state']
+        return response.json()["state"]

@@ -31,10 +31,11 @@ class SubQueue(object):
     def _sync_evaluator(self):
         while True:
             submissions = (
-                models.Submission.objects
-                .exclude(state=models.Submission.STATE_DONE)
+                models.Submission.objects.exclude(
+                    state=models.Submission.STATE_DONE
+                )
                 .exclude(state=models.Submission.STATE_QUEUED)
-                .order_by('-id')
+                .order_by("-id")
             )
 
             for submission in submissions:

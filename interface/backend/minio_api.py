@@ -8,10 +8,12 @@ from django.conf import settings
 import io
 
 
-_client = Minio(settings.MINIO_ADDRESS,
-                access_key=settings.MINIO_ACCESS_KEY,
-                secret_key=settings.MINIO_SECRET_KEY,
-                secure=False)
+_client = Minio(
+    settings.MINIO_ADDRESS,
+    access_key=settings.MINIO_ACCESS_KEY,
+    secret_key=settings.MINIO_SECRET_KEY,
+    secure=False,
+)
 
 
 class MissingFile(Exception):
@@ -19,17 +21,21 @@ class MissingFile(Exception):
 
 
 def upload(filename, filedata):
-    _client.put_object(settings.MINIO_BUCKET,
-                       filename,
-                       io.BytesIO(filedata),
-                       len(filedata),
-                       content_type='application/zip')
+    _client.put_object(
+        settings.MINIO_BUCKET,
+        filename,
+        io.BytesIO(filedata),
+        len(filedata),
+        content_type="application/zip",
+    )
 
 
 def copy(source_file, destination_file):
-    _client.copy_object(settings.MINIO_BUCKET,
-                        destination_file,
-                        f'/{settings.MINIO_BUCKET}/{source_file}')
+    _client.copy_object(
+        settings.MINIO_BUCKET,
+        destination_file,
+        f"/{settings.MINIO_BUCKET}/{source_file}",
+    )
 
 
 def download_buffer(filename, buffer):
@@ -46,15 +52,15 @@ def download(filename, path):
         data = _client.get_object(settings.MINIO_BUCKET, filename)
     except NoSuchKey:
         raise MissingFile(filename)
-    with open(path, 'wb') as file:
+    with open(path, "wb") as file:
         for chunck in data.stream(settings.BLOCK_SIZE):
             file.write(chunck)
 
 
 def get_link(filename):
-    return _client.presigned_get_object(settings.MINIO_BUCKET,
-                                        filename,
-                                        expires=timedelta(hours=1))
+    return _client.presigned_get_object(
+        settings.MINIO_BUCKET, filename, expires=timedelta(hours=1)
+    )
 
 
 def create_bucket(bucket_name):

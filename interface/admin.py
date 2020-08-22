@@ -20,9 +20,9 @@ log = logging.getLogger(__name__)
 
 @admin.register(ActionLog)
 class ActionLogAdmin(admin.ModelAdmin):
-    list_display = ['timestamp', 'user', 'action', 'content_object']
-    list_filter = ['timestamp', 'user']
-    readonly_fields = ['timestamp', 'user', 'action']
+    list_display = ["timestamp", "user", "action", "content_object"]
+    list_filter = ["timestamp", "user"]
+    readonly_fields = ["timestamp", "user", "action"]
 
     actions_selection_counter = False
     list_display_links = None
@@ -42,14 +42,13 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
         "view_submission",
         "add_assignment",
         "change_assignment",
-        "delete_assignment"
+        "delete_assignment",
     ]
 
     def _add_new_ta(self, user):
-        ta_permissions = (
-                Permission.objects
-                .filter(codename__in=CourseAdmin._ta_permissions)
-            )
+        ta_permissions = Permission.objects.filter(
+            codename__in=CourseAdmin._ta_permissions
+        )
 
         if not user.is_staff:
             user.is_staff = True
@@ -58,10 +57,10 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     def _remove_ta(self, user, course):
         tas_courses = (
-                    Course.objects.all()
-                    .exclude(pk=course.pk)
-                    .filter(teaching_assistants=user)
-                )
+            Course.objects.all()
+            .exclude(pk=course.pk)
+            .filter(teaching_assistants=user)
+        )
         if not tas_courses:
             user.is_staff = False
             user.user_permissions.set([])
@@ -99,18 +98,18 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
 @admin.register(Assignment)
 class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     actions = [
-        'download_review_submissions',
-        'download_all_submissions',
-        'run_moss',
+        "download_review_submissions",
+        "download_all_submissions",
+        "run_moss",
     ]
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(AssignmentAdmin, self).get_form(request, obj, **kwargs)
 
         if not request.user.is_superuser:
-            qs = form.base_fields['course'].queryset
-            form.base_fields['course'].queryset = (
-                qs.filter(teaching_assistants=request.user)
+            qs = form.base_fields["course"].queryset
+            form.base_fields["course"].queryset = qs.filter(
+                teaching_assistants=request.user
             )
 
         return form
@@ -134,22 +133,19 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
                     log.warning(msg)
                 else:
                     buff.name = (
-                        f'{submission.user.username}'
-                        f'-{submission.pk}.zip'
+                        f"{submission.user.username}" f"-{submission.pk}.zip"
                     )
                     zip_archive.writestr(buff.name, buff.getvalue())
 
         big_buff.seek(0)
         return FileResponse(
-            big_buff,
-            as_attachment=True,
-            filename='Submissions.zip',
+            big_buff, as_attachment=True, filename="Submissions.zip",
         )
 
-    @log_action_admin('Run moss check')
+    @log_action_admin("Run moss check")
     def run_moss(self, request, queryset):
         if queryset.count() != 1:
-            messages.error(request, 'Only one assignment can be selected')
+            messages.error(request, "Only one assignment can be selected")
             return
 
         assignment = queryset[0]
@@ -157,54 +153,67 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
         url = moss_check(submissions, assignment, request)
 
-        messages.success(request, f'Report url: {url}')
+        messages.success(request, f"Report url: {url}")
 
-    run_moss.short_description = 'Run moss check on the selected assignment'
+    run_moss.short_description = "Run moss check on the selected assignment"
 
-    @log_action_admin('Download last submissions')
+    @log_action_admin("Download last submissions")
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
-            messages.error(request, 'Only one assignment can be selected')
+            messages.error(request, "Only one assignment can be selected")
             return
 
         assignment = queryset[0]
 
         return self.zip_submissions(
-            request,
-            get_last_submissions_of_every_user(assignment),
+            request, get_last_submissions_of_every_user(assignment),
         )
 
-    download_review_submissions.short_description = ('Download last '
-                                                     'submissions for review')
+    download_review_submissions.short_description = (
+        "Download last submissions for review"
+    )
 
-    @log_action_admin('Download all submissions')
+    @log_action_admin("Download all submissions")
     def download_all_submissions(self, request, queryset):
         if queryset.count() != 1:
-            messages.error(request, 'Only one assignment can be selected')
+            messages.error(request, "Only one assignment can be selected")
             return
 
         assignment = queryset[0]
-        submission_set = assignment.submission_set.order_by('timestamp')
+        submission_set = assignment.submission_set.order_by("timestamp")
 
         return self.zip_submissions(request, submission_set)
 
-    download_all_submissions.short_description = ('Download all submissions '
-                                                  'for review')
+    download_all_submissions.short_description = (
+        "Download all submissions for review"
+    )
 
 
 @admin.register(Submission)
 class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
     list_display = [
-        '__str__', 'assignment', 'timestamp',
-        'archive_size', 'total_score', 'state',
+        "__str__",
+        "assignment",
+        "timestamp",
+        "archive_size",
+        "total_score",
+        "state",
     ]
-    list_display_links = ['__str__', 'assignment']
-    list_filter = ['state', 'assignment__course', 'assignment', 'user']
+    list_display_links = ["__str__", "assignment"]
+    list_filter = ["state", "assignment__course", "assignment", "user"]
     readonly_fields = [
-        'user', 'assignment', 'archive_size', 'evaluator_job_id', 'state',
-        'review_score', 'penalty', 'total_score', 'stdout', 'stderr',
+        "user",
+        "assignment",
+        "archive_size",
+        "evaluator_job_id",
+        "state",
+        "review_score",
+        "penalty",
+        "total_score",
+        "stdout",
+        "stderr",
     ]
-    search_fields = ['user__username']
+    search_fields = ["user__username"]
 
     def get_queryset(self, request):
         qs = super(SubmissionAdmin, self).get_queryset(request)
