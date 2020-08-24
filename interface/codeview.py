@@ -1,6 +1,6 @@
 import io
 import logging
-from zipfile import ZipFile, BadZipFile
+from zipfile import ZipFile
 
 from interface.backend.minio_api import MissingFile, download_buffer
 from django.template.defaulttags import register
@@ -27,44 +27,31 @@ def extract_file(request, submission, filename):
 def tree_view(request, submission):
     buff = io.BytesIO()
     try:
-        download_buffer(f'{submission.pk}.zip', buff)
+        submission.download(buff)
     except MissingFile:
-        return BadZipFile
+        return {}
 
     submission_archive = ZipFile(buff)
-    return submission_archive
+    return make_dict(submission_archive)
 
 
 def make_dict(submission_archive):
     tree = {}
     for path in submission_archive.infolist():
         node = tree
-        print(path.filename)
-        for index, level in enumerate(path.filename.split('/')):
-            if level:
-                if path.is_dir():
+        split_path = path.filename.split('/')
+        for index, level in enumerate(split_path):
+            if path.is_dir():
+                obj = {}
+            else:
+                if index != len(split_path)-1:
                     obj = {}
                 else:
-                    if index != len(path.filename.split('/'))-1:
-                        obj = {}
-                    else:
-                        obj = {'$path': path.filename}
+                    obj = {'$path': path.filename}
 
-                node = node.setdefault(level, obj)
+            node = node.setdefault(level, obj)
 
     return tree
-
-
-def pretty(d, indent=0):
-    if isinstance(d, dict):
-        for key, value in d.items():
-            if isinstance(value, dict) and value.get('$path'):
-                print('  ' * indent + str(key) + ' ' + value.get('$path'))
-                continue
-            else:
-                print('  ' * indent + str(key))
-
-            pretty(value, indent+1)
 
 
 @register.filter

@@ -905,8 +905,7 @@ def test_ta_tree_view(client, STC, base_db_setup):
     submission = Submission.objects.all()[0]
 
     response = client.get(
-        f'/submission/{submission.pk}/bigtest/dir1/file1',
-        follow=True,
+        f'/submission/{submission.pk}/bigtest/dir1/file1/',
     )
 
     assert response.status_code == 200
