@@ -357,7 +357,7 @@ def code_view(request, pk, filename):
 
     file = extract_file(request, submission, filename)
 
-    context = {'file_content': file.read(), 'tree': tree, 'pk': submission.pk}
+    context = {"file_content": file.read(), "tree": tree, "pk": submission.pk}
 
     file.close()
 

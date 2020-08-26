@@ -39,15 +39,15 @@ def make_dict(submission_archive):
     tree = {}
     for path in submission_archive.infolist():
         node = tree
-        split_path = path.filename.split('/')
+        split_path = path.filename.split("/")
         for index, level in enumerate(split_path):
             if path.is_dir():
                 obj = {}
             else:
-                if index != len(split_path)-1:
+                if index != len(split_path) - 1:
                     obj = {}
                 else:
-                    obj = {'$path': path.filename}
+                    obj = {"$path": path.filename}
 
             node = node.setdefault(level, obj)
 

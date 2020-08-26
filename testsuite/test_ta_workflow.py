@@ -9,8 +9,8 @@ from interface.models import Course, Submission
 from interface.admin import CourseAdmin
 
 
-FILEPATH = settings.BASE_DIR / 'testsuite' / 'test.zip'
-FILEPATH2 = settings.BASE_DIR / 'testsuite' / 'bigtest.zip'
+FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
+FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"
 
 
 class MockObject(object):
@@ -830,25 +830,21 @@ def test_ta_code_view_archive_missing(client, STC, base_db_setup):
 def test_ta_tree_view(client, STC, base_db_setup):
     (_, ta, _, course, assignment) = base_db_setup
 
-    client.login(username=ta.username, password='pw')
+    client.login(username=ta.username, password="pw")
 
-    with open(FILEPATH2, 'rb') as file:
+    with open(FILEPATH2, "rb") as file:
         upload = SimpleUploadedFile(
-            FILEPATH2.name,
-            file.read(),
-            content_type='application/zip',
+            FILEPATH2.name, file.read(), content_type="application/zip",
         )
         client.post(
-            f'/assignment/{course.pk}/{assignment.pk}/upload/',
-            data={'name': FILEPATH2.name, 'file': upload},
-            format='multipart',
+            f"/assignment/{course.pk}/{assignment.pk}/upload/",
+            data={"name": FILEPATH2.name, "file": upload},
+            format="multipart",
         )
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(
-        f'/submission/{submission.pk}/bigtest/dir1/file1/',
-    )
+    response = client.get(f"/submission/{submission.pk}/bigtest/dir1/file1/",)
 
     assert response.status_code == 200
     STC.assertContains(response, "dir1")
