@@ -30,7 +30,7 @@ from interface.backend.submission.submission import (
 )
 from .scoring import calculate_total_score
 from interface.actions_logger import log_action
-from interface.codeview import extract_file
+from interface.codeview import extract_file, tree_view
 
 
 log = logging.getLogger(__name__)
@@ -353,9 +353,12 @@ def code_view(request, pk, filename):
     if request.user not in all_tas:
         return HttpResponse(status=403)
 
+    tree = tree_view(request, submission)
+
     file = extract_file(request, submission, filename)
 
-    context = {"file_content": file.read()}
+    context = {"file_content": file.read(), "tree": tree, "pk": submission.pk}
+
     file.close()
 
     return render(request, "interface/code_view.html", context)

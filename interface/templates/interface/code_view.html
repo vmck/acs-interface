@@ -1,7 +1,18 @@
 {% extends "interface/generics/base.html" %}
 
 {% block body_content %}
-<div class="entry-content">
-    <pre> {{ file_content }} </pre>
- </div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3">
+            {% with dict=tree.items template="interface/tree_view.html" %}
+                {% include template %}
+            {% endwith %}
+        </div>
+        <div class="col-lg-9">
+            <pre> {{ file_content }} </pre>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

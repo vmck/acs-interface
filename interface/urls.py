@@ -43,7 +43,7 @@ urlpatterns = [
     ),
     path("mysubmissions/<username>", views.user_page, name="user_page"),
     path(
-        "submission/<int:pk>/<str:filename>/",
+        "submission/<int:pk>/<path:filename>/",
         views.code_view,
         name="code_view",
     ),
