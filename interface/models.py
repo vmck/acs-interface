@@ -16,8 +16,9 @@ from simple_history.models import HistoricalRecords
 import interface.backend.minio_api as storage
 from interface import signals
 from interface.utils import cached_get_file
-from interface.backend.submission.submission_scheduler import \
-    SubmissionScheduler
+from interface.backend.submission.submission_scheduler import (
+    SubmissionScheduler,
+)
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class ActionLog(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
 
 class Course(models.Model):
@@ -42,17 +43,15 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
-    LANG_C = 'c'
-    LANG_PYTHON = 'py'
-    LANG_JAVA = 'java'
+    LANG_C = "c"
+    LANG_PYTHON = "py"
+    LANG_JAVA = "java"
 
     # This is a maping from file format to what moss expects
     # as input when choosing a language
-    LANG_CHOICES = OrderedDict([
-        (LANG_C, 'c'),
-        (LANG_PYTHON, 'python'),
-        (LANG_JAVA, 'java'),
-    ])
+    LANG_CHOICES = OrderedDict(
+        [(LANG_C, "c"), (LANG_PYTHON, "python"), (LANG_JAVA, "java")]
+    )
 
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
     name = models.CharField(max_length=256, blank=False)
@@ -64,9 +63,7 @@ class Assignment(models.Model):
     repo_branch = models.CharField(max_length=256, blank=True)
     repo_path = models.CharField(max_length=256, blank=True)
     language = models.CharField(
-        max_length=32,
-        choices=list(LANG_CHOICES.items()),
-        default=LANG_C,
+        max_length=32, choices=list(LANG_CHOICES.items()), default=LANG_C,
     )
 
     history = HistoricalRecords()
@@ -74,7 +71,7 @@ class Assignment(models.Model):
 
     @property
     def full_code(self):
-        return f'{self.course.pk}-{self.pk}'
+        return f"{self.course.pk}-{self.pk}"
 
     @property
     def is_active(self):
@@ -88,18 +85,19 @@ class Assignment(models.Model):
 
     def url_for(self, filename):
         m = re.match(
-            r'https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$',
+            r"https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$",
             self.repo_url,
         )
-        url_base = ('https://raw.githubusercontent.com/'
-                    '{0}/{1}/'.format(*list(m.groups())))
-        branch = self.repo_branch or 'master'
-        path = f'{self.repo_path}/' if self.repo_path else ''
-        return urljoin(url_base, f'{branch}/{path}{filename}')
+        url_base = "https://raw.githubusercontent.com/" "{0}/{1}/".format(
+            *list(m.groups())
+        )
+        branch = self.repo_branch or "master"
+        path = f"{self.repo_path}/" if self.repo_path else ""
+        return urljoin(url_base, f"{branch}/{path}{filename}")
 
 
 class Submission(models.Model):
-    ''' Model for a homework submission
+    """ Model for a homework submission
 
     Attributes:
     username -- the user id provided by the LDAP
@@ -112,50 +110,42 @@ class Submission(models.Model):
     total_score -- score + review_score
     max_score -- the maximum score for the submission
     archive_size -- archive, sent to server, size in KB
-    '''
+    """
 
-    STATE_NEW = 'new'
-    STATE_RUNNING = 'running'
-    STATE_DONE = 'done'
-    STATE_QUEUED = 'queued'
+    STATE_NEW = "new"
+    STATE_RUNNING = "running"
+    STATE_DONE = "done"
+    STATE_QUEUED = "queued"
 
-    STATE_CHOICES = OrderedDict([
-        (STATE_NEW, 'New'),
-        (STATE_RUNNING, 'Running'),
-        (STATE_DONE, 'Done'),
-        (STATE_QUEUED, 'Queue'),
-    ])
+    STATE_CHOICES = OrderedDict(
+        [
+            (STATE_NEW, "New"),
+            (STATE_RUNNING, "Running"),
+            (STATE_DONE, "Done"),
+            (STATE_QUEUED, "Queue"),
+        ]
+    )
 
-    assignment = models.ForeignKey(Assignment,
-                                   on_delete=models.CASCADE,
-                                   null=True)
+    assignment = models.ForeignKey(
+        Assignment, on_delete=models.CASCADE, null=True
+    )
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
-    stdout = models.TextField(max_length=32768,
-                              default='',
-                              blank=True)
-    stderr = models.TextField(max_length=32768,
-                              default='',
-                              blank=True)
-    review_message = models.TextField(max_length=4096,
-                                      default='',
-                                      blank=True)
-    state = models.CharField(max_length=32,
-                             choices=list(STATE_CHOICES.items()),
-                             default=STATE_NEW)
+    stdout = models.TextField(max_length=32768, default="", blank=True)
+    stderr = models.TextField(max_length=32768, default="", blank=True)
+    review_message = models.TextField(max_length=4096, default="", blank=True)
+    state = models.CharField(
+        max_length=32, choices=list(STATE_CHOICES.items()), default=STATE_NEW
+    )
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
-    review_score = models.DecimalField(max_digits=5,
-                                       decimal_places=2,
-                                       null=True)
-    total_score = models.DecimalField(max_digits=5,
-                                      decimal_places=2,
-                                      null=True)
-    score = models.DecimalField(max_digits=5,
-                                decimal_places=2,
-                                null=True)
-    penalty = models.DecimalField(max_digits=5,
-                                  decimal_places=2,
-                                  null=True)
+    review_score = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True
+    )
+    total_score = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True
+    )
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    penalty = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     archive_size = models.IntegerField(null=True)
     evaluator_job_id = models.IntegerField(null=True)
 
@@ -172,20 +162,20 @@ class Submission(models.Model):
             if state == Submission.STATE_DONE:
                 SubmissionScheduler.get_instance().done_evaluation()
 
-            self.changeReason = f'Update state to {state}'
+            self.changeReason = f"Update state to {state}"
             self.save()
 
     def download(self, buff):
-        storage.download_buffer(f'{self.pk}.zip', buff)
+        storage.download_buffer(f"{self.pk}.zip", buff)
 
     def get_script_url(self):
-        return self.assignment.url_for('checker.sh')
+        return self.assignment.url_for("checker.sh")
 
     def get_artifact_url(self):
-        return self.assignment.url_for('artifact.zip')
+        return self.assignment.url_for("artifact.zip")
 
     def get_config_ini(self):
-        url = self.assignment.url_for('config.ini')
+        url = self.assignment.url_for("config.ini")
         return cached_get_file(url)
 
     def __str__(self):
@@ -196,7 +186,7 @@ class Submission(models.Model):
         return self.STATE_CHOICES[self.state]
 
     def get_url(self):
-        return storage.get_link(f'{self.pk}.zip')
+        return storage.get_link(f"{self.pk}.zip")
 
     def evaluate(self):
         SubmissionScheduler.get_instance().add_submission(self)
@@ -205,9 +195,9 @@ class Submission(models.Model):
         """Generates a JWT token that the checker will use
         when it calls back with the result
         """
-        return jwt.encode({'data': str(self.pk)},
-                          settings.SECRET_KEY,
-                          algorithm='HS256')
+        return jwt.encode(
+            {"data": str(self.pk)}, settings.SECRET_KEY, algorithm="HS256"
+        )
 
     def verify_jwt(self, message):
         """Verify that the token was generated by us
@@ -216,11 +206,11 @@ class Submission(models.Model):
         if not message:
             return False
 
-        decoded_message = jwt.decode(message,
-                                     settings.SECRET_KEY,
-                                     algorithms=['HS256'])
+        decoded_message = jwt.decode(
+            message, settings.SECRET_KEY, algorithms=["HS256"]
+        )
 
-        return decoded_message['data'] == str(self.id)
+        return decoded_message["data"] == str(self.id)
 
 
 pre_save.connect(signals.update_total_score, sender=Submission)

@@ -5,8 +5,10 @@ import interface.backend.minio_api as storage
 
 
 class Command(BaseCommand):
-    help = ('If the bucket with the name settings.MINIO_BUCKET'
-            'does not exist, create it')
+    help = (
+        "If the bucket with the name settings.MINIO_BUCKET"
+        "does not exist, create it"
+    )
 
     def handle(self, *args, **options):
         storage.create_bucket(MINIO_BUCKET)

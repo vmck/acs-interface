@@ -25,17 +25,18 @@ def get_penalty_info(submission):
     config = configparser.ConfigParser()
     config.read_string(config_data.text)
 
-    penalty_info = dict(config['PENALTY'])
+    penalty_info = dict(config["PENALTY"])
 
-    penalty = [int(x) for x in penalty_info['penaltyweights'].split(',')]
-    holiday_s = [x for x in penalty_info.get('holidaystart', '').split(',')]
-    holiday_f = [x for x in penalty_info.get('holidayfinish', '').split(',')]
+    penalty = [int(x) for x in penalty_info["penaltyweights"].split(",")]
+    holiday_s = [x for x in penalty_info.get("holidaystart", "").split(",")]
+    holiday_f = [x for x in penalty_info.get("holidayfinish", "").split(",")]
 
     return (penalty, holiday_s, holiday_f)
 
 
-def compute_penalty(upload_time, deadline, penalty,
-                    holiday_start=[''], holiday_finish=['']):
+def compute_penalty(
+    upload_time, deadline, penalty, holiday_start=[""], holiday_finish=[""]
+):
     """A generic function to compute penalty
     Args:
         penalty - for every day after the deadline the penalty
@@ -45,10 +46,10 @@ def compute_penalty(upload_time, deadline, penalty,
     Note: time interval between deadline and upload time (seconds)
     is time.mktime(upload_time) - time.mktime(deadline)
     """
-    if holiday_start[0] == '':
+    if holiday_start[0] == "":
         holiday_start = []
 
-    if holiday_finish[0] == '':
+    if holiday_finish[0] == "":
         holiday_finish = []
 
     # XXX refactor such that instead of holiday_start and holiday_finish
@@ -70,7 +71,7 @@ def compute_penalty(upload_time, deadline, penalty,
                 maxim = max(sec_start, sec_deadline)
                 minim = min(sec_finish, sec_upload_time)
                 if minim > maxim:
-                    interval -= (minim - maxim)
+                    interval -= minim - maxim
 
     # only if the number of days late is positive (deadline exceeded)
     if interval > 0:
@@ -86,11 +87,9 @@ def compute_penalty(upload_time, deadline, penalty,
 
 def compute_review_score(submission):
     marks = re.findall(
-        r'^([+-]\d+\.*\d*):',
-        submission.review_message,
-        re.MULTILINE,
+        r"^([+-]\d+\.*\d*):", submission.review_message, re.MULTILINE,
     )
-    log.debug('Marks found: ' + str(marks))
+    log.debug("Marks found: " + str(marks))
 
     return sum([decimal.Decimal(mark) for mark in marks])
 
@@ -99,8 +98,7 @@ def calculate_total_score(submission):
     score = submission.score if submission.score else 0
     submission.review_score = compute_review_score(submission)
 
-    (penalties, holiday_start, holiday_finish) = \
-        get_penalty_info(submission)
+    (penalties, holiday_start, holiday_finish) = get_penalty_info(submission)
     timestamp = submission.timestamp or datetime.datetime.now()
     deadline = submission.assignment.deadline_soft
 

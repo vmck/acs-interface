@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def extract_file(request, submission, filename):
     buff = io.BytesIO()
     try:
-        download_buffer(f'{submission.pk}.zip', buff)
+        download_buffer(f"{submission.pk}.zip", buff)
     except MissingFile:
         return io.StringIO("The archive is missing!")
 

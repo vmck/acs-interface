@@ -7,8 +7,8 @@ from whitenoise import WhiteNoise
 
 
 class Command(BaseCommand):
-    help = 'Start the app on port 8100'
+    help = "Start the app on port 8100"
 
     def handle(self, *args, **options):
         app = WhiteNoise(application, root=STATIC_ROOT)
-        serve(app, port='8100', threads=APP_THREAD_COUNT)
+        serve(app, port="8100", threads=APP_THREAD_COUNT)

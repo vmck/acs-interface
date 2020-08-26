@@ -3,7 +3,7 @@ from pathlib import Path
 from locust import HttpUser, between, task
 
 
-FILEPATH = Path('testsuite') / 'test.zip'
+FILEPATH = Path("testsuite") / "test.zip"
 
 
 class StudentUser(HttpUser):
@@ -14,7 +14,7 @@ class StudentUser(HttpUser):
         self.password = "admin"
 
         response = self.client.get("/")
-        csrftoken = response.cookies['csrftoken']
+        csrftoken = response.cookies["csrftoken"]
         login_info = {
             "username": self.username,
             "password": self.password,
@@ -36,22 +36,20 @@ class StudentUser(HttpUser):
 
     @task
     def upload_homework(self):
-        response = self.client.get('/assignment/1/2/upload/')
-        csrftoken = response.cookies['csrftoken']
+        response = self.client.get("/assignment/1/2/upload/")
+        csrftoken = response.cookies["csrftoken"]
 
-        with open(FILEPATH, 'rb') as f_in:
+        with open(FILEPATH, "rb") as f_in:
             response = self.client.post(
-                '/assignment/1/2/upload/',
-                files={'file': f_in},
-                headers={
-                    "X-CSRFToken": csrftoken,
-                },
+                "/assignment/1/2/upload/",
+                files={"file": f_in},
+                headers={"X-CSRFToken": csrftoken},
                 data={"id": "42"},
                 timeout=5,
             )
 
     def on_stop(self):
-        response = self.client.get('/assignment/1/2/upload/')
-        csrftoken = response.cookies['csrftoken']
+        response = self.client.get("/assignment/1/2/upload/")
+        csrftoken = response.cookies["csrftoken"]
 
-        self.client.post("/logout/", headers={'X-CSRFToken': csrftoken})
+        self.client.post("/logout/", headers={"X-CSRFToken": csrftoken})
