@@ -56,7 +56,7 @@ class VMCK(Evaluator):
         log.debug(f"Callback: {options['env']['VMCK_CALLBACK_URL']}")
 
         response = requests.post(
-            urljoin(settings.VMCK_API_URL, "jobs"), json=options
+            urljoin(settings.VMCK_API_URL, "jobs"), json=options,
         )
 
         log.debug(f"Submission's #{submission.pk} VMCK response:\n{response}")
@@ -69,5 +69,9 @@ class VMCK(Evaluator):
                 settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
             )
         )
+
+        if not response.ok:
+            log.warning(f"Submission #{submission.pk} bad response from vmck")
+            return submission.state
 
         return response.json()["state"]
