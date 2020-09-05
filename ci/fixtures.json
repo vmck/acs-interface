@@ -35,7 +35,11 @@
     "deadline_hard": "2019-12-31T22:00:00Z",
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
-    "language": "c"
+    "language": "c",
+    "options": {
+	    "cpus": 1,
+	    "memory": 512
+    }
   }
 },
 {
@@ -50,7 +54,11 @@
     "deadline_hard": "2050-10-10T22:00:00Z",
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
-    "language": "c"
+    "language": "c",
+    "options": {
+	    "cpus": 1,
+	    "memory": 512
+    }
   }
 }
 
