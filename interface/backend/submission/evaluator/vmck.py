@@ -14,27 +14,19 @@ log.setLevel(log_level)
 
 
 class VMCK(Evaluator):
-    def _vmck_config(submission):
-        config_data = submission.get_config_ini()
-
-        config = configparser.ConfigParser()
-        config.read_string(config_data.text)
-
-        config_dict = dict(config["VMCK"])
-
-        for key, value in config_dict.items():
-            if is_number(value):
-                config_dict[key] = int(value)
-
-        return config_dict
-
     def evaluate(submission):
         callback = (
             f"submission/{submission.pk}/done?"
             f"token={str(submission.generate_jwt(), encoding='latin1')}"
         )
 
-        options = VMCK._vmck_config(submission)
+        options = {}
+        vm_options = submission.assignment.vm_options
+
+        options["image_path"] = submission.assignment.image_path
+        options["cpus"] = int(vm_options["nr_cpus"])
+        options["memory"] = int(vm_options["memory"])
+
         name = f"{submission.assignment.full_code} submission #{submission.pk}"
         options["name"] = name
         options["restrict_network"] = True
