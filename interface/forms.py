@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.template.defaultfilters import filesizeformat
+from .models import Comment
 
 
 class UploadFileForm(forms.Form):
@@ -24,3 +25,13 @@ class UploadFileForm(forms.Form):
 class LoginForm(forms.Form):
     username = forms.CharField(label="Username")
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ("text",)
+
+        widgets = {
+            "text": forms.Textarea(attrs={"class": "form-control"}),
+        }

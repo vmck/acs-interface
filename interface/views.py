@@ -21,7 +21,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 from interface import models
 from interface import utils
-from interface.forms import UploadFileForm, LoginForm
+from interface.forms import UploadFileForm, LoginForm, CommentForm
 from interface.models import Submission, Course, User
 from interface.backend.submission.submission import (
     handle_submission,
@@ -30,7 +30,7 @@ from interface.backend.submission.submission import (
 )
 from .scoring import calculate_total_score
 from interface.actions_logger import log_action
-from interface.codeview import extract_file, tree_view
+from interface.codeview import extract_file, tree_view, table_maker
 
 
 log = logging.getLogger(__name__)
@@ -357,7 +357,33 @@ def code_view(request, pk, filename):
 
     file = extract_file(request, submission, filename)
 
-    context = {"file_content": file.read(), "tree": tree, "pk": submission.pk}
+    table = table_maker(file)
+
+    comment = None
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.submission = submission
+            comment.user = request.user
+            comment.path = filename
+            comment.line = request.POST.get("line", "")
+            comment.save()
+            return redirect("code_view", pk=pk, filename=filename)
+    else:
+        form = CommentForm()
+
+    path_comments = submission.comments.filter(path=filename)
+
+    context = {
+        "file_content": table,
+        "tree": tree,
+        "pk": submission.pk,
+        "path": filename,
+        "path_comments": path_comments,
+        "new_comment": comment,
+        "form": form,
+    }
 
     file.close()
 

@@ -57,3 +57,7 @@ def make_dict(submission_archive):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+def table_maker(file):
+    return file.read().splitlines()
