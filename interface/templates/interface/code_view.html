@@ -25,7 +25,7 @@
         </div>
         <div class="col-lg-9">
             <div>
-                <table class="table table-sm" data-toggle="table" style="border-collapse: collapse;">
+                <table class="table table-hover table-sm table-borderless" data-toggle="table" style="border-collapse: collapse;">
                     <thead>
                         <tr>
                             <th></th>
@@ -34,10 +34,16 @@
                     </thead>
                     <tbody>
                         {% for line in file_content %}
-                        <tr data-toggle="collapse" data-target="#demo_{{ forloop.counter }}" class="accordion-toggle">
-                            <td> {{ forloop.counter }} </td>
-                            <td>
-                                <pre>{{ line }}</pre>
+                        <tr data-toggle="collapse" data-target="#demo_{{ forloop.counter }}" style="line-height: 1em;">
+                            <td style="padding:0;height: 1px;"> {{ forloop.counter }} </td>
+                            <td style="padding:0;height: 1px;">
+                                {% with forloop.counter as index %}
+                                {% if sub.comments|with_path:path|with_line:index %}
+                                    <div style="background-color:#FFCCCB;padding:0;;white-space: pre;font-family: monospace;">{{ line }}</div>
+                                {% else %}
+                                    <div style="padding:0;white-space: pre;font-family: monospace;">{{ line }}</div>
+                                {% endif %}
+                                {% endwith %}
                             </td>
                         </tr>
                         <tr>

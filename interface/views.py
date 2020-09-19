@@ -379,6 +379,7 @@ def code_view(request, pk, filename):
         "file_content": table,
         "tree": tree,
         "pk": submission.pk,
+        "sub": submission,
         "path": filename,
         "path_comments": path_comments,
         "new_comment": comment,
