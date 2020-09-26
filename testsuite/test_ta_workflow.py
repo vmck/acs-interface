@@ -486,12 +486,12 @@ def test_ta_review_submission(client, STC, base_db_setup):
     # Add review and add some points
     review_message = "+10.0: Babas"
     response = client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
         follow=True,
     )
 
-    STC.assertRedirects(response, "/homepage/")
+    STC.assertRedirects(response, f"/submission/{submission.pk}/code/")
 
     all_subs = assignment.submission_set.all()
     assert len(all_subs) == 1
@@ -503,12 +503,12 @@ def test_ta_review_submission(client, STC, base_db_setup):
     # Add review and substract some points
     review_message = "-20.0: Not nice"
     response = client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
         follow=True,
     )
 
-    STC.assertRedirects(response, "/homepage/")
+    STC.assertRedirects(response, f"/submission/{submission.pk}/code/")
 
     all_subs = assignment.submission_set.all()
     assert len(all_subs) == 1

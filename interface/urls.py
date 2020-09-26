@@ -19,7 +19,7 @@ urlpatterns = [
         name="submission_result",
     ),
     path("submission/<int:pk>/done", views.done),
-    path("submission/<int:pk>/review", views.review),
+    path("submission/<int:pk>/review/", views.review, name="review"),
     path("submission/<int:pk>/download", views.download),
     path("submission/<int:pk>/rerun", views.rerun_submission),
     path("submission/<int:pk>/recompute", views.recompute_score),

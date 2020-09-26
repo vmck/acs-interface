@@ -27,7 +27,7 @@ def test_review(client, base_db_setup):
 
     review_message = "+10.0: Good Job\n-5.0: Bad style\n+0.5:Good Readme"
     client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
     )
 

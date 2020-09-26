@@ -146,7 +146,7 @@ def review(request, pk):
 
     log_action("Review submission", request.user, submission)
 
-    return redirect(request.META.get("HTTP_REFERER", "/"))
+    return redirect(f"/submission/{submission.pk}/code/")
 
 
 @login_required
@@ -220,7 +220,6 @@ def submission_result(request, pk):
         {
             "sub": sub,
             "homepage_url": redirect(homepage).url,
-            "submission_review_message": sub.review_message,
             "submission_list_url": redirect(submission_list).url,
             "fortune": fortune_msg,
         },
@@ -350,41 +349,58 @@ def code_view(request, pk, filename):
     submission = get_object_or_404(Submission, pk=pk)
     all_tas = submission.assignment.course.teaching_assistants.all()
 
-    if request.user not in all_tas:
+    if request.user not in all_tas and request.user is not submission.user:
         return HttpResponse(status=403)
 
     tree = tree_view(request, submission)
 
+    if filename == "code":
+        context = {
+            "tree": tree,
+            "pk": submission.pk,
+            "sub": submission,
+            "path": filename,
+        }
+        return render(request, "interface/code_view_homepage.html", context)
+
     file = extract_file(request, submission, filename)
 
-    table = table_maker(file)
-
-    comment = None
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.submission = submission
-            comment.user = request.user
-            comment.path = filename
-            comment.line = request.POST.get("line", "")
-            comment.save()
-            return redirect("code_view", pk=pk, filename=filename)
-    else:
-        form = CommentForm()
-
-    path_comments = submission.comments.filter(path=filename)
-
     context = {
-        "file_content": table,
+        "file_content": file.getvalue(),
         "tree": tree,
         "pk": submission.pk,
         "sub": submission,
         "path": filename,
-        "path_comments": path_comments,
-        "new_comment": comment,
-        "form": form,
+        "file_exists": False,
     }
+
+    if (
+        file.getvalue() != "The file is missing!"
+        and file.getvalue() != "The archive is missing!"
+    ):
+        table = table_maker(file)
+
+        comment = None
+        if request.method == "POST":
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.submission = submission
+                comment.user = request.user
+                comment.path = filename
+                comment.line = request.POST.get("line", "")
+                comment.save()
+                return redirect("code_view", pk=pk, filename=filename)
+        else:
+            form = CommentForm()
+
+        path_comments = submission.comments.filter(path=filename)
+
+        context["file_content"] = table
+        context["file_exists"] = True
+        context["path_comments"] = path_comments
+        context["new_comment"] = comment
+        context["form"] = form
 
     file.close()
 

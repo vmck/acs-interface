@@ -163,11 +163,11 @@ def test_user_cannot_review(client, STC, base_db_setup):
 
     review_message = "+10.0: Hacker"
     response = client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
     )
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/review",
+        response, f"/admin/login/?next=/submission/{submission.pk}/review/",
     )
 
 
