@@ -11,9 +11,7 @@ from django.conf import settings
 from django.db.models.signals import pre_save
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_comma_separated_integer_list
 
 from simple_history.models import HistoricalRecords
 
@@ -89,13 +87,21 @@ class Assignment(models.Model):
     hidden_score = models.BooleanField(default=True)
 
     def clean(self):
-        super()
+        penalty_weights = self.penalty_info["penalty_weights"]
+        if not isinstance(penalty_weights, list) or not all(
+            isinstance(x, (float, int)) for x in penalty_weights
+        ):
+            raise ValidationError(
+                "Penalty weights should be a list of integer/floats"
+            )
+
         if (
-            len(self.penalty_weights)
+            len(penalty_weights)
             != (self.deadline_hard - self.deadline_soft).days
         ):
             raise ValidationError(
-                "Number of penalty weights should be == days from soft to hard deadline"
+                "Number of penalty weights should be == days from soft "
+                "to hard deadline"
             )
 
     @property

@@ -1,6 +1,5 @@
 import time
 import math
-import configparser
 import decimal
 import re
 import logging
