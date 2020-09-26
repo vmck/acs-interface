@@ -1,11 +1,9 @@
-import configparser
 import logging
 from urllib.parse import urljoin
 
 import requests
 from django.conf import settings
 
-from interface.utils import is_number
 from interface.backend.submission.evaluator.abstract import Evaluator
 
 log_level = logging.DEBUG
