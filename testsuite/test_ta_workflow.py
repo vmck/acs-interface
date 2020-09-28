@@ -850,3 +850,77 @@ def test_ta_tree_view(client, STC, base_db_setup):
     STC.assertContains(response, "dir1")
     STC.assertContains(response, "file1")
     STC.assertContains(response, "file2")
+
+
+@pytest.mark.django_db
+def test_ta_comment(client, STC, base_db_setup):
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password="pw")
+
+    with open(FILEPATH2, "rb") as file:
+        upload = SimpleUploadedFile(
+            FILEPATH2.name, file.read(), content_type="application/zip",
+        )
+        client.post(
+            f"/assignment/{course.pk}/{assignment.pk}/upload/",
+            data={"name": FILEPATH2.name, "file": upload},
+            format="multipart",
+        )
+
+    submission = Submission.objects.all()[0]
+
+    response = client.post(
+        f"/submission/{submission.pk}/bigtest/dir1/file1/",
+        data={"text": "This is a comment", "line": "1"},
+    )
+
+    STC.assertRedirects(
+        response, f"/submission/{submission.pk}/bigtest/dir1/file1/"
+    )
+
+    response = client.get(f"/submission/{submission.pk}/bigtest/dir1/file1/")
+
+    STC.assertContains(response, "This is a comment")
+
+
+@pytest.mark.django_db
+def test_ta_comment_review(client, STC, base_db_setup):
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password="pw")
+
+    with open(FILEPATH2, "rb") as file:
+        upload = SimpleUploadedFile(
+            FILEPATH2.name, file.read(), content_type="application/zip",
+        )
+        client.post(
+            f"/assignment/{course.pk}/{assignment.pk}/upload/",
+            data={"name": FILEPATH2.name, "file": upload},
+            format="multipart",
+        )
+
+    submission = Submission.objects.all()[0]
+    submission.score = 100
+    submission.save()
+
+    response = client.post(
+        f"/submission/{submission.pk}/bigtest/dir1/file1/",
+        data={"text": "+10.0: Good job!", "line": "1"},
+    )
+
+    review_message = "+10.0: Babas"
+    response = client.post(
+        f"/submission/{submission.pk}/review/",
+        data={"review-code": review_message},
+        follow=True,
+    )
+
+    STC.assertRedirects(response, f"/submission/{submission.pk}/code/")
+
+    all_subs = assignment.submission_set.all()
+    assert len(all_subs) == 1
+
+    changed_sub = all_subs[0]
+    assert changed_sub.review_score == 20
+    assert changed_sub.total_score == 120
