@@ -96,11 +96,11 @@ def compute_review_score(submission):
 
 def compute_comments_review(submission):
     total_sum = 0
+    teaching_assistants = (
+        submission.assignment.course.teaching_assistants.all()
+    )
     for comment in submission.comments.all():
-        if (
-            comment.user
-            in submission.assignment.course.teaching_assistants.all()
-        ):
+        if comment.user in teaching_assistants:
             marks = re.findall(
                 r"^([+-]\d+\.*\d*):", comment.text, re.MULTILINE,
             )

@@ -43,8 +43,13 @@ urlpatterns = [
     ),
     path("mysubmissions/<username>", views.user_page, name="user_page"),
     path(
-        "submission/<int:pk>/<path:filename>/",
+        "submission/<int:pk>/code/<path:filename>/",
         views.code_view,
         name="code_view",
+    ),
+    path(
+        "submission/<int:pk>/code/",
+        views.code_view_homepage,
+        name="code_view_homepage",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

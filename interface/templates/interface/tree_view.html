@@ -4,11 +4,11 @@
     {% for key, value in dict %}
         {% if '$path' in value and value.items %}
             {% with value|get_item:'$path' as path %}
-            {% if sub.comments|with_path:path %}
-                <a href="{% url 'code_view' pk value|get_item:'$path' %}" style="color:red;">{{ key }}</a><br>
-            {% else %}
-                <a href="{% url 'code_view' pk value|get_item:'$path' %}">{{ key }}</a><br>
-            {% endif %}
+                {% if sub.comments|with_path:path %}
+                    <a href="{% url 'code_view' pk path %}" style="color:red;">{{ key }}</a><br>
+                {% else %}
+                    <a href="{% url 'code_view' pk path %}">{{ key }}</a><br>
+                {% endif %}
             {% endwith %}
         {% else %}
             {{ key }}

@@ -354,16 +354,8 @@ def code_view(request, pk, filename):
 
     tree = tree_view(request, submission)
 
-    if filename == "code":
-        context = {
-            "tree": tree,
-            "pk": submission.pk,
-            "sub": submission,
-            "path": filename,
-        }
-        return render(request, "interface/code_view_homepage.html", context)
-
     file = extract_file(request, submission, filename)
+    file_value = file.getvalue()
 
     context = {
         "file_content": file.getvalue(),
@@ -374,10 +366,7 @@ def code_view(request, pk, filename):
         "file_exists": False,
     }
 
-    if (
-        file.getvalue() != "The file is missing!"
-        and file.getvalue() != "The archive is missing!"
-    ):
+    if file_value not in ["The file is missing!", "The archive is missing!"]:
         table = table_maker(file)
 
         comment = None
@@ -405,3 +394,23 @@ def code_view(request, pk, filename):
     file.close()
 
     return render(request, "interface/code_view.html", context)
+
+
+@login_required
+@staff_member_required
+def code_view_homepage(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+    all_tas = submission.assignment.course.teaching_assistants.all()
+
+    if request.user not in all_tas and request.user is not submission.user:
+        return HttpResponse(status=403)
+
+    tree = tree_view(request, submission)
+
+    context = {
+        "tree": tree,
+        "pk": submission.pk,
+        "sub": submission,
+    }
+
+    return render(request, "interface/code_view_homepage.html", context)

@@ -780,7 +780,9 @@ def test_ta_code_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test", follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertNotContains(response, "N/A")
@@ -804,7 +806,9 @@ def test_ta_code_view_file_missing(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test1", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test1", follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "The file is missing!")
@@ -820,7 +824,9 @@ def test_ta_code_view_archive_missing(client, STC, base_db_setup):
         score=100.00, state=Submission.STATE_DONE, user=user, id=1000,
     )
 
-    response = client.get(f"/submission/{submission.pk}/test", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test", follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "The archive is missing!")
@@ -844,7 +850,9 @@ def test_ta_tree_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/bigtest/dir1/file1/",)
+    response = client.get(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "dir1")
@@ -871,15 +879,17 @@ def test_ta_comment(client, STC, base_db_setup):
     submission = Submission.objects.all()[0]
 
     response = client.post(
-        f"/submission/{submission.pk}/bigtest/dir1/file1/",
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
         data={"text": "This is a comment", "line": "1"},
     )
 
     STC.assertRedirects(
-        response, f"/submission/{submission.pk}/bigtest/dir1/file1/"
+        response, f"/submission/{submission.pk}/code/bigtest/dir1/file1/"
     )
 
-    response = client.get(f"/submission/{submission.pk}/bigtest/dir1/file1/")
+    response = client.get(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/"
+    )
 
     STC.assertContains(response, "This is a comment")
 
@@ -905,7 +915,7 @@ def test_ta_comment_review(client, STC, base_db_setup):
     submission.save()
 
     response = client.post(
-        f"/submission/{submission.pk}/bigtest/dir1/file1/",
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
         data={"text": "+10.0: Good job!", "line": "1"},
     )
 

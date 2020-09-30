@@ -30,7 +30,7 @@
 
       {% if user == sub.user or user in sub.assignment.course.teaching_assistants.all %}
       <form>
-        <button class="btn btn-primary btn-sm mr-1" formaction="{% url 'code_view' sub.pk 'code' %}">Start review</button>
+        <button class="btn btn-primary btn-sm mr-1" formaction="{% url 'code_view_homepage' sub.pk %}">Start review</button>
       </form>
       {% endif %}
     </div>
