@@ -36,9 +36,14 @@
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
     "language": "c",
-    "options": {
-	    "cpus": 1,
-	    "memory": 512
+    "penalty_weights": {
+	    "penalty_weights": [],
+	    "holiday_start": "",
+	    "holiday_finish": ""
+    },
+    "vm_options": {
+	"nr_cpus": 1,
+	"memory": 512
     }
   }
 },
@@ -55,9 +60,14 @@
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
     "language": "c",
-    "options": {
-	    "cpus": 1,
-	    "memory": 512
+    "penalty_weights": {
+	    "penalty_weights": [],
+	    "holiday_start": "",
+	    "holiday_finish": ""
+    },
+    "vm_options": {
+	"nr_cpus": 1,
+	"memory": 512
     }
   }
 }
