@@ -40,12 +40,12 @@ class SubQueue(object):
 
             for submission in submissions:
                 submission.update_state()
-                log.info(f"Check submission #{submission.id} status")
+                log.info("Check submission #%s status", submission.id)
 
             time.sleep(settings.CHECK_INTERVAL_SUBS)
 
     def add_sub(self, sub):
-        log.info(f"Add submission #{sub.id} to queue")
+        log.info("Add submission #%s to queue", sub.id)
         sub.state = sub.STATE_QUEUED
         sub.save()
         self.queue.put((sub.timestamp, sub))
@@ -54,7 +54,7 @@ class SubQueue(object):
         self.sem.release()
 
     def _evaluate_submission(self, sub):
-        log.info(f"Evaluate submission #{sub.id}")
+        log.info("Evaluate submission #%s", sub.id)
         sub.evaluator_job_id = SubmissionScheduler.evaluator.evaluate(sub)
         sub.state = sub.STATE_NEW
         sub.changeReason = "Evaluator id"
