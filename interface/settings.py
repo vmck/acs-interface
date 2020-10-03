@@ -120,6 +120,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "interface/static")
 
 SECRET_KEY = "changeme"
 
+EVALUATOR_BACKEND = os.get.get("EVALUATOR_BACKEND", "docker")
+
 DEBUG = is_true(os.environ.get("DEBUG"))
 
 _hostname = os.environ.get("HOSTNAME")
