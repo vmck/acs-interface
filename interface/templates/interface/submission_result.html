@@ -14,26 +14,26 @@
       </form>
     {% endif %}
 
-    {% if user in sub.assignment.course.teaching_assistants.all%}
-        <p>
-          <button type="button" class="btn btn-primary btn-sm mr-1" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Review</button>
-        </p>
-    {% endif %}
-
     {% if user in sub.assignment.course.teaching_assistants.all %}
       <form action="rerun">
         {% csrf_token %}
         <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Rerun submission">
       </form>
-    {% endif %}
+      {% endif %}
 
-    {% if user in sub.assignment.course.teaching_assistants.all %}
+      {% if user in sub.assignment.course.teaching_assistants.all %}
       <form action="recompute">
         {% csrf_token %}
         <input formmethod="post" class="btn btn-primary btn-sm mr-1" type="submit" value="Recompute score">
       </form>
-    {% endif %}
-  </div>
+      {% endif %}
+
+      {% if user == sub.user or user in sub.assignment.course.teaching_assistants.all %}
+      <form>
+        <button class="btn btn-primary btn-sm mr-1" formaction="{% url 'code_view_homepage' sub.pk %}">Start review</button>
+      </form>
+      {% endif %}
+    </div>
 
   {% if sub.state == sub.STATE_DONE %}
 
@@ -79,6 +79,6 @@
 
 </div>
 
-{% include "interface/generics/review_modal.html" %}
+
 
 {% endblock %}

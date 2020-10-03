@@ -94,9 +94,27 @@ def compute_review_score(submission):
     return sum([decimal.Decimal(mark) for mark in marks])
 
 
+def compute_comments_review(submission):
+    total_sum = 0
+    teaching_assistants = (
+        submission.assignment.course.teaching_assistants.all()
+    )
+    for comment in submission.comments.all():
+        if comment.user in teaching_assistants:
+            marks = re.findall(
+                r"^([+-]\d+\.*\d*):", comment.text, re.MULTILINE,
+            )
+            log.debug("Marks found: " + str(marks))
+            total_sum += sum([decimal.Decimal(mark) for mark in marks])
+
+    return total_sum
+
+
 def calculate_total_score(submission):
     score = submission.score if submission.score else 0
-    submission.review_score = compute_review_score(submission)
+    submission.review_score = compute_review_score(
+        submission
+    ) + compute_comments_review(submission)
 
     (penalties, holiday_start, holiday_finish) = get_penalty_info(submission)
     timestamp = submission.timestamp or datetime.datetime.now()

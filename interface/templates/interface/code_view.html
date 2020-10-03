@@ -1,18 +1,112 @@
 {% extends "interface/generics/base.html" %}
 
+<script type="text/javascript">
+    $('.accordian-body').on('show.bs.collapse', function () {
+        $(this).closest("table")
+            .find(".collapse.in")
+            .not(this)
+            .collapse('toggle')
+    });
+</script>
+<style>
+.hiddenRow {
+    padding: 0 !important;
+}
+</style>
+
 {% block body_content %}
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-3">
-            {% with dict=tree.items template="interface/tree_view.html" %}
-                {% include template %}
-            {% endwith %}
+            <div>
+                {% if user in sub.assignment.course.teaching_assistants.all %}
+                    <p>
+                        <button type="button" class="btn btn-primary btn-sm mr-1" data-toggle="modal" data-target="#review" data-id="{{ sub.id }}">Finish review</button>
+                    </p>
+                {% endif %}
+            </div>
+                {% with dict=tree.items template="interface/tree_view.html" %}
+                    {% include template %}
+                {% endwith %}
         </div>
         <div class="col-lg-9">
-            <pre> {{ file_content }} </pre>
+            <div>
+                {% if not file_exists %}
+                    {{ file_content }}
+                {% else %}
+                    <table class="table table-hover table-sm table-borderless" data-toggle="table" style="border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for line in file_content %}
+                            <tr data-toggle="collapse" data-target="#demo_{{ forloop.counter }}" style="line-height: 1em;">
+                                <td style="padding:0;height: 1px;"> {{ forloop.counter }} </td>
+                                <td style="padding:0;height: 1px;">
+                                    {% with forloop.counter as index %}
+                                    {% if sub.comments|with_path:path|with_line:index %}
+                                        <div style="background-color: #FFCCCB;padding: 0;;white-space: pre;font-family: monospace;">{{ line }}</div>
+                                    {% else %}
+                                        <div style="padding: 0;white-space: pre;font-family: monospace;">{{ line }}</div>
+                                    {% endif %}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="hiddenRow">
+                                    <div class="accordian-body collapse" id="demo_{{ forloop.counter }}">
+                                        <div class="tab-pane" id="add-comment">
+                                            {% with forloop.counter as index %}
+                                                {% for comment in path_comments %}
+                                                    {% if comment.line == index %}
+                                                    <div class="post-comment">
+                                                        <p class="info">
+                                                            Comment {{ forloop.counter }} by {{ comment.user }}
+                                                            {{ comment.created }}
+                                                        </p>
+                                                        {{ comment.text|linebreaks }}
+                                                    </div>
+                                                    {% endif %}
+                                                {% empty %}
+                                                <p>There are no comments yet.</p>
+                                                {% endfor %}
+                                            {% endwith %}
+                                            {% if new_comment %}
+                                                <h2>Your comment has been added.</h2>
+                                            {% else %}
+                                                <form action="." method="post" class="form-horizontal" id="commentForm" role="form">
+                                                    <div class="form-group">
+                                                        <div class="col-sm-10">
+                                                                {% csrf_token %}
+                                                                {{ form.as_p }}
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" name="line" value="{{ forloop.counter }}">
+                                                    <div class="form-group">
+                                                        <div class="col-sm-offset-2 col-sm-10">
+                                                            <p><input class="btn btn-success btn-circle text-uppercase" type="submit" value="Add comment"></p>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                </div>
         </div>
     </div>
 </div>
+
+{% include "interface/generics/review_modal.html" %}
 
 {% endblock %}

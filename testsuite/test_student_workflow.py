@@ -17,6 +17,7 @@ from interface.models import Submission, Assignment
 
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
+FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"
 
 
 @pytest.fixture
@@ -163,11 +164,11 @@ def test_user_cannot_review(client, STC, base_db_setup):
 
     review_message = "+10.0: Hacker"
     response = client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
     )
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/review",
+        response, f"/admin/login/?next=/submission/{submission.pk}/review/",
     )
 
 
@@ -332,10 +333,48 @@ def test_user_code_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test/", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test/", follow=True,
+    )
 
     STC.assertTemplateNotUsed(response, "interface/code_view.html")
     assert response.status_code == 200
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/test/",
+        response, f"/admin/login/?next=/submission/{submission.pk}/code/test/",
     )
+
+
+@pytest.mark.django_db
+def test_user_cannot_comment_review(client, STC, base_db_setup):
+    (_, _, user, course, assignment) = base_db_setup
+
+    client.login(username=user.username, password="pw")
+
+    with open(FILEPATH2, "rb") as file:
+        upload = SimpleUploadedFile(
+            FILEPATH2.name, file.read(), content_type="application/zip",
+        )
+        client.post(
+            f"/assignment/{course.pk}/{assignment.pk}/upload/",
+            data={"name": FILEPATH2.name, "file": upload},
+            format="multipart",
+        )
+
+    submission = Submission.objects.all()[0]
+    submission.score = 100
+    submission.save()
+
+    client.post(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
+        data={"text": "+10.0: I really did a nice job!", "line": "1"},
+    )
+
+    submission.review_message = ""
+    submission.save()
+
+    all_subs = assignment.submission_set.all()
+    assert len(all_subs) == 1
+
+    changed_sub = all_subs[0]
+    assert changed_sub.review_score == 0
+    assert changed_sub.total_score == 100

@@ -213,4 +213,18 @@ class Submission(models.Model):
         return decoded_message["data"] == str(self.id)
 
 
+class Comment(models.Model):
+    path = models.CharField(max_length=256, blank=False)
+    line = models.IntegerField(null=True)
+    submission = models.ForeignKey(
+        Submission,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="comments",
+    )
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+    text = models.TextField(max_length=4096, default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+
 pre_save.connect(signals.update_total_score, sender=Submission)

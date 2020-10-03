@@ -57,3 +57,17 @@ def make_dict(submission_archive):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+def table_maker(file):
+    return file.read().splitlines()
+
+
+@register.filter
+def with_path(things, path):
+    return things.filter(path=path)
+
+
+@register.filter
+def with_line(things, line):
+    return things.filter(line=line)

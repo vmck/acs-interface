@@ -486,12 +486,12 @@ def test_ta_review_submission(client, STC, base_db_setup):
     # Add review and add some points
     review_message = "+10.0: Babas"
     response = client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
         follow=True,
     )
 
-    STC.assertRedirects(response, "/homepage/")
+    STC.assertRedirects(response, f"/submission/{submission.pk}/code/")
 
     all_subs = assignment.submission_set.all()
     assert len(all_subs) == 1
@@ -503,12 +503,12 @@ def test_ta_review_submission(client, STC, base_db_setup):
     # Add review and substract some points
     review_message = "-20.0: Not nice"
     response = client.post(
-        f"/submission/{submission.pk}/review",
+        f"/submission/{submission.pk}/review/",
         data={"review-code": review_message},
         follow=True,
     )
 
-    STC.assertRedirects(response, "/homepage/")
+    STC.assertRedirects(response, f"/submission/{submission.pk}/code/")
 
     all_subs = assignment.submission_set.all()
     assert len(all_subs) == 1
@@ -780,7 +780,9 @@ def test_ta_code_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test", follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertNotContains(response, "N/A")
@@ -804,7 +806,9 @@ def test_ta_code_view_file_missing(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test1", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test1", follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "The file is missing!")
@@ -820,7 +824,9 @@ def test_ta_code_view_archive_missing(client, STC, base_db_setup):
         score=100.00, state=Submission.STATE_DONE, user=user, id=1000,
     )
 
-    response = client.get(f"/submission/{submission.pk}/test", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/code/test", follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "The archive is missing!")
@@ -844,9 +850,87 @@ def test_ta_tree_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/bigtest/dir1/file1/",)
+    response = client.get(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "dir1")
     STC.assertContains(response, "file1")
     STC.assertContains(response, "file2")
+
+
+@pytest.mark.django_db
+def test_ta_comment(client, STC, base_db_setup):
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password="pw")
+
+    with open(FILEPATH2, "rb") as file:
+        upload = SimpleUploadedFile(
+            FILEPATH2.name, file.read(), content_type="application/zip",
+        )
+        client.post(
+            f"/assignment/{course.pk}/{assignment.pk}/upload/",
+            data={"name": FILEPATH2.name, "file": upload},
+            format="multipart",
+        )
+
+    submission = Submission.objects.all()[0]
+
+    response = client.post(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
+        data={"text": "This is a comment", "line": "1"},
+    )
+
+    STC.assertRedirects(
+        response, f"/submission/{submission.pk}/code/bigtest/dir1/file1/"
+    )
+
+    response = client.get(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/"
+    )
+
+    STC.assertContains(response, "This is a comment")
+
+
+@pytest.mark.django_db
+def test_ta_comment_review(client, STC, base_db_setup):
+    (_, ta, _, course, assignment) = base_db_setup
+
+    client.login(username=ta.username, password="pw")
+
+    with open(FILEPATH2, "rb") as file:
+        upload = SimpleUploadedFile(
+            FILEPATH2.name, file.read(), content_type="application/zip",
+        )
+        client.post(
+            f"/assignment/{course.pk}/{assignment.pk}/upload/",
+            data={"name": FILEPATH2.name, "file": upload},
+            format="multipart",
+        )
+
+    submission = Submission.objects.all()[0]
+    submission.score = 100
+    submission.save()
+
+    response = client.post(
+        f"/submission/{submission.pk}/code/bigtest/dir1/file1/",
+        data={"text": "+10.0: Good job!", "line": "1"},
+    )
+
+    review_message = "+10.0: Babas"
+    response = client.post(
+        f"/submission/{submission.pk}/review/",
+        data={"review-code": review_message},
+        follow=True,
+    )
+
+    STC.assertRedirects(response, f"/submission/{submission.pk}/code/")
+
+    all_subs = assignment.submission_set.all()
+    assert len(all_subs) == 1
+
+    changed_sub = all_subs[0]
+    assert changed_sub.review_score == 20
+    assert changed_sub.total_score == 120

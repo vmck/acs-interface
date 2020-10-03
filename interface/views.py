@@ -21,7 +21,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 from interface import models
 from interface import utils
-from interface.forms import UploadFileForm, LoginForm
+from interface.forms import UploadFileForm, LoginForm, CommentForm
 from interface.models import Submission, Course, User
 from interface.backend.submission.submission import (
     handle_submission,
@@ -30,7 +30,7 @@ from interface.backend.submission.submission import (
 )
 from .scoring import calculate_total_score
 from interface.actions_logger import log_action
-from interface.codeview import extract_file, tree_view
+from interface.codeview import extract_file, tree_view, table_maker
 
 
 log = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ def review(request, pk):
 
     log_action("Review submission", request.user, submission)
 
-    return redirect(request.META.get("HTTP_REFERER", "/"))
+    return redirect(f"/submission/{submission.pk}/code/")
 
 
 @login_required
@@ -220,7 +220,6 @@ def submission_result(request, pk):
         {
             "sub": sub,
             "homepage_url": redirect(homepage).url,
-            "submission_review_message": sub.review_message,
             "submission_list_url": redirect(submission_list).url,
             "fortune": fortune_msg,
         },
@@ -350,15 +349,68 @@ def code_view(request, pk, filename):
     submission = get_object_or_404(Submission, pk=pk)
     all_tas = submission.assignment.course.teaching_assistants.all()
 
-    if request.user not in all_tas:
+    if request.user not in all_tas and request.user is not submission.user:
         return HttpResponse(status=403)
 
     tree = tree_view(request, submission)
 
     file = extract_file(request, submission, filename)
+    file_value = file.getvalue()
 
-    context = {"file_content": file.read(), "tree": tree, "pk": submission.pk}
+    context = {
+        "file_content": file.getvalue(),
+        "tree": tree,
+        "pk": submission.pk,
+        "sub": submission,
+        "path": filename,
+        "file_exists": False,
+    }
+
+    if file_value not in ["The file is missing!", "The archive is missing!"]:
+        table = table_maker(file)
+
+        comment = None
+        if request.method == "POST":
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.submission = submission
+                comment.user = request.user
+                comment.path = filename
+                comment.line = request.POST.get("line", "")
+                comment.save()
+                return redirect("code_view", pk=pk, filename=filename)
+        else:
+            form = CommentForm()
+
+        path_comments = submission.comments.filter(path=filename)
+
+        context["file_content"] = table
+        context["file_exists"] = True
+        context["path_comments"] = path_comments
+        context["new_comment"] = comment
+        context["form"] = form
 
     file.close()
 
     return render(request, "interface/code_view.html", context)
+
+
+@login_required
+@staff_member_required
+def code_view_homepage(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+    all_tas = submission.assignment.course.teaching_assistants.all()
+
+    if request.user not in all_tas and request.user is not submission.user:
+        return HttpResponse(status=403)
+
+    tree = tree_view(request, submission)
+
+    context = {
+        "tree": tree,
+        "pk": submission.pk,
+        "sub": submission,
+    }
+
+    return render(request, "interface/code_view_homepage.html", context)

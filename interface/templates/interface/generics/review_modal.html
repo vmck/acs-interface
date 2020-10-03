@@ -8,11 +8,11 @@
       </div>
 
       <div class="modal-body">
-        <form id="reviewForm" method="post" action="review">
+        <form id="reviewForm" method="post" action="{% url 'review' sub.pk %}">
           {% csrf_token %}
           <div class="form-group">
             <label for="message-text" class="col-form-label">Review details:</label>
-            <textarea class="form-control" name='review-code' id="message-text">{{ submission_review_message }}</textarea>
+            <textarea class="form-control" name='review-code' id="message-text">{{ sub.review_message }}</textarea>
           </div>
         </form>
       </div>
