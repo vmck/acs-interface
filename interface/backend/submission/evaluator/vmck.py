@@ -53,14 +53,14 @@ class VMCK(Evaluator):
             settings.ACS_INTERFACE_ADDRESS, callback,
         )
 
-        log.debug(f"Submission #{submission.pk} config is done")
-        log.debug(f"Callback: {options['env']['VMCK_CALLBACK_URL']}")
+        log.debug("Submission #%s config is done", submission.pk)
+        log.debug("Callback: %s", options["env"]["VMCK_CALLBACK_URL"])
 
         response = requests.post(
             urljoin(settings.VMCK_API_URL, "jobs"), json=options
         )
 
-        log.debug(f"Submission's #{submission.pk} VMCK response:\n{response}")
+        log.debug("Submission's #%s VMCK response:\n%s", submission.pk, response)
 
         return response.json()["id"]
 
