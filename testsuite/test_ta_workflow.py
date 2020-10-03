@@ -172,7 +172,7 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         "value": "Save",
     }
     response = client.post(
-        f"/admin/interface/assignment/add/", data=assignment_params,
+        "/admin/interface/assignment/add/", data=assignment_params,
     )
 
     STC.assertRedirects(
@@ -217,7 +217,7 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
         "value": "Save",
     }
     response = client.post(
-        f"/admin/interface/assignment/add/", data=assignment_params,
+        "/admin/interface/assignment/add/", data=assignment_params,
     )
 
     errors = response.context["errors"]
@@ -663,7 +663,7 @@ def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/admin/interface/assignment/",
+        "/admin/interface/assignment/",
         data={
             "action": "download_review_submissions",
             "_selected_action": "1",
@@ -687,7 +687,7 @@ def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/admin/interface/assignment/",
+        "/admin/interface/assignment/",
         data={"action": "download_all_submissions", "_selected_action": "1"},
         follow=True,
     )
@@ -707,7 +707,7 @@ def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/admin/interface/assignment/",
+        "/admin/interface/assignment/",
         data={"action": "run_moss", "_selected_action": "1"},
         follow=True,
     )

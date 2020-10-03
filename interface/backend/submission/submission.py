@@ -17,7 +17,7 @@ class CorruptZipFile(Exception):
 
 
 def handle_submission(file, assignment, user):
-    log.debug(f"Submission %s received", file.name)
+    log.debug("Submission %s received", file.name)
 
     test_file = deepcopy(file)
 

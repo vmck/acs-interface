@@ -28,7 +28,7 @@ def test_homepage(client, STC, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
     client.login(username=user.username, password="pw")
 
-    response = client.get(f"/homepage/")
+    response = client.get("/homepage/")
 
     STC.assertTemplateUsed(response, "interface/homepage.html")
     assert response.context["courses"]
