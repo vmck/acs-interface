@@ -1,11 +1,9 @@
 import time
 import filecmp
 import zipfile
-import threading
 from io import BytesIO
 
 from tempfile import NamedTemporaryFile
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 import pytest
 from django.conf import settings
@@ -17,33 +15,6 @@ from interface.models import Submission, Assignment
 
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
-
-
-@pytest.fixture
-def mock_config(monkeypatch):
-    ADDR = "10.66.60.1"
-    PORT = 5000
-
-    class Server:
-        def __init__(self):
-            self.server = HTTPServer((ADDR, PORT), SimpleHTTPRequestHandler,)
-
-        def start_server(self):
-            thread = threading.Thread(
-                target=self.server.serve_forever, daemon=True,
-            )
-            thread.start()
-
-        def stop_server(self):
-            self.server.shutdown()
-            self.server.server_close()
-
-    def url_for(self, filename):
-        return f"http://{ADDR}:{PORT}/testsuite/{filename}"
-
-    monkeypatch.setattr(Assignment, "url_for", url_for)
-
-    return Server()
 
 
 @pytest.mark.django_db

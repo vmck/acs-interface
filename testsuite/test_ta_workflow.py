@@ -7,7 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from interface.models import Course, Submission
 from interface.admin import CourseAdmin
-
+from datetime import timedelta
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"
@@ -273,6 +273,44 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
     new_assignment.name = assignment.name
     new_assignment.max_score = assignment.max_score
     assert new_assignment == assignment
+
+
+@pytest.mark.django_db
+def test_soft_deadline_change_trigger_recompute(client, base_db_setup, mock_config):
+    (_, ta, user, course, assignment) = base_db_setup
+
+    mock_config.start_server()
+
+    submission = assignment.submission_set.create(
+        score=100.00, state=Submission.STATE_DONE, user=user,
+    )
+
+    assert submission.penalty == 0
+
+    client.login(username=ta.username, password="pw")
+
+    deadline_soft = datetime.now() - timedelta(days=365)
+    assignment_change_params = {
+        "course": assignment.course.pk,
+        "name": "a_change",
+        "max_score": 50,
+        "deadline_soft_0": deadline_soft.date(),
+        "deadline_soft_1": deadline_soft.time(),
+        "deadline_hard_0": assignment.deadline_hard.date(),
+        "deadline_hard_1": assignment.deadline_hard.time(),
+        "min_time_between_uploads": assignment.min_time_between_uploads,
+        "language": assignment.language,
+        "value": "Save",
+    }
+
+    response = client.post(
+        f"/admin/interface/assignment/{assignment.pk}/change/",
+        data=assignment_change_params,
+    )
+    mock_config.stop_server()
+
+    submission.refresh_from_db()
+    assert submission.penalty == 7
 
 
 @pytest.mark.django_db

@@ -94,7 +94,11 @@ class Assignment(models.Model):
         branch = self.repo_branch or "master"
         path = f"{self.repo_path}/" if self.repo_path else ""
         return urljoin(url_base, f"{branch}/{path}{filename}")
-
+    
+    def refresh_submission_penalty(self):
+        for submission in self.submission_set.all():
+            submission.penalty = None
+            submission.save()
 
 class Submission(models.Model):
     """ Model for a homework submission
