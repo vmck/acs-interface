@@ -38,6 +38,7 @@ class VMCK(Evaluator):
         name = f"{submission.assignment.full_code} submission #{submission.pk}"
         options["name"] = name
         options["restrict_network"] = True
+        options["backend"] = settings.EVALUATOR_BACKEND
 
         options["manager"] = {}
         options["manager"]["vagrant_tag"] = settings.MANAGER_TAG
