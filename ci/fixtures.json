@@ -36,7 +36,7 @@
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
     "language": "c",
-    "penalty_weights": {
+    "penalty_info": {
 	    "penalty_weights": [],
 	    "holiday_start": "",
 	    "holiday_finish": ""
@@ -60,7 +60,7 @@
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
     "language": "c",
-    "penalty_weights": {
+    "penalty_info": {
 	    "penalty_weights": [],
 	    "holiday_start": "",
 	    "holiday_finish": ""
