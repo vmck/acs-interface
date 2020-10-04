@@ -75,4 +75,9 @@ class VMCK(Evaluator):
             log.debug(f"Submission #{submission.pk} update error: {e}")
             return "Error"
         else:
-            return response.json()["state"]
+            try:
+                json_response = response.json()
+                return json_response["state"]
+            except Exception as e:
+                log.debug("JSON conversion error", e)
+                return "Error"
