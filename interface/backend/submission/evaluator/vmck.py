@@ -60,7 +60,9 @@ class VMCK(Evaluator):
             urljoin(settings.VMCK_API_URL, "jobs"), json=options
         )
 
-        log.debug("Submission's #%s VMCK response:\n%s", submission.pk, response)
+        log.debug(
+            "Submission's #%s VMCK response:\n%s", submission.pk, response
+        )
 
         return response.json()["id"]
 
