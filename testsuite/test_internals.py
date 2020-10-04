@@ -16,6 +16,5 @@ def test_submission_update_state_error(client, STC, base_db_setup):
         state = Submission.STATE_NEW
     )
 
-    response = Submission.update_state(submission)
-    print("Response", response)
-    STC.assertEqual(response.state, Submission.STATE_ERROR)
+    Submission.update_state(submission)
+    STC.assertEqual(submission.state, Submission.STATE_ERROR)
