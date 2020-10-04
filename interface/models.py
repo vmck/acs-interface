@@ -116,6 +116,7 @@ class Submission(models.Model):
     STATE_RUNNING = "running"
     STATE_DONE = "done"
     STATE_QUEUED = "queued"
+    STATE_ERROR = "error"
 
     STATE_CHOICES = OrderedDict(
         [
@@ -123,6 +124,7 @@ class Submission(models.Model):
             (STATE_RUNNING, "Running"),
             (STATE_DONE, "Done"),
             (STATE_QUEUED, "Queue"),
+            (STATE_ERROR, "Error"),
         ]
     )
 

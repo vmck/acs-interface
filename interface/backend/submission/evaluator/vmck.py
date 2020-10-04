@@ -65,10 +65,13 @@ class VMCK(Evaluator):
         return response.json()["id"]
 
     def update(submission):
-        response = requests.get(
-            urljoin(
-                settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
+        try:
+           response = requests.get(
+                urljoin(
+                    settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
+                )
             )
-        )
-
-        return response.json()["state"]
+        except:
+            return "Error"
+        else:
+            return response.json()["state"]
