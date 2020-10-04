@@ -237,7 +237,7 @@ def done(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
     if not submission.verify_jwt(request.GET.get("token")):
-        raise Exception('JWT token is invalid')
+        return JsonResponse({'error': 'Invalid JWT token'}, status=400)
 
     stdout = utils.decode(options["stdout"])
     exit_code = int(options["exit_code"])

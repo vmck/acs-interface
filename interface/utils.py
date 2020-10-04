@@ -15,6 +15,10 @@ def is_number(string):
     except ValueError:
         return False
 
+def encode(message):
+    encoded_message = base64.encodebytes(bytes(message, encoding="latin-1"))
+
+    return str(encoded_message, encoding="latin-1")
 
 def decode(message):
     decoded_message = base64.decodebytes(bytes(message, encoding="latin-1"))

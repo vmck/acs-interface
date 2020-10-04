@@ -205,12 +205,15 @@ class Submission(models.Model):
         """
         if not message:
             return False
+        try:
+            decoded_message = jwt.decode(
+                message, settings.SECRET_KEY, algorithms=["HS256"]
+            )
 
-        decoded_message = jwt.decode(
-            message, settings.SECRET_KEY, algorithms=["HS256"]
-        )
-
-        return decoded_message["data"] == str(self.id)
+            return decoded_message["data"] == str(self.id)
+        except jwt.DecodeError:
+           log.debug("Invalid JWT token: %s", message)
+           return False
 
 
 pre_save.connect(signals.update_total_score, sender=Submission)
