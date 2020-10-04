@@ -311,6 +311,8 @@ def test_soft_deadline_change_trigger_recompute(client, base_db_setup, mock_conf
 
     submission.refresh_from_db()
     assert submission.penalty == 7
+    assert submission.total_score == submission.score - submission.penalty 
+    assert submission.total_score == 93
 
 
 @pytest.mark.django_db
