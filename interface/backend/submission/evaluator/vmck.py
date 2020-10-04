@@ -71,7 +71,8 @@ class VMCK(Evaluator):
                     settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
                 )
             )
-        except:
+        except Exception as e:
+            log.debug(f"Submission #{submission.pk} update error: {e}")
             return "Error"
         else:
             return response.json()["state"]
