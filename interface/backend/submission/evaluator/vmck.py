@@ -74,5 +74,5 @@ class VMCK(Evaluator):
             json_response = response.json()
             return json_response["state"]
         except Exception as e:
-            log.debug("JSON conversion error", e)
-            return "Error"
+            log.debug(f"JSON conversion error: {e}")
+            return "error"
