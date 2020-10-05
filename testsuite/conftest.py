@@ -1,8 +1,7 @@
-from datetime import datetime, timezone
-from tempfile import NamedTemporaryFile
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-import threading
 import pytest
+import threading
+from datetime import datetime, timezone
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
 from django.test import SimpleTestCase

@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 import interface.backend.minio_api as storage
-from interface.models import Submission, Assignment
+from interface.models import Submission
 
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"

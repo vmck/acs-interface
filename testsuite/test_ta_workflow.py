@@ -276,7 +276,9 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
 
 
 @pytest.mark.django_db
-def test_soft_deadline_change_trigger_recompute(client, base_db_setup, mock_config):
+def test_soft_deadline_change_trigger_recompute(
+    client, base_db_setup, mock_config
+):
     (_, ta, user, course, assignment) = base_db_setup
 
     mock_config.start_server()
@@ -303,7 +305,7 @@ def test_soft_deadline_change_trigger_recompute(client, base_db_setup, mock_conf
         "value": "Save",
     }
 
-    response = client.post(
+    client.post(
         f"/admin/interface/assignment/{assignment.pk}/change/",
         data=assignment_change_params,
     )
@@ -311,7 +313,7 @@ def test_soft_deadline_change_trigger_recompute(client, base_db_setup, mock_conf
 
     submission.refresh_from_db()
     assert submission.penalty == 7
-    assert submission.total_score == submission.score - submission.penalty 
+    assert submission.total_score == submission.score - submission.penalty
     assert submission.total_score == 93
 
 
