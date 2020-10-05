@@ -1,12 +1,16 @@
 from datetime import datetime, timezone
+from tempfile import NamedTemporaryFile
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+import threading
 import pytest
+
 
 from django.test import SimpleTestCase
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.admin.sites import AdminSite
 
-from interface.models import Course, Submission
+from interface.models import Course, Submission, Assignment
 from interface.admin import CourseAdmin, AssignmentAdmin
 
 
@@ -74,3 +78,30 @@ def mock_admin_assignment(monkeypatch):
         "download_all_submissions",
         download_all_submissions_stub,
     )
+
+
+@pytest.fixture
+def mock_config(monkeypatch):
+    ADDR = "10.66.60.1"
+    PORT = 5000
+
+    class Server:
+        def __init__(self):
+            self.server = HTTPServer((ADDR, PORT), SimpleHTTPRequestHandler,)
+
+        def start_server(self):
+            thread = threading.Thread(
+                target=self.server.serve_forever, daemon=True,
+            )
+            thread.start()
+
+        def stop_server(self):
+            self.server.shutdown()
+            self.server.server_close()
+
+    def url_for(self, filename):
+        return f"http://{ADDR}:{PORT}/testsuite/{filename}"
+
+    monkeypatch.setattr(Assignment, "url_for", url_for)
+
+    return Server()

@@ -188,6 +188,12 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         "Download all submissions for review"
     )
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if "deadline_soft" not in form.changed_data:
+            return
+        obj.refresh_submission_penalty()
+
 
 @admin.register(Submission)
 class SubmissionAdmin(simple_history.admin.SimpleHistoryAdmin):
