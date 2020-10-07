@@ -73,8 +73,8 @@ class Assignment(models.Model):
     def get_default_penalty_info():
         return {
             "penalty_weights": [],
-            "holiday_start": "",
-            "holday_finish": "",
+            "holiday_start": "0001-01-01 00:00:00",
+            "holday_finish": "0001-01-01 00:00:00",
         }
 
     def get_default_vm_info():
