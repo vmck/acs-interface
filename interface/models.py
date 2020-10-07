@@ -121,6 +121,7 @@ class Submission(models.Model):
     STATE_RUNNING = "running"
     STATE_DONE = "done"
     STATE_QUEUED = "queued"
+    STATE_ERROR = "error"
 
     STATE_CHOICES = OrderedDict(
         [
@@ -128,6 +129,7 @@ class Submission(models.Model):
             (STATE_RUNNING, "Running"),
             (STATE_DONE, "Done"),
             (STATE_QUEUED, "Queue"),
+            (STATE_ERROR, "Error"),
         ]
     )
 
@@ -157,14 +159,14 @@ class Submission(models.Model):
     history = HistoricalRecords()
 
     def update_state(self):
-        if self.state == self.STATE_DONE or self.evaluator_job_id is None:
+        if self.state in [self.STATE_DONE, self.STATE_ERROR] or self.evaluator_job_id is None :
             return
 
         state = SubmissionScheduler.evaluator.update(self)
         if state != self.state:
             self.state = state
 
-            if state == Submission.STATE_DONE:
+            if self.state in [self.STATE_DONE, self.STATE_ERROR]:
                 SubmissionScheduler.get_instance().done_evaluation()
 
             self.changeReason = f"Update state to {state}"

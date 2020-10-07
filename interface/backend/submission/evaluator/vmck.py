@@ -72,5 +72,9 @@ class VMCK(Evaluator):
                 settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
             )
         )
-
-        return response.json()["state"]
+        try:
+            json_response = response.json()
+            return json_response["state"]
+        except Exception as e:
+            log.debug(f"JSON conversion error: {e}")
+            return "error"
