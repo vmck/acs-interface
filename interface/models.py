@@ -159,7 +159,10 @@ class Submission(models.Model):
     history = HistoricalRecords()
 
     def update_state(self):
-        if self.state in [self.STATE_DONE, self.STATE_ERROR] or self.evaluator_job_id is None :
+        if (
+            self.state in [self.STATE_DONE, self.STATE_ERROR]
+            or self.evaluator_job_id is None
+        ):
             return
 
         state = SubmissionScheduler.evaluator.update(self)
