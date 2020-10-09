@@ -63,7 +63,9 @@ class Assignment(models.Model):
     repo_branch = models.CharField(max_length=256, blank=True)
     repo_path = models.CharField(max_length=256, blank=True)
     language = models.CharField(
-        max_length=32, choices=list(LANG_CHOICES.items()), default=LANG_C,
+        max_length=32,
+        choices=list(LANG_CHOICES.items()),
+        default=LANG_C,
     )
 
     history = HistoricalRecords()
@@ -102,7 +104,7 @@ class Assignment(models.Model):
 
 
 class Submission(models.Model):
-    """ Model for a homework submission
+    """Model for a homework submission
 
     Attributes:
     username -- the user id provided by the LDAP
@@ -215,12 +217,15 @@ class Submission(models.Model):
         """
         if not message:
             return False
+        try:
+            decoded_message = jwt.decode(
+                message, settings.SECRET_KEY, algorithms=["HS256"]
+            )
 
-        decoded_message = jwt.decode(
-            message, settings.SECRET_KEY, algorithms=["HS256"]
-        )
-
-        return decoded_message["data"] == str(self.id)
+            return decoded_message["data"] == str(self.id)
+        except jwt.DecodeError:
+            log.debug("Invalid JWT token: %s", message)
+            return False
 
 
 pre_save.connect(signals.update_total_score, sender=Submission)
