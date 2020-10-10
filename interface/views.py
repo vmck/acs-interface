@@ -28,7 +28,7 @@ from interface.backend.submission.submission import (
     TooManySubmissionsError,
     CorruptZipFile,
 )
-from .scoring import calculate_total_score
+from .scoring import calculate_total_score, calculate_preliminary_score
 from interface.actions_logger import log_action
 from interface.codeview import extract_file, tree_view, table_maker
 
@@ -250,6 +250,7 @@ def done(request, pk):
 
     submission.score = decimal.Decimal(points)
     submission.total_score = calculate_total_score(submission)
+    submission.preliminary_score = calculate_preliminary_score(submission)
     submission.stdout = stdout
     submission.update_state()
 
