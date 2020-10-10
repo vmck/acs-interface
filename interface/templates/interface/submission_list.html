@@ -25,7 +25,7 @@
               <td>{{ sub.assignment.full_code }}</td>
               <td>{{ sub.archive_size|filesizeformat }}</td>
               {% if sub.user.username == user.username or user in sub.assignment.course.teaching_assistants.all %}
-                <td>{{ sub.score }}</td>
+                <td>{{ sub.preliminary_score }}</td>
               {% else %}
               <td> N/A </td>
               {% endif %}

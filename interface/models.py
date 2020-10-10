@@ -146,6 +146,9 @@ class Submission(models.Model):
     )
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     penalty = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    preliminary_score = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True
+    )
     archive_size = models.IntegerField(null=True)
     evaluator_job_id = models.IntegerField(null=True)
 

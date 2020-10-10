@@ -110,12 +110,8 @@ def compute_comments_review(submission):
     return total_sum
 
 
-def calculate_total_score(submission):
+def calculate_preliminary_score(submission):
     score = submission.score if submission.score else 0
-    submission.review_score = compute_review_score(
-        submission
-    ) + compute_comments_review(submission)
-
     (penalties, holiday_start, holiday_finish) = get_penalty_info(submission)
     timestamp = submission.timestamp or datetime.datetime.now()
     deadline = submission.assignment.deadline_soft
@@ -128,7 +124,15 @@ def calculate_total_score(submission):
         holiday_finish,
     )
 
-    penalty = submission.penalty
+    return score - submission.penalty
 
-    total_score = score + submission.review_score - penalty
+
+def calculate_total_score(submission):
+    submission.review_score = compute_review_score(
+        submission
+    ) + compute_comments_review(submission)
+
+    preliminary_score = calculate_preliminary_score(submission)
+
+    total_score = preliminary_score + submission.review_score
     return total_score if total_score >= 0 else 0
