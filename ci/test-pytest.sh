@@ -7,4 +7,4 @@ if [ ! -f .env ]; then
     cp ./examples/.env .
 fi
 
-exec pipenv run pytest
+exec pipenv run pytest -x
