@@ -14,6 +14,11 @@ if [ -z $container ]; then (
   pipenv run examples/minio.sh
 ) fi
 
+container=$(docker ps -f name=database -aq)
+if [ -z $container ]; then (
+  pipenv run examples/postgres.sh
+) fi
+
 sudo -Hu vagrant pipenv run ./manage.py migrate
 sudo -Hu vagrant pipenv run ./manage.py storage_setup
 sudo -Hu vagrant pipenv run ./manage.py collectstatic --noinput
