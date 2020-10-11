@@ -47,9 +47,7 @@ def test_submission_list(client, STC, base_db_setup):
 
     for _ in range(30):
         assignment.submission_set.create(
-            user=user,
-            score=100.00,
-            state=Submission.STATE_DONE,
+            user=user, score=100.00, state=Submission.STATE_DONE,
         )
 
     response = client.get("/submission/")
@@ -83,19 +81,14 @@ def test_submission_done_submit(client, STC, base_db_setup):
     client.login(username=user.username, password="pw")
 
     submission = assignment.submission_set.create(
-        user=user,
-        state=Submission.STATE_RUNNING,
-        stdout="Runnning",
+        user=user, state=Submission.STATE_RUNNING, stdout="Runnning",
     )
     token = str(submission.generate_jwt(), encoding="latin1")
 
     response = client.post(
         f"/submission/{submission.pk}/done?token={token}",
         json.dumps(
-            {
-                "stdout": utils.encode("TOTAL: 100/100"),
-                "exit_code": 1,
-            }
+            {"stdout": utils.encode("TOTAL: 100/100"), "exit_code": 1,}
         ),
         content_type="application/json",
     )
@@ -111,20 +104,14 @@ def test_submission_done_submit_wrong_token(client, base_db_setup):
     client.login(username=user.username, password="pw")
 
     submission = assignment.submission_set.create(
-        user=user,
-        score=0,
-        state=Submission.STATE_RUNNING,
-        stdout="Runnning",
+        user=user, score=0, state=Submission.STATE_RUNNING, stdout="Runnning",
     )
     token = "yabayaba"
 
     response = client.post(
         f"/submission/{submission.pk}/done?token={token}",
         json.dumps(
-            {
-                "stdout": utils.encode("TOTAL: 100/100"),
-                "exit_code": 1,
-            }
+            {"stdout": utils.encode("TOTAL: 100/100"), "exit_code": 1,}
         ),
         content_type="application/json",
     )
@@ -159,19 +146,13 @@ def test_user_list(client, STC, base_db_setup):
     other = User.objects.create_user("other", password="pw")
 
     submission1 = assignment.submission_set.create(
-        user=user,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=user, score=100.00, state=Submission.STATE_DONE,
     )
     submission2 = assignment.submission_set.create(
-        user=other,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=other, score=100.00, state=Submission.STATE_DONE,
     )
     submission3 = assignment.submission_set.create(
-        user=other,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=other, score=100.00, state=Submission.STATE_DONE,
     )
 
     response = client.get(f"/assignment/{course.pk}/{assignment.pk}")
@@ -190,14 +171,10 @@ def test_subs_for_user(client, STC, base_db_setup):
     client.login(username=user.username, password="pw")
 
     submission1 = assignment.submission_set.create(
-        user=user,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=user, score=100.00, state=Submission.STATE_DONE,
     )
     submission2 = assignment.submission_set.create(
-        user=user,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=user, score=100.00, state=Submission.STATE_DONE,
     )
 
     response = client.get(
@@ -218,24 +195,16 @@ def test_user_page(client, STC, base_db_setup):
     other = User.objects.create_user("other", password="pw")
 
     submission1 = assignment.submission_set.create(
-        user=user,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=user, score=100.00, state=Submission.STATE_DONE,
     )
     submission2 = assignment.submission_set.create(
-        user=user,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=user, score=100.00, state=Submission.STATE_DONE,
     )
     submission3 = assignment.submission_set.create(
-        user=other,
-        score=100.00,
-        state=Submission.STATE_DONE,
+        user=other, score=100.00, state=Submission.STATE_DONE,
     )
 
-    response = client.get(
-        f"/mysubmissions/{user.username}",
-    )
+    response = client.get(f"/mysubmissions/{user.username}",)
 
     STC.assertTemplateUsed(response, "interface/user_page.html")
     STC.assertContains(response, assignment.name)
