@@ -88,7 +88,7 @@ def test_submission_done_submit(client, STC, base_db_setup):
     response = client.post(
         f"/submission/{submission.pk}/done?token={token}",
         json.dumps(
-            {"stdout": utils.encode("TOTAL: 100/100"), "exit_code": 1,}
+            {"stdout": utils.encode("TOTAL: 100/100"), "exit_code": 1}
         ),
         content_type="application/json",
     )
@@ -111,7 +111,7 @@ def test_submission_done_submit_wrong_token(client, base_db_setup):
     response = client.post(
         f"/submission/{submission.pk}/done?token={token}",
         json.dumps(
-            {"stdout": utils.encode("TOTAL: 100/100"), "exit_code": 1,}
+            {"stdout": utils.encode("TOTAL: 100/100"), "exit_code": 1}
         ),
         content_type="application/json",
     )
