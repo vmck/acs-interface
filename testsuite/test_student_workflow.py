@@ -1,11 +1,9 @@
 import time
 import filecmp
 import zipfile
-import threading
 from io import BytesIO
 
 from tempfile import NamedTemporaryFile
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 import pytest
 from django.conf import settings
@@ -13,37 +11,10 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 import interface.backend.minio_api as storage
-from interface.models import Submission, Assignment
+from interface.models import Submission
 
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
-
-
-@pytest.fixture
-def mock_config(monkeypatch):
-    ADDR = "10.66.60.1"
-    PORT = 5000
-
-    class Server:
-        def __init__(self):
-            self.server = HTTPServer((ADDR, PORT), SimpleHTTPRequestHandler,)
-
-        def start_server(self):
-            thread = threading.Thread(
-                target=self.server.serve_forever, daemon=True,
-            )
-            thread.start()
-
-        def stop_server(self):
-            self.server.shutdown()
-            self.server.server_close()
-
-    def url_for(self, filename):
-        return f"http://{ADDR}:{PORT}/testsuite/{filename}"
-
-    monkeypatch.setattr(Assignment, "url_for", url_for)
-
-    return Server()
 
 
 @pytest.mark.django_db
@@ -52,8 +23,6 @@ def test_submission(client, live_server, base_db_setup, mock_config):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
-
-    mock_config.start_server()
 
     with open(FILEPATH, "rb") as file:
         upload = SimpleUploadedFile(
@@ -65,10 +34,11 @@ def test_submission(client, live_server, base_db_setup, mock_config):
             format="multipart",
         )
 
-    assert Submission.objects.all().count() == 1
-    assert storage.exists("1.zip")
+    submissions = Submission.objects.all()
+    assert submissions.count() == 1
 
-    submission = Submission.objects.all()[0]
+    submission = submissions[0]
+    assert storage.exists(f"{submission.pk}.zip")
 
     # There is a delay before the general queue's threads starts so, depending
     # on the system, the submission might be in the queue or already sent
@@ -97,8 +67,6 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
         if time.time() - start >= 180:
             assert False
-
-    mock_config.stop_server()
 
     assert submission.score == 100
     assert submission.total_score == 100

@@ -10,8 +10,8 @@ class StudentUser(HttpUser):
     wait_time = between(5, 15)
 
     def on_start(self):
-        self.username = "admin"
-        self.password = "admin"
+        self.username = ""
+        self.password = ""
 
         response = self.client.get("/")
         csrftoken = response.cookies["csrftoken"]
@@ -36,12 +36,12 @@ class StudentUser(HttpUser):
 
     @task
     def upload_homework(self):
-        response = self.client.get("/assignment/1/2/upload/")
+        response = self.client.get("/assignment/1/1/upload/")
         csrftoken = response.cookies["csrftoken"]
 
         with open(FILEPATH, "rb") as f_in:
             response = self.client.post(
-                "/assignment/1/2/upload/",
+                "/assignment/1/1/upload/",
                 files={"file": f_in},
                 headers={"X-CSRFToken": csrftoken},
                 data={"id": "42"},
@@ -49,7 +49,7 @@ class StudentUser(HttpUser):
             )
 
     def on_stop(self):
-        response = self.client.get("/assignment/1/2/upload/")
+        response = self.client.get("/assignment/1/1/upload/")
         csrftoken = response.cookies["csrftoken"]
 
         self.client.post("/logout/", headers={"X-CSRFToken": csrftoken})

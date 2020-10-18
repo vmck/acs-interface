@@ -28,6 +28,7 @@ class VMCK(Evaluator):
         name = f"{submission.assignment.full_code} submission #{submission.pk}"
         options["name"] = name
         options["restrict_network"] = True
+        options["backend"] = settings.EVALUATOR_BACKEND
 
         options["manager"] = {}
         options["manager"]["vagrant_tag"] = settings.MANAGER_TAG
@@ -42,14 +43,16 @@ class VMCK(Evaluator):
             settings.ACS_INTERFACE_ADDRESS, callback,
         )
 
-        log.debug(f"Submission #{submission.pk} config is done")
-        log.debug(f"Callback: {options['env']['VMCK_CALLBACK_URL']}")
+        log.debug("Submission #%s config is done", submission.pk)
+        log.debug("Callback: %s", options["env"]["VMCK_CALLBACK_URL"])
 
         response = requests.post(
             urljoin(settings.VMCK_API_URL, "jobs"), json=options
         )
 
-        log.debug(f"Submission's #{submission.pk} VMCK response:\n{response}")
+        log.debug(
+            "Submission's #%s VMCK response:\n%s", submission.pk, response
+        )
 
         return response.json()["id"]
 
@@ -59,5 +62,9 @@ class VMCK(Evaluator):
                 settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
             )
         )
-
-        return response.json()["state"]
+        try:
+            json_response = response.json()
+            return json_response["state"]
+        except Exception as e:
+            log.debug(f"JSON conversion error: {e}")
+            return "error"

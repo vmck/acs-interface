@@ -14,9 +14,6 @@ BASE_DIR = Path(__file__).parent.parent
 
 BLOCK_SIZE = 32 * 1024
 
-MEDIA_ROOT = "interface/templates/interface/media"
-MEDIA_URL = "/media/"
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -117,8 +114,13 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "interface/static")
+STATICFILES_DIRS = [
+    BASE_DIR / "interface" / "templates" / "interface" / "media",
+]
 
 SECRET_KEY = "changeme"
+
+EVALUATOR_BACKEND = os.environ.get("EVALUATOR_BACKEND", "docker")
 
 DEBUG = is_true(os.environ.get("DEBUG"))
 

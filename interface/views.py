@@ -49,7 +49,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
 
             if not user:
-                log.info(f"Login failure for {username}")
+                log.info("Login failure for %s", username)
             else:
                 login(request, user)
                 return redirect(homepage)
@@ -229,14 +229,15 @@ def submission_result(request, pk):
 
 @csrf_exempt
 def done(request, pk):
-    log.debug(f"URL: {request.get_full_path()}")
+    log.debug("URL: %s", request.get_full_path())
     log.debug(pprint.pformat(request.body))
 
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission, pk=pk)
 
-    assert submission.verify_jwt(request.GET.get("token"))
+    if not submission.verify_jwt(request.GET.get("token")):
+        return JsonResponse({"error": "Invalid JWT token"}, status=400)
 
     stdout = utils.decode(options["stdout"])
     exit_code = int(options["exit_code"])
@@ -254,9 +255,9 @@ def done(request, pk):
     submission.stdout = stdout
     submission.update_state()
 
-    log.debug(f"Submission #{submission.pk}:")
-    log.debug(f"Stdout:\n{submission.stdout}")
-    log.debug(f"Exit code:\n{exit_code}")
+    log.debug("Submission #%s:", submission.pk)
+    log.debug("Stdout:\n%s", submission.stdout)
+    log.debug("Exit code:\n%s", exit_code)
 
     submission.changeReason = "Evaluation"
     submission.save()
@@ -313,7 +314,7 @@ def subs_for_user(request, course_pk, assignment_pk, username):
 def user_page(request, username):
     user = get_object_or_404(User, username=username)
     if request.user.username != username:
-        log.warning(f"User attempted to access {username}")
+        log.warning("User attempted to access %s", username)
         raise Http404("You are not allowed to access this page.")
     submissions = (
         Submission.objects.all().filter(user=user).order_by("-timestamp")

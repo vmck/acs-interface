@@ -1,6 +1,7 @@
 import logging
 from copy import deepcopy
 from zipfile import ZipFile
+from multiprocessing import Process
 
 from django.db import transaction
 from django.utils import timezone
@@ -17,7 +18,7 @@ class CorruptZipFile(Exception):
 
 
 def handle_submission(file, assignment, user):
-    log.debug(f"Submission {file.name} received")
+    log.debug("Submission %s received", file.name)
 
     test_file = deepcopy(file)
 
@@ -42,7 +43,7 @@ def handle_submission(file, assignment, user):
         if entry:
             delta_t = timezone.now() - entry.timestamp
             if delta_t.seconds < assignment.min_time_between_uploads:
-                log.debug(f"Submission can be made after #{delta_t} seconds")
+                log.debug("Submission can be made after #%s seconds", delta_t)
                 raise TooManySubmissionsError(
                     assignment.min_time_between_uploads
                 )
@@ -51,10 +52,12 @@ def handle_submission(file, assignment, user):
             user=user, archive_size=file.size,
         )
 
-    log.debug(f"Submission #{submission.pk} created")
+    log.debug("Submission #%s created", submission.pk)
 
-    storage.upload(f"{submission.pk}.zip", file.read())
-    log.debug(f"Submission's #{submission.pk} zipfile was uploaded")
+    Process(
+        target=storage.upload, args=(f"{submission.pk}.zip", file.read())
+    ).start()
+    log.debug("Submission's #%s zipfile was uploaded", submission.pk)
 
     submission.evaluate()
     log.debug(

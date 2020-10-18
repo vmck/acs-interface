@@ -5,9 +5,10 @@ from django.contrib.admin.sites import AdminSite
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from interface.backend import minio_api as storage
 from interface.models import Course, Submission
 from interface.admin import CourseAdmin
-
+from datetime import timedelta
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"
@@ -20,11 +21,11 @@ class MockObject(object):
 @pytest.mark.django_db
 def test_ta_add_new_ta(client, STC, base_db_setup):
     """
-        Create one teaching assistant, 5 courses and 3 assignments for
-        each course.
+    Create one teaching assistant, 5 courses and 3 assignments for
+    each course.
 
-        The TA is added to courses 1, 3, 5 and should see only those
-        assignments
+    The TA is added to courses 1, 3, 5 and should see only those
+    assignments
     """
     (super_user, ta, user, course, _) = base_db_setup
 
@@ -59,7 +60,7 @@ def test_ta_add_new_ta(client, STC, base_db_setup):
 @pytest.mark.django_db
 def test_ta_view_assignment(client, base_db_setup):
     """
-        Test if the teaching assistant can view the already existing assignment
+    Test if the teaching assistant can view the already existing assignment
     """
     (_, ta, _, _, _) = base_db_setup
     client.login(username=ta.username, password="pw")
@@ -74,8 +75,8 @@ def test_ta_view_assignment(client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_view_assignment(STC, client, base_db_setup):
     """
-        Test if users can not view an assignment where they are not
-        a teaching assistant
+    Test if users can not view an assignment where they are not
+    a teaching assistant
     """
 
     (_, ta, _, _, _) = base_db_setup
@@ -102,7 +103,7 @@ def test_ta_cannot_view_assignment(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_view_submissions(client, base_db_setup):
     """
-        Test if the teaching assistant can view already existing submissions
+    Test if the teaching assistant can view already existing submissions
     """
     expected_submissions = 5
     (_, ta, user, _, assignment) = base_db_setup
@@ -122,8 +123,8 @@ def test_ta_view_submissions(client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_view_submissions(client, base_db_setup):
     """
-        Test if the users can not views submissions from the courses
-        where they are not teaching assistants
+    Test if the users can not views submissions from the courses
+    where they are not teaching assistants
     """
     (_, ta, user, _, _) = base_db_setup
 
@@ -152,7 +153,7 @@ def test_ta_cannot_view_submissions(client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_add_new_assignment(STC, client, base_db_setup):
     """
-        Test if the teaching assistant can view new added assignments
+    Test if the teaching assistant can view new added assignments
     """
 
     (_, ta, _, course, _) = base_db_setup
@@ -172,7 +173,7 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         "value": "Save",
     }
     response = client.post(
-        f"/admin/interface/assignment/add/", data=assignment_params,
+        "/admin/interface/assignment/add/", data=assignment_params,
     )
 
     STC.assertRedirects(
@@ -186,8 +187,8 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
     """
-        Test if the users can not add new assignment at the courses they are
-        not teaching assistants
+    Test if the users can not add new assignment at the courses they are
+    not teaching assistants
     """
 
     (_, ta, _, _, _) = base_db_setup
@@ -217,7 +218,7 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
         "value": "Save",
     }
     response = client.post(
-        f"/admin/interface/assignment/add/", data=assignment_params,
+        "/admin/interface/assignment/add/", data=assignment_params,
     )
 
     errors = response.context["errors"]
@@ -234,7 +235,7 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_edit_assignment(STC, client, base_db_setup):
     """
-        Test if the teaching assistant can edit an assignment
+    Test if the teaching assistant can edit an assignment
     """
 
     (_, ta, _, course, assignment) = base_db_setup
@@ -276,10 +277,49 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
 
 
 @pytest.mark.django_db
+def test_soft_deadline_change_trigger_recompute(
+    client, base_db_setup, mock_config
+):
+    (_, ta, user, course, assignment) = base_db_setup
+
+    submission = assignment.submission_set.create(
+        score=100.00, state=Submission.STATE_DONE, user=user,
+    )
+
+    assert submission.penalty == 0
+
+    client.login(username=ta.username, password="pw")
+
+    deadline_soft = datetime.now() - timedelta(days=365)
+    assignment_change_params = {
+        "course": assignment.course.pk,
+        "name": "a_change",
+        "max_score": 50,
+        "deadline_soft_0": deadline_soft.date(),
+        "deadline_soft_1": deadline_soft.time(),
+        "deadline_hard_0": assignment.deadline_hard.date(),
+        "deadline_hard_1": assignment.deadline_hard.time(),
+        "min_time_between_uploads": assignment.min_time_between_uploads,
+        "language": assignment.language,
+        "value": "Save",
+    }
+
+    client.post(
+        f"/admin/interface/assignment/{assignment.pk}/change/",
+        data=assignment_change_params,
+    )
+
+    submission.refresh_from_db()
+    assert submission.penalty == 7
+    assert submission.total_score == submission.score - submission.penalty
+    assert submission.total_score == 93
+
+
+@pytest.mark.django_db
 def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
     """
-        Test if users can not edit an assignment where they are not
-        a teaching assistant
+    Test if users can not edit an assignment where they are not
+    a teaching assistant
     """
 
     (_, ta, _, _, _) = base_db_setup
@@ -330,7 +370,7 @@ def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_remove_assignment(client, STC, base_db_setup):
     """
-        Test if the teaching assistant can remove an assignment
+    Test if the teaching assistant can remove an assignment
     """
 
     (_, ta, _, _, assignment) = base_db_setup
@@ -351,8 +391,8 @@ def test_ta_remove_assignment(client, STC, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_remove_assignment(client, STC, base_db_setup):
     """
-        Test if users can not edit an assignment where they are not
-        a teaching assistant
+    Test if users can not edit an assignment where they are not
+    a teaching assistant
     """
 
     (_, ta, _, _, _) = base_db_setup
@@ -389,8 +429,8 @@ def test_ta_cannot_remove_assignment(client, STC, base_db_setup):
 @pytest.mark.django_db
 def test_ta_check_possible_courses(client, base_db_setup):
     """
-        Check if users can make assignments only for the courses
-        where they are teaching assistants
+    Check if users can make assignments only for the courses
+    where they are teaching assistants
     """
 
     course_names = {"PCOM", "PP", "PA", "SO", "LFA"}
@@ -427,13 +467,16 @@ def test_ta_check_possible_courses(client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_download_submission(client, STC, base_db_setup):
     """
-        Test if the teaching assistant can download submission
+    Test if the teaching assistant can download submission
     """
 
     (_, ta, user, _, assignment) = base_db_setup
     submission = assignment.submission_set.create(
         score=100.00, state=Submission.STATE_DONE, user=user,
     )
+
+    with open(FILEPATH, "rb") as f_in:
+        storage.upload(f"{submission.pk}.zip", f_in.read())
 
     client.login(username=ta.username, password="pw")
     response = client.get(f"/submission/{submission.pk}/download")
@@ -444,8 +487,8 @@ def test_ta_download_submission(client, STC, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_download_submission(client, base_db_setup):
     """
-        Test if a teaching assistant can not download submission
-        from another course
+    Test if a teaching assistant can not download submission
+    from another course
     """
 
     (_, ta, user, _, _) = base_db_setup
@@ -473,7 +516,7 @@ def test_ta_cannot_download_submission(client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_review_submission(client, STC, base_db_setup):
     """
-        Test if the teaching assistant can add review to submission
+    Test if the teaching assistant can add review to submission
     """
 
     (user, ta, _, _, assignment) = base_db_setup
@@ -521,8 +564,8 @@ def test_ta_review_submission(client, STC, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_review_submission(client, STC, base_db_setup):
     """
-        Check if users can not review submission from a different
-        course where they are not teaching assistants
+    Check if users can not review submission from a different
+    course where they are not teaching assistants
     """
     (_, ta, user, _, _) = base_db_setup
 
@@ -556,7 +599,7 @@ def test_ta_cannot_review_submission(client, STC, base_db_setup):
 @pytest.mark.django_db
 def test_ta_rerun_submission(STC, client, base_db_setup):
     """
-        Test if a teaching assistant can rerun a submission
+    Test if a teaching assistant can rerun a submission
     """
     (_, ta, user, _, assignment) = base_db_setup
     submission = assignment.submission_set.create(
@@ -573,8 +616,8 @@ def test_ta_rerun_submission(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
     """
-        Check if users can not rerun a submission that is from a
-        different course and they are not teaching assistants there
+    Check if users can not rerun a submission that is from a
+    different course and they are not teaching assistants there
     """
     (_, ta, user, _, _) = base_db_setup
 
@@ -602,8 +645,8 @@ def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_recompute_score(STC, client, base_db_setup):
     """
-        Test if a teaching assistant can recompute the score of a
-        submission if the checker changed
+    Test if a teaching assistant can recompute the score of a
+    submission if the checker changed
     """
     (_, ta, user, _, assignment) = base_db_setup
 
@@ -622,8 +665,8 @@ def test_ta_recompute_score(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_cannot_recompute_score(STC, client, base_db_setup):
     """
-        Check if users can not recompute score for the submissions
-        that are from a course where they are not teaching assistants
+    Check if users can not recompute score for the submissions
+    that are from a course where they are not teaching assistants
     """
 
     (_, ta, user, _, _) = base_db_setup
@@ -654,8 +697,8 @@ def test_ta_cannot_recompute_score(STC, client, base_db_setup):
 @pytest.mark.django_db
 def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
     """
-        Check if users can download the last submission for review
-        if they are teaching assistants
+    Check if users can download the last submission for review
+    if they are teaching assistants
     """
 
     (_, ta, _, _, _) = base_db_setup
@@ -663,7 +706,7 @@ def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/admin/interface/assignment/",
+        "/admin/interface/assignment/",
         data={
             "action": "download_review_submissions",
             "_selected_action": "1",
@@ -678,8 +721,8 @@ def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
 @pytest.mark.django_db
 def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
     """
-        Check if users can download all the submissions for review
-        if they are teaching assistants
+    Check if users can download all the submissions for review
+    if they are teaching assistants
     """
 
     (_, ta, _, _, _) = base_db_setup
@@ -687,7 +730,7 @@ def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/admin/interface/assignment/",
+        "/admin/interface/assignment/",
         data={"action": "download_all_submissions", "_selected_action": "1"},
         follow=True,
     )
@@ -699,7 +742,7 @@ def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
 @pytest.mark.django_db
 def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
     """
-        Check if users can run moss if they are teaching assistants
+    Check if users can run moss if they are teaching assistants
     """
 
     (_, ta, user, _, _) = base_db_setup
@@ -707,7 +750,7 @@ def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/admin/interface/assignment/",
+        "/admin/interface/assignment/",
         data={"action": "run_moss", "_selected_action": "1"},
         follow=True,
     )

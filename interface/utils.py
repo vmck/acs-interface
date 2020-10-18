@@ -8,6 +8,12 @@ from cachetools import cached, TTLCache
 vocabulary_64 = string.ascii_letters + string.digits + ".+"
 
 
+def encode(message):
+    encoded_message = base64.encodebytes(bytes(message, encoding="latin-1"))
+
+    return str(encoded_message, encoding="latin-1")
+
+
 def decode(message):
     decoded_message = base64.decodebytes(bytes(message, encoding="latin-1"))
 
