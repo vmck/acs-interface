@@ -24,8 +24,6 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
     client.login(username=user.username, password="pw")
 
-    mock_config.start_server()
-
     with open(FILEPATH, "rb") as file:
         upload = SimpleUploadedFile(
             FILEPATH.name, file.read(), content_type="application/zip"
@@ -36,10 +34,11 @@ def test_submission(client, live_server, base_db_setup, mock_config):
             format="multipart",
         )
 
-    assert Submission.objects.all().count() == 1
-    assert storage.exists("1.zip")
+    submissions = Submission.objects.all()
+    assert submissions.count() == 1
 
-    submission = Submission.objects.all()[0]
+    submission = submissions[0]
+    assert storage.exists(f"{submission.pk}.zip")
 
     # There is a delay before the general queue's threads starts so, depending
     # on the system, the submission might be in the queue or already sent
@@ -68,8 +67,6 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
         if time.time() - start >= 180:
             assert False
-
-    mock_config.stop_server()
 
     assert submission.score == 100
     assert submission.total_score == 100

@@ -79,7 +79,7 @@ def mock_admin_assignment(monkeypatch):
     )
 
 
-@pytest.fixture
+@pytest.yield_fixture
 def mock_config(monkeypatch):
     ADDR = "10.66.60.1"
     PORT = 5000
@@ -87,20 +87,20 @@ def mock_config(monkeypatch):
     class Server:
         def __init__(self):
             self.server = HTTPServer((ADDR, PORT), SimpleHTTPRequestHandler,)
+            self.thread = threading.Thread(target=self.server.serve_forever)
 
-        def start_server(self):
-            thread = threading.Thread(
-                target=self.server.serve_forever, daemon=True,
-            )
-            thread.start()
+        def __enter__(self):
+            self.thread.start()
 
-        def stop_server(self):
+        def __exit__(self, *args):
             self.server.shutdown()
             self.server.server_close()
+            self.thread.join()
 
     def url_for(self, filename):
         return f"http://{ADDR}:{PORT}/testsuite/{filename}"
 
     monkeypatch.setattr(Assignment, "url_for", url_for)
 
-    return Server()
+    with Server() as server:
+        yield server
