@@ -1,7 +1,6 @@
 import logging
 from copy import deepcopy
 from zipfile import ZipFile
-from multiprocessing import Process
 
 from django.db import transaction
 from django.utils import timezone
@@ -54,6 +53,8 @@ def handle_submission(file, assignment, user):
         )
 
     log.debug("Submission #%s created", submission.pk)
+    storage.upload(f"{submission.pk}.zip", file.read())
+    log.debug("Submission's #%s zipfile was uploaded", submission.pk)
 
     submission.evaluate()
     log.debug(
