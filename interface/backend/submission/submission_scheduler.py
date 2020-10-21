@@ -1,7 +1,7 @@
 import time
 import logging
 from queue import PriorityQueue
-from threading import Semaphore, Thread
+from threading import BoundedSemaphore, Thread
 
 from django.conf import settings
 
@@ -15,17 +15,28 @@ class SubQueue(object):
     def __init__(self, free_machines=1):
         self.queue = PriorityQueue()
         self.max_machines = free_machines
-        self.sem = Semaphore(free_machines)
-        self.consumer = Thread(target=self._run_submission, daemon=True)
-        self.sync = Thread(target=self._sync_evaluator, daemon=True)
+        self.sem = BoundedSemaphore(free_machines)
 
-        self.consumer.start()
+        """ In case we crashed take all the submissions that were not sent
+        and add them in the queue
+        """
+        submissions = models.Submission.objects.filter(
+            state=models.Submission.QUEUED
+        ).order_by("timestamp")
+
+        for sub in submissions:
+            self.queue.put((sub.timestamp, sub))
+
+        self.sync = Thread(target=self._sync_evaluator, daemon=True)
+        self.consumer = Thread(target=self._run_submission, daemon=True)
+
         self.sync.start()
+        self.consumer.start()
 
     def _run_submission(self):
         while True:
-            _, sub = self.queue.get()
             self.sem.acquire()
+            _, sub = self.queue.get()
             self._evaluate_submission(sub)
 
     def _sync_evaluator(self):
