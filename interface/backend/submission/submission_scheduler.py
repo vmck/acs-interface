@@ -21,7 +21,7 @@ class SubQueue(object):
         and add them in the queue
         """
         submissions = models.Submission.objects.filter(
-            state=models.Submission.QUEUED
+            state=models.Submission.STATE_QUEUED
         ).order_by("timestamp")
 
         for sub in submissions:
