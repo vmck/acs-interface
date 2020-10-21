@@ -16,7 +16,8 @@ log = logging.getLogger(__name__)
 
 def moss_check(submissions, assignment, request):
     moss = mosspy.Moss(
-        settings.MOSS_USER_ID, assignment.get_language_display(),
+        settings.MOSS_USER_ID,
+        assignment.get_language_display(),
     )
     moss.setDirectoryMode(1)
 
@@ -32,7 +33,9 @@ def moss_check(submissions, assignment, request):
                 log.warning(msg)
 
             submission_archive = ZipFile(tmp / f"{submission.pk}.zip")
-            submission_archive.extractall(tmp / f"{submission.user.username}",)
+            submission_archive.extractall(
+                tmp / f"{submission.user.username}",
+            )
 
             read_files = glob.glob(
                 str(

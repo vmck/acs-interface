@@ -136,7 +136,8 @@ MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "123456789")
 MINIO_BUCKET = os.environ.get("MINIO_BUCKET", "test")
 
 ACS_INTERFACE_ADDRESS = os.environ.get(
-    "ACS_INTERFACE_ADDRESS", "localhost:8100",
+    "ACS_INTERFACE_ADDRESS",
+    "localhost:8100",
 )
 
 MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 50))

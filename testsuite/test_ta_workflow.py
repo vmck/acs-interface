@@ -42,7 +42,10 @@ def test_ta_add_new_ta(client, STC, base_db_setup):
 
     test_course_admin = CourseAdmin(model=Course, admin_site=AdminSite())
     test_course_admin.save_model(
-        obj=course, request=request, form=form, change=True,
+        obj=course,
+        request=request,
+        form=form,
+        change=True,
     )
 
     course.teaching_assistants.add(user)
@@ -110,7 +113,9 @@ def test_ta_view_submissions(client, base_db_setup):
 
     for _ in range(expected_submissions):
         assignment.submission_set.create(
-            score=100.00, state=Submission.STATE_DONE, user=user,
+            score=100.00,
+            state=Submission.STATE_DONE,
+            user=user,
         )
 
     client.login(username=ta.username, password="pw")
@@ -139,7 +144,9 @@ def test_ta_cannot_view_submissions(client, base_db_setup):
     )
 
     assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
@@ -173,11 +180,13 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         "value": "Save",
     }
     response = client.post(
-        "/admin/interface/assignment/add/", data=assignment_params,
+        "/admin/interface/assignment/add/",
+        data=assignment_params,
     )
 
     STC.assertRedirects(
-        response, "/admin/interface/assignment/",
+        response,
+        "/admin/interface/assignment/",
     )
 
     response = client.get("/admin/interface/assignment/")
@@ -218,7 +227,8 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
         "value": "Save",
     }
     response = client.post(
-        "/admin/interface/assignment/add/", data=assignment_params,
+        "/admin/interface/assignment/add/",
+        data=assignment_params,
     )
 
     errors = response.context["errors"]
@@ -261,7 +271,8 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
     )
 
     STC.assertRedirects(
-        response, "/admin/interface/assignment/",
+        response,
+        "/admin/interface/assignment/",
     )
 
     response = client.get("/admin/interface/assignment/")
@@ -283,7 +294,9 @@ def test_soft_deadline_change_trigger_recompute(
     (_, ta, user, course, assignment) = base_db_setup
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     assert submission.penalty == 0
@@ -382,7 +395,8 @@ def test_ta_remove_assignment(client, STC, base_db_setup):
     )
 
     STC.assertRedirects(
-        response, "/admin/interface/assignment/",
+        response,
+        "/admin/interface/assignment/",
     )
     response = client.get("/admin/interface/assignment/")
     assert len(response.context["results"]) == 0
@@ -472,7 +486,9 @@ def test_ta_download_submission(client, STC, base_db_setup):
 
     (_, ta, user, _, assignment) = base_db_setup
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     with open(FILEPATH, "rb") as f_in:
@@ -504,7 +520,9 @@ def test_ta_cannot_download_submission(client, base_db_setup):
     )
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
@@ -521,7 +539,9 @@ def test_ta_review_submission(client, STC, base_db_setup):
 
     (user, ta, _, _, assignment) = base_db_setup
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
@@ -580,7 +600,9 @@ def test_ta_cannot_review_submission(client, STC, base_db_setup):
     )
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
@@ -603,12 +625,17 @@ def test_ta_rerun_submission(STC, client, base_db_setup):
     """
     (_, ta, user, _, assignment) = base_db_setup
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
 
-    response = client.post(f"/submission/{submission.pk}/rerun", follow=True,)
+    response = client.post(
+        f"/submission/{submission.pk}/rerun",
+        follow=True,
+    )
 
     assert response.status_code == 200
 
@@ -632,12 +659,17 @@ def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
     )
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
 
-    response = client.post(f"/submission/{submission.pk}/rerun", follow=True,)
+    response = client.post(
+        f"/submission/{submission.pk}/rerun",
+        follow=True,
+    )
 
     assert response.status_code == 403
 
@@ -652,11 +684,14 @@ def test_ta_recompute_score(STC, client, base_db_setup):
 
     client.login(username=ta.username, password="pw")
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     response = client.post(
-        f"/submission/{submission.pk}/recompute", follow=True,
+        f"/submission/{submission.pk}/recompute",
+        follow=True,
     )
 
     assert response.status_code == 200
@@ -682,13 +717,16 @@ def test_ta_cannot_recompute_score(STC, client, base_db_setup):
     )
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     client.login(username=ta.username, password="pw")
 
     response = client.post(
-        f"/submission/{submission.pk}/recompute", follow=True,
+        f"/submission/{submission.pk}/recompute",
+        follow=True,
     )
 
     assert response.status_code == 403
@@ -813,7 +851,9 @@ def test_ta_code_view(client, STC, base_db_setup):
 
     with open(FILEPATH, "rb") as file:
         upload = SimpleUploadedFile(
-            FILEPATH.name, file.read(), content_type="application/zip",
+            FILEPATH.name,
+            file.read(),
+            content_type="application/zip",
         )
         client.post(
             f"/assignment/{course.pk}/{assignment.pk}/upload/",
@@ -823,7 +863,10 @@ def test_ta_code_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/test",
+        follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertNotContains(response, "N/A")
@@ -837,7 +880,9 @@ def test_ta_code_view_file_missing(client, STC, base_db_setup):
 
     with open(FILEPATH, "rb") as file:
         upload = SimpleUploadedFile(
-            FILEPATH.name, file.read(), content_type="application/zip",
+            FILEPATH.name,
+            file.read(),
+            content_type="application/zip",
         )
         client.post(
             f"/assignment/{course.pk}/{assignment.pk}/upload/",
@@ -847,7 +892,10 @@ def test_ta_code_view_file_missing(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test1", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/test1",
+        follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "The file is missing!")
@@ -860,10 +908,16 @@ def test_ta_code_view_archive_missing(client, STC, base_db_setup):
     client.login(username=ta.username, password="pw")
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user, id=1000,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
+        id=1000,
     )
 
-    response = client.get(f"/submission/{submission.pk}/test", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/test",
+        follow=True,
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "The archive is missing!")
@@ -877,7 +931,9 @@ def test_ta_tree_view(client, STC, base_db_setup):
 
     with open(FILEPATH2, "rb") as file:
         upload = SimpleUploadedFile(
-            FILEPATH2.name, file.read(), content_type="application/zip",
+            FILEPATH2.name,
+            file.read(),
+            content_type="application/zip",
         )
         client.post(
             f"/assignment/{course.pk}/{assignment.pk}/upload/",
@@ -887,7 +943,9 @@ def test_ta_tree_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/bigtest/dir1/file1/",)
+    response = client.get(
+        f"/submission/{submission.pk}/bigtest/dir1/file1/",
+    )
 
     assert response.status_code == 200
     STC.assertContains(response, "dir1")

@@ -87,7 +87,9 @@ def compute_penalty(
 
 def compute_review_score(submission):
     marks = re.findall(
-        r"^([+-]\d+\.*\d*):", submission.review_message, re.MULTILINE,
+        r"^([+-]\d+\.*\d*):",
+        submission.review_message,
+        re.MULTILINE,
     )
     log.debug("Marks found: " + str(marks))
 

@@ -8,7 +8,11 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
         self, input_data, META, content_length, boundary, encoding=None
     ):
         super().handle_raw_input(
-            input_data, META, content_length, boundary, encoding=None,
+            input_data,
+            META,
+            content_length,
+            boundary,
+            encoding=None,
         )
 
         if content_length >= settings.FILE_UPLOAD_MAX_MEMORY_SIZE:

@@ -12,5 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         app = WhiteNoise(application, root=STATIC_ROOT)
         serve(
-            app, port="8100", threads=APP_THREAD_COUNT,
+            app,
+            port="8100",
+            threads=APP_THREAD_COUNT,
         )

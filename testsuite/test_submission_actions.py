@@ -10,7 +10,8 @@ pytestmark = [pytest.mark.django_db]
 
 def create_submission(assignment):
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE,
+        score=100.00,
+        state=Submission.STATE_DONE,
     )
     submission.timestamp = datetime(2000, 1, 2, tzinfo=timezone.utc)
     submission.save()
