@@ -113,7 +113,9 @@ def test_download_from_someone_else(client, base_db_setup):
 
     other = User.objects.create_user("other", password="pw")
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=other,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=other,
     )
 
     response = client.get(f"/submission/{submission.pk}/download")
@@ -126,7 +128,9 @@ def test_user_cannot_review(client, STC, base_db_setup):
 
     client.login(username=user.username, password="pw")
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     review_message = "+10.0: Hacker"
@@ -135,7 +139,8 @@ def test_user_cannot_review(client, STC, base_db_setup):
         data={"review-code": review_message},
     )
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/review",
+        response,
+        f"/admin/login/?next=/submission/{submission.pk}/review",
     )
 
 
@@ -145,12 +150,15 @@ def test_user_cannot_recompute_score(client, STC, base_db_setup):
 
     client.login(username=user.username, password="pw")
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     response = client.post(f"/submission/{submission.pk}/recompute")
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/recompute",
+        response,
+        f"/admin/login/?next=/submission/{submission.pk}/recompute",
     )
 
 
@@ -160,12 +168,15 @@ def test_user_cannot_rerun(client, STC, base_db_setup):
 
     client.login(username=user.username, password="pw")
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     response = client.post(f"/submission/{submission.pk}/rerun")
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/rerun",
+        response,
+        f"/admin/login/?next=/submission/{submission.pk}/rerun",
     )
 
 
@@ -202,7 +213,9 @@ def test_user_cannot_see_another_userpage(client, base_db_setup):
 
     other = User.objects.create_user("other", password="pw")
 
-    response = client.get(f"/mysubmissions/{other.username}",)
+    response = client.get(
+        f"/mysubmissions/{other.username}",
+    )
     assert response.status_code == 404
 
 
@@ -217,7 +230,9 @@ def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
     zip_archive.writestr("test.c", "aaaa" * 2 ** 20)
 
     upload = SimpleUploadedFile(
-        FILEPATH.name, buff.getvalue(), content_type="application/zip",
+        FILEPATH.name,
+        buff.getvalue(),
+        content_type="application/zip",
     )
 
     response = client.post(
@@ -237,7 +252,9 @@ def test_user_cannot_reveal(client, STC, base_db_setup):
 
     client.login(username=user.username, password="pw")
 
-    response = client.post(f"/assignment/{course.pk}/{assignment.pk}/reveal",)
+    response = client.post(
+        f"/assignment/{course.pk}/{assignment.pk}/reveal",
+    )
     STC.assertRedirects(
         response,
         f"/admin/login/?next=/assignment/{course.pk}/{assignment.pk}/reveal",
@@ -252,10 +269,14 @@ def test_user_cannot_see_another_submission_score(client, STC, base_db_setup):
     other = User.objects.create_user("other", password="pw")
 
     submission = assignment.submission_set.create(
-        user=other, score=100.00, state=Submission.STATE_DONE,
+        user=other,
+        score=100.00,
+        state=Submission.STATE_DONE,
     )
 
-    response = client.get(f"/submission/{submission.pk}/",)
+    response = client.get(
+        f"/submission/{submission.pk}/",
+    )
 
     assert response.status_code == 200
     STC.assertTemplateUsed(response, "interface/submission_result.html")
@@ -271,13 +292,18 @@ def test_user_see_revealed_score(client, STC, base_db_setup):
     client.login(username=user.username, password="pw")
 
     submission = assignment.submission_set.create(
-        score=100.00, state=Submission.STATE_DONE, user=user,
+        score=100.00,
+        state=Submission.STATE_DONE,
+        user=user,
     )
 
     assignment.hidden_score = False
     assignment.save()
 
-    response = client.get(f"/submission/{submission.pk}", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}",
+        follow=True,
+    )
     STC.assertNotContains(response, "N/A")
     STC.assertContains(response, "Final score")
 
@@ -290,7 +316,9 @@ def test_user_code_view(client, STC, base_db_setup):
 
     with open(FILEPATH, "rb") as file:
         upload = SimpleUploadedFile(
-            FILEPATH.name, file.read(), content_type="application/zip",
+            FILEPATH.name,
+            file.read(),
+            content_type="application/zip",
         )
         client.post(
             f"/assignment/{course.pk}/{assignment.pk}/upload/",
@@ -300,10 +328,14 @@ def test_user_code_view(client, STC, base_db_setup):
 
     submission = Submission.objects.all()[0]
 
-    response = client.get(f"/submission/{submission.pk}/test/", follow=True,)
+    response = client.get(
+        f"/submission/{submission.pk}/test/",
+        follow=True,
+    )
 
     STC.assertTemplateNotUsed(response, "interface/code_view.html")
     assert response.status_code == 200
     STC.assertRedirects(
-        response, f"/admin/login/?next=/submission/{submission.pk}/test/",
+        response,
+        f"/admin/login/?next=/submission/{submission.pk}/test/",
     )

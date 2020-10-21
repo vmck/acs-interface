@@ -5,7 +5,10 @@ from interface.models import ActionLog
 
 def log_action(msg, usr, obj):
     ActionLog.objects.create(
-        timestamp=timezone.now(), user=usr, action=msg, content_object=obj,
+        timestamp=timezone.now(),
+        user=usr,
+        action=msg,
+        content_object=obj,
     )
 
 
