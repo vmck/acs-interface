@@ -55,11 +55,6 @@ def handle_submission(file, assignment, user):
 
     log.debug("Submission #%s created", submission.pk)
 
-    Process(
-        target=storage.upload, args=(f"{submission.pk}.zip", file.read())
-    ).start()
-    log.debug("Submission's #%s zipfile was uploaded", submission.pk)
-
     submission.evaluate()
     log.debug(
         f"Submission #{submission.pk} was sent to VMCK "
