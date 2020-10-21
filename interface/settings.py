@@ -35,6 +35,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
+    "django_cprofile_middleware.middleware.ProfilerMiddleware"
 ]
 
 ROOT_URLCONF = "interface.urls"
