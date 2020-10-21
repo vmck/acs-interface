@@ -170,12 +170,12 @@ class Submission(models.Model):
         state = SubmissionScheduler.evaluator.update(self)
         if state != self.state:
             self.state = state
+            self.changeReason = f"Update state to {state}"
+            self.save()
 
             if self.state in [self.STATE_DONE, self.STATE_ERROR]:
                 SubmissionScheduler.get_instance().done_evaluation()
 
-            self.changeReason = f"Update state to {state}"
-            self.save()
 
     def download(self, buff):
         storage.download_buffer(f"{self.pk}.zip", buff)
