@@ -30,9 +30,6 @@ def handle_submission(file, assignment, user):
         Computing time from the last upload by this user. We lock the
         assignment row to prevent simultaneous uploads (race condition).
         """
-        assignment = Assignment.objects.select_for_update().get(
-            pk=assignment.pk
-        )
         entries = assignment.submission_set.filter(user=user).order_by(
             "-timestamp"
         )
