@@ -4,6 +4,8 @@ from zipfile import ZipFile
 
 from django.db import transaction
 from django.utils import timezone
+from silk.profiling.profiler import silk_profile
+
 
 import interface.backend.minio_api as storage
 
@@ -15,6 +17,7 @@ class CorruptZipFile(Exception):
     pass
 
 
+@silk_profile()
 def handle_submission(file, assignment, user):
     log.debug("Submission %s received", file.name)
 
