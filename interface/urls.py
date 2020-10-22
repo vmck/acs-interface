@@ -26,7 +26,7 @@ urlpatterns = [
     path("", views.login_view, name="login"),
     path(
         "assignment/<course_pk>/<assignment_pk>",
-        views.users_list,
+        views.assignment_users_list,
         name="subs_for_assignment",
     ),
     path(
@@ -45,4 +45,4 @@ urlpatterns = [
         views.code_view,
         name="code_view",
     ),
-] + [re_path(r'^silk/', include('silk.urls', namespace='silk'))]
+] + [re_path(r"^silk/", include("silk.urls", namespace="silk"))]
