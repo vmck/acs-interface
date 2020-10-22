@@ -92,7 +92,11 @@ def upload(request, course_pk, assignment_pk):
                 messages.error(request, "File is not a valid zip archive")
 
             else:
-                return redirect(users_list, course_pk, assignment_pk)
+                return redirect(
+                    assignment_users_list,
+                    course_pk,
+                    assignment_pk,
+                )
 
     else:
         form = UploadFileForm()
@@ -274,25 +278,17 @@ def alive(request):
 
 
 @login_required
-def users_list(request, course_pk, assignment_pk):
+def assignment_users_list(request, course_pk, assignment_pk):
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
-    submissions = assignment.submission_set.all()
-    list_of_users = []
-    for subm in submissions:
-        list_of_users.append(subm.user)
-    list_of_users = set(list_of_users)
-    final_sub_list = []
-    for user in list_of_users:
-        submissions_list_aux = submissions.filter(user=user)
-        submissions_list_aux = submissions_list_aux.order_by("-timestamp")
-        subm = submissions_list_aux.first()
-        final_sub_list.append(subm)
+    submissions = assignment.submission_set.order_by(
+        "user", "-timestamp"
+    ).distinct("user")
 
     return render(
         request,
         "interface/users_list.html",
-        {"assignment": assignment, "submissions": final_sub_list},
+        {"assignment": assignment, "submissions": submissions},
     )
 
 
