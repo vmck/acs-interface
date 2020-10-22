@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include, re_path
 from interface import views
 
 urlpatterns = [
@@ -45,4 +45,4 @@ urlpatterns = [
         views.code_view,
         name="code_view",
     ),
-]
+] + [re_path(r'^silk/', include('silk.urls', namespace='silk'))]
