@@ -4,5 +4,4 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 ./manage.py migrate
 ./manage.py storage_setup
-export DEBUG=true
-exec ./manage.py runserver 0.0.0.0:8100
+exec ./manage.py waitress
