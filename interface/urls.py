@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path, include, re_path
+
 from interface import views
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -45,4 +48,7 @@ urlpatterns = [
         views.code_view,
         name="code_view",
     ),
-] + [re_path(r"^silk/", include("silk.urls", namespace="silk"))]
+]
+
+if settings.PROFILE:
+    urlpatterns += [re_path(r"^silk/", include("silk.urls", namespace="silk"))]
