@@ -7,7 +7,7 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v2
               with:
-                  fetch-depth: 0
+                fetch-depth: 0
 
             - name: Run Flake8
               uses: tonybajan/flake8-check-action@v1.0.0
@@ -20,4 +20,4 @@ jobs:
             - name: Run ShellCheck
               uses: ludeeus/action-shellcheck@0.5.0
               with:
-                scandir: './ci'
+                severity: warning

@@ -1,7 +1,14 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
-set -x
-apt-get update -qq
-apt-get install -qq docker.io git python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev
-usermod -aG docker vagrant
-usermod -aG docker root
+sudo apt-get update -yqq
+sudo apt-get install -yqq python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev
+
+if [ -z "$CI" ]; then
+    sudo apt-get install -yqq docker.io git
+else
+    sudo useradd -m vagrant
+    sudo usermod -aG sudo vagrant
+    sudo chown -R vagrant:vagrant .
+fi
+sudo usermod -aG docker vagrant
+sudo usermod -aG docker root
