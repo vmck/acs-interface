@@ -200,15 +200,14 @@ def submission_list(request):
     submissions = Submission.objects.all().order_by("-id")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
-
     page = request.GET.get("page", "1")
-    subs = paginator.get_page(page)
+    page_submissions = paginator.get_page(page)
 
     return render(
         request,
         "interface/submission_list.html",
         {
-            "subs": subs,
+            "submissions": page_submissions,
             "homepage_url": redirect(homepage).url,
             "sub_base_url": redirect(submission_list).url,
             "logout_url": redirect(logout_view).url,
