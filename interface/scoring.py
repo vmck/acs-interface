@@ -29,7 +29,7 @@ def get_penalty_info(submission):
 
 
 def compute_penalty(
-    upload_time, deadline, penalty, holiday_start=[""], holiday_finish=[""]
+    upload_time, deadline, penalty, holiday_start=[], holiday_finish=[]
 ):
     """A generic function to compute penalty
     Args:
@@ -75,7 +75,9 @@ def compute_penalty(
 
 def compute_review_score(submission):
     marks = re.findall(
-        r"^([+-]\d+\.*\d*):", submission.review_message, re.MULTILINE,
+        r"^([+-]\d+\.*\d*):",
+        submission.review_message,
+        re.MULTILINE,
     )
     log.debug("Marks found: " + str(marks))
 

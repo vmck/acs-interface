@@ -40,7 +40,8 @@ class VMCK(Evaluator):
         options["env"]["VMCK_SCRIPT_URL"] = submission.get_script_url()
         options["env"]["VMCK_ARTIFACT_URL"] = submission.get_artifact_url()
         options["env"]["VMCK_CALLBACK_URL"] = urljoin(
-            settings.ACS_INTERFACE_ADDRESS, callback,
+            settings.ACS_INTERFACE_ADDRESS,
+            callback,
         )
 
         log.debug("Submission #%s config is done", submission.pk)

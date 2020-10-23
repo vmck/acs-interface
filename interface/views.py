@@ -81,7 +81,8 @@ def upload(request, course_pk, assignment_pk):
 
             except TooManySubmissionsError as e:
                 messages.error(
-                    request, f"Please wait {e.wait_t}s between submissions",
+                    request,
+                    f"Please wait {e.wait_t}s between submissions",
                 )
 
             except (CorruptZipFile, ValueError):
@@ -117,7 +118,9 @@ def download(request, pk):
     log_action("Download submission", request.user, submission)
 
     return FileResponse(
-        buff, as_attachment=True, filename=f"{submission.pk}.zip",
+        buff,
+        as_attachment=True,
+        filename=f"{submission.pk}.zip",
     )
 
 
@@ -340,7 +343,8 @@ def reveal(request, course_pk, assignment_pk):
     log_action("Reveal score", request.user, assignment)
     return redirect(
         request.META.get(
-            "HTTP_REFERER", f"/assignment/{course.pk}/{assignment.pk}",
+            "HTTP_REFERER",
+            f"/assignment/{course.pk}/{assignment.pk}",
         )
     )
 

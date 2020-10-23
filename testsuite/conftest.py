@@ -22,7 +22,10 @@ def base_db_setup():
     course_admin._add_new_ta(ta)
 
     super_user = User.objects.create_user(
-        "root", password="pw", is_superuser=True, is_staff=True,
+        "root",
+        password="pw",
+        is_superuser=True,
+        is_staff=True,
     )
 
     course = Course.objects.create(name="PC")
@@ -36,6 +39,7 @@ def base_db_setup():
         deadline_hard=datetime(2050, 1, 1, tzinfo=timezone.utc),
         repo_url="https://github.com/vmck/assignment",
         repo_path="pc-00",
+        image_path="image.qcow2",
     )
 
     return (super_user, ta, user, course, assignment)
@@ -86,7 +90,10 @@ def mock_config(monkeypatch):
 
     class Server:
         def __init__(self):
-            self.server = HTTPServer((ADDR, PORT), SimpleHTTPRequestHandler,)
+            self.server = HTTPServer(
+                (ADDR, PORT),
+                SimpleHTTPRequestHandler,
+            )
             self.thread = threading.Thread(target=self.server.serve_forever)
 
         def __enter__(self):

@@ -36,10 +36,11 @@
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
     "language": "c",
+    "image_path": "image.qcow2",
     "penalty_info": {
-	    "penalty_weights": [],
-	    "holiday_start": "0001-01-01 00:00:00",
-	    "holiday_finish": "0001-01-01 00:00:00"
+	    "penalty_weights": [1, 1, 1, 1, 1, 1, 1],
+	    "holiday_start": [],
+	    "holiday_finish": []
     },
     "vm_options": {
 	"nr_cpus": 1,
@@ -60,10 +61,11 @@
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
     "language": "c",
+    "image_path": "image.qcow2",
     "penalty_info": {
-	    "penalty_weights": [],
-	    "holiday_start": "0001-01-01 00:00:00",
-	    "holiday_finish": "0001-01-01 00:00:00"
+	    "penalty_weights": [1, 1, 1, 1, 1, 1, 1],
+	    "holiday_start": [],
+	    "holiday_finish": []
     },
     "vm_options": {
 	"nr_cpus": 1,
