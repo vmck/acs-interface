@@ -29,7 +29,7 @@ def get_penalty_info(submission):
 
 
 def compute_penalty(
-    upload_time, deadline, penalty, holiday_start=[""], holiday_finish=[""]
+    upload_time, deadline, penalty, holiday_start=[], holiday_finish=[]
 ):
     """A generic function to compute penalty
     Args:
