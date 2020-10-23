@@ -285,10 +285,14 @@ def assignment_users_list(request, course_pk, assignment_pk):
         "user", "-timestamp"
     ).distinct("user")
 
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
+
     return render(
         request,
         "interface/users_list.html",
-        {"assignment": assignment, "submissions": submissions},
+        {"assignment": assignment, "submissions": page_submissions},
     )
 
 

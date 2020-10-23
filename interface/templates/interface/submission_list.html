@@ -36,16 +36,19 @@
       </table>
     </div>
 
-    {% if subs %}
-      <div class="rowf text-center">
-        {% if subs.has_previous %}
-          <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
-        {% endif %}
+    <div class="rowf text-center">
+      {% if subs.has_previous %}
+        <a class="btn btn-primary" href='?page={{ subs.previous_page_number }}'>Prev</a>
+      {% endif %}
 
-        {% if subs.has_next %}
-          <a class="btn btn-primary" href='?page={{ subs.next_page_number }}'>Next</a>
-        {% endif %}
-      </div>
-    {% endif %}
-  </div>
+      <span class="current">
+        Page {{ subs.number }} of {{ subs.paginator.num_pages }}.
+      </span>
+
+      {% if subs.has_next %}
+        <a class="btn btn-primary" href='?page={{ subs.next_page_number }}'>Next</a>
+      {% endif %}
+    </div>
+
+    </div>
 {% endblock %}
