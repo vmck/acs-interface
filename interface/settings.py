@@ -2,15 +2,16 @@ import os
 from pathlib import Path
 
 import ldap
+import sentry_sdk
 from django_auth_ldap.config import LDAPSearch
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from interface.utils import is_true
 
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
 
 BASE_DIR = Path(__file__).parent.parent
+DEBUG = is_true(os.environ.get("DEBUG"))
+PROFILE = is_true(os.environ.get("PROFILE"))
 
 BLOCK_SIZE = 32 * 1024
 
@@ -23,12 +24,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "simple_history",
     "interface",
-    "silk",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "silk.middleware.SilkyMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -39,6 +39,13 @@ MIDDLEWARE = [
     "simple_history.middleware.HistoryRequestMiddleware",
     "django_cprofile_middleware.middleware.ProfilerMiddleware",
 ]
+
+if PROFILE:
+    INSTALLED_APPS.append("silk")
+    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
+
+SILKY_PYTHON_PROFILER = PROFILE is True
+SILKY_PYTHON_PROFILER_BINARY = PROFILE is True
 
 ROOT_URLCONF = "interface.urls"
 LOGIN_URL = "/"
@@ -59,9 +66,6 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn",
     "email": "mail",
 }
-
-SILKY_PYTHON_PROFILER = True
-SILKY_PYTHON_PROFILER_BINARY = True
 
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
 AUTH_LDAP_CACHE_TIMEOUT = 3600
@@ -127,8 +131,6 @@ STATICFILES_DIRS = [
 SECRET_KEY = "changeme"
 
 EVALUATOR_BACKEND = os.environ.get("EVALUATOR_BACKEND", "docker")
-
-DEBUG = is_true(os.environ.get("DEBUG"))
 
 _hostname = os.environ.get("HOSTNAME")
 if _hostname:
