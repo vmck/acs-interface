@@ -38,5 +38,19 @@
             {% endfor %}
             </tbody>
         </table>
+
+        <div class="rowf text-center">
+            {% if submissions.has_previous %}
+              <a class="btn btn-primary" href='?page={{ submissions.previous_page_number }}'>Prev</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ submissions.number }} of {{ submissions.paginator.num_pages }}.
+            </span>
+
+            {% if submissions.has_next %}
+              <a class="btn btn-primary" href='?page={{ submissions.next_page_number }}'>Next</a>
+            {% endif %}
+          </div>
   </div>
 {% endblock %}
