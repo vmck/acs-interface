@@ -305,10 +305,14 @@ def subs_for_user(request, course_pk, assignment_pk, username):
         "-timestamp"
     )
 
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
+
     return render(
         request,
         "interface/subs_for_user.html",
-        {"assignment": assignment, "submissions": submissions},
+        {"assignment": assignment, "submissions": page_submissions},
     )
 
 
@@ -318,12 +322,17 @@ def user_page(request, username):
     if request.user.username != username:
         log.warning("User attempted to access %s", username)
         raise Http404("You are not allowed to access this page.")
+
     submissions = (
         Submission.objects.all().filter(user=user).order_by("-timestamp")
     )
 
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
+
     return render(
-        request, "interface/user_page.html", {"submissions": submissions}
+        request, "interface/user_page.html", {"submissions": page_submissions}
     )
 
 
