@@ -79,7 +79,7 @@ class Assignment(models.Model):
     def get_default_vm_info():
         return {"nr_cpus": 1, "memory": 512}
 
-    image_path = models.CharField(max_length=256, blank=False)
+    image_path = models.CharField(max_length=256, blank=False, default="NA")
     penalty_info = models.JSONField(default=get_default_penalty_info)
     vm_options = models.JSONField(default=get_default_vm_info)
 
