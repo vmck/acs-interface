@@ -63,7 +63,9 @@ class Assignment(models.Model):
     repo_branch = models.CharField(max_length=256, blank=True)
     repo_path = models.CharField(max_length=256, blank=True)
     language = models.CharField(
-        max_length=32, choices=list(LANG_CHOICES.items()), default=LANG_C,
+        max_length=32,
+        choices=list(LANG_CHOICES.items()),
+        default=LANG_C,
     )
 
     history = HistoricalRecords()
