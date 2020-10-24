@@ -7,4 +7,4 @@ exclude = "interface/migrations/*"
 DJANGO_SETTINGS_MODULE = "interface.settings"
 log_level = "DEBUG"
 testpaths = ["testsuite"]
-addopts = "--cov-report=xml --cov=interface --liveserver 10.66.60.1:8000 -x"
+addopts = "--cov-report=xml --cov=interface --liveserver 10.66.60.1:8000"

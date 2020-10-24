@@ -40,6 +40,11 @@ def base_db_setup():
         repo_url="https://github.com/vmck/assignment",
         repo_path="pc-00",
         image_path="image.qcow2",
+        penalty_info={
+            "penalty_weights": [1, 1, 1, 1, 1, 1, 1],
+            "holiday_start": [],
+            "holday_finish": [],
+        },
     )
 
     return (super_user, ta, user, course, assignment)

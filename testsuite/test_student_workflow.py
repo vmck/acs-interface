@@ -65,7 +65,7 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
         time.sleep(1)
 
-        if time.time() - start >= 180:
+        if time.time() - start >= 210:
             assert False
 
     assert submission.score == 100
