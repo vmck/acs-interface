@@ -1,0 +1,36 @@
+name: CI
+on: [push, pull_request]
+jobs:
+    PyTest:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v2
+            with:
+              fetch-depth: 0
+
+          - name: Provision System
+            run: ./ci/provision-system.sh
+            shell: bash
+
+          - name: Provision Cluster
+            run: ./ci/provision-cluster.sh
+            shell: bash
+
+          - name: Provision VMCK
+            run: ./ci/provision-vmck.sh
+            shell: bash
+
+          - name: Provision ACS-Interface
+            run: ./ci/provision-acs-interface.sh
+            shell: bash
+
+          - name: PyTest
+            run: ./ci/test-pytest.sh
+            shell: bash
+
+          - name: Codecov
+            run: ./ci/code-coverage.sh
+            shell: bash
+            env:
+              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
