@@ -29,7 +29,7 @@ def get_penalty_info(submission):
 
 
 def compute_penalty(
-    upload_time, deadline, penalty, holiday_start=[], holiday_finish=[]
+    upload_time, deadline, penalty, holiday_start=None, holiday_finish=None
 ):
     """A generic function to compute penalty
     Args:
@@ -42,6 +42,11 @@ def compute_penalty(
     """
     # XXX refactor such that instead of holiday_start and holiday_finish
     # only one list (of intervals) is used
+
+    if holiday_start is None:
+        holiday_start = []
+    if holiday_finish is None:
+        holiday_finish = []
 
     sec_upload_time = str_to_time(upload_time)
     sec_deadline = str_to_time(deadline)
