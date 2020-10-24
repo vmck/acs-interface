@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 sudo apt-get update -yqq
-sudo apt-get install -yqq python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev
+sudo apt-get install -yqq python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev fortune
 
 if [ -z "$CI" ]; then
     sudo apt-get install -yqq docker.io git

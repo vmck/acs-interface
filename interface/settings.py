@@ -37,15 +37,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
-    "django_cprofile_middleware.middleware.ProfilerMiddleware",
 ]
 
 if PROFILE:
     INSTALLED_APPS.append("silk")
     MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
 
-SILKY_PYTHON_PROFILER = PROFILE is True
-SILKY_PYTHON_PROFILER_BINARY = PROFILE is True
+SILKY_PYTHON_PROFILER = PROFILE
+SILKY_PYTHON_PROFILER_BINARY = PROFILE
 
 ROOT_URLCONF = "interface.urls"
 LOGIN_URL = "/"
@@ -148,7 +147,7 @@ ACS_INTERFACE_ADDRESS = os.environ.get(
     "localhost:8100",
 )
 
-MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 50))
+MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 100))
 MANAGER_MHZ = int(os.environ.get("MANAGER_MHZ", 30))
 MANAGER_TAG = os.environ.get("MANAGER_TAG", "master")
 

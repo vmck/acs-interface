@@ -218,7 +218,7 @@ def submission_list(request):
 @login_required
 def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
-    fortune_msg = subprocess.check_output("fortune").decode("utf-8")
+    fortune_msg = subprocess.check_output("/usr/games/fortune").decode("utf-8")
 
     return render(
         request,

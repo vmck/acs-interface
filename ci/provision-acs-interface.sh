@@ -1,7 +1,5 @@
 #!/bin/bash -ex
 
-sudo apt-get update -yqq
-sudo apt-get -yqq install python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev fortune
 sudo pip3 install pipenv
 
 if [ -z "$CI" ]; then
