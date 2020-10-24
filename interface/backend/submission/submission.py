@@ -1,12 +1,10 @@
 import logging
 from copy import deepcopy
 from zipfile import ZipFile
-from multiprocessing import Process
 
 from django.db import transaction
 from django.utils import timezone
 
-from interface.models import Assignment
 import interface.backend.minio_api as storage
 
 
@@ -31,9 +29,6 @@ def handle_submission(file, assignment, user):
         Computing time from the last upload by this user. We lock the
         assignment row to prevent simultaneous uploads (race condition).
         """
-        assignment = Assignment.objects.select_for_update().get(
-            pk=assignment.pk
-        )
         entries = assignment.submission_set.filter(user=user).order_by(
             "-timestamp"
         )
@@ -54,10 +49,7 @@ def handle_submission(file, assignment, user):
         )
 
     log.debug("Submission #%s created", submission.pk)
-
-    Process(
-        target=storage.upload, args=(f"{submission.pk}.zip", file.read())
-    ).start()
+    storage.upload(f"{submission.pk}.zip", file.read())
     log.debug("Submission's #%s zipfile was uploaded", submission.pk)
 
     submission.evaluate()

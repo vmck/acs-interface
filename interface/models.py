@@ -176,7 +176,9 @@ class Submission(models.Model):
     stderr = models.TextField(max_length=32768, default="", blank=True)
     review_message = models.TextField(max_length=4096, default="", blank=True)
     state = models.CharField(
-        max_length=32, choices=list(STATE_CHOICES.items()), default=STATE_NEW
+        max_length=32,
+        choices=list(STATE_CHOICES.items()),
+        default=STATE_QUEUED,
     )
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
@@ -203,12 +205,11 @@ class Submission(models.Model):
         state = SubmissionScheduler.evaluator.update(self)
         if state != self.state:
             self.state = state
+            self.changeReason = f"Update state to {state}"
+            self.save()
 
             if self.state in [self.STATE_DONE, self.STATE_ERROR]:
                 SubmissionScheduler.get_instance().done_evaluation()
-
-            self.changeReason = f"Update state to {state}"
-            self.save()
 
     def download(self, buff):
         storage.download_buffer(f"{self.pk}.zip", buff)

@@ -92,7 +92,11 @@ def upload(request, course_pk, assignment_pk):
                 messages.error(request, "File is not a valid zip archive")
 
             else:
-                return redirect(users_list, course_pk, assignment_pk)
+                return redirect(
+                    assignment_users_list,
+                    course_pk,
+                    assignment_pk,
+                )
 
     else:
         form = UploadFileForm()
@@ -196,15 +200,14 @@ def submission_list(request):
     submissions = Submission.objects.all().order_by("-id")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
-
     page = request.GET.get("page", "1")
-    subs = paginator.get_page(page)
+    page_submissions = paginator.get_page(page)
 
     return render(
         request,
         "interface/submission_list.html",
         {
-            "subs": subs,
+            "submissions": page_submissions,
             "homepage_url": redirect(homepage).url,
             "sub_base_url": redirect(submission_list).url,
             "logout_url": redirect(logout_view).url,
@@ -215,7 +218,7 @@ def submission_list(request):
 @login_required
 def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
-    fortune_msg = subprocess.check_output("fortune").decode("utf-8")
+    fortune_msg = subprocess.check_output("/usr/games/fortune").decode("utf-8")
 
     return render(
         request,
@@ -256,7 +259,6 @@ def done(request, pk):
     submission.score = decimal.Decimal(points)
     submission.total_score = calculate_total_score(submission)
     submission.stdout = stdout
-    submission.update_state()
 
     log.debug("Submission #%s:", submission.pk)
     log.debug("Stdout:\n%s", submission.stdout)
@@ -275,25 +277,21 @@ def alive(request):
 
 
 @login_required
-def users_list(request, course_pk, assignment_pk):
+def assignment_users_list(request, course_pk, assignment_pk):
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
-    submissions = assignment.submission_set.all()
-    list_of_users = []
-    for subm in submissions:
-        list_of_users.append(subm.user)
-    list_of_users = set(list_of_users)
-    final_sub_list = []
-    for user in list_of_users:
-        submissions_list_aux = submissions.filter(user=user)
-        submissions_list_aux = submissions_list_aux.order_by("-timestamp")
-        subm = submissions_list_aux.first()
-        final_sub_list.append(subm)
+    submissions = assignment.submission_set.order_by(
+        "user", "-timestamp"
+    ).distinct("user")
+
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
 
     return render(
         request,
         "interface/users_list.html",
-        {"assignment": assignment, "submissions": final_sub_list},
+        {"assignment": assignment, "submissions": page_submissions},
     )
 
 
@@ -306,10 +304,14 @@ def subs_for_user(request, course_pk, assignment_pk, username):
         "-timestamp"
     )
 
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
+
     return render(
         request,
         "interface/subs_for_user.html",
-        {"assignment": assignment, "submissions": submissions},
+        {"assignment": assignment, "submissions": page_submissions},
     )
 
 
@@ -319,12 +321,17 @@ def user_page(request, username):
     if request.user.username != username:
         log.warning("User attempted to access %s", username)
         raise Http404("You are not allowed to access this page.")
+
     submissions = (
         Submission.objects.all().filter(user=user).order_by("-timestamp")
     )
 
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
+
     return render(
-        request, "interface/user_page.html", {"submissions": submissions}
+        request, "interface/user_page.html", {"submissions": page_submissions}
     )
 
 

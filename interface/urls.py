@@ -1,6 +1,9 @@
 from django.contrib import admin
-from django.urls import path
+from django.conf import settings
+from django.urls import path, include, re_path
+
 from interface import views
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -26,7 +29,7 @@ urlpatterns = [
     path("", views.login_view, name="login"),
     path(
         "assignment/<course_pk>/<assignment_pk>",
-        views.users_list,
+        views.assignment_users_list,
         name="subs_for_assignment",
     ),
     path(
@@ -46,3 +49,6 @@ urlpatterns = [
         name="code_view",
     ),
 ]
+
+if settings.PROFILE:
+    urlpatterns += [re_path(r"^silk/", include("silk.urls", namespace="silk"))]

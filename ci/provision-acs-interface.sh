@@ -1,22 +1,24 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
-apt-get update -qq
-apt-get -qq install python3-pip libsasl2-dev python-dev libldap2-dev libssl-dev fortune
-pip3 install pipenv
+sudo pip3 install pipenv
 
+if [ -z "$CI" ]; then
+    cd /vagrant
+else
+    sudo -Hu vagrant cp ./examples/.env .
+fi
 
-cd /vagrant
 sudo -Hu vagrant pipenv install --ignore-pipfile 2> /dev/null
 sudo -Hu vagrant mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
-if [ -z $container ]; then (
-  pipenv run examples/minio.sh
+if [ -z "$container" ]; then (
+    sudo -Hu vagrant pipenv run examples/minio.sh
 ) fi
 
 container=$(docker ps -f name=database -aq)
-if [ -z $container ]; then (
-  pipenv run examples/postgres.sh
+if [ -z "$container" ]; then (
+    sudo -Hu vagrant pipenv run examples/postgres.sh
 ) fi
 
 sleep 2
