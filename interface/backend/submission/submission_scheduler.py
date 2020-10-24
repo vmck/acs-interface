@@ -42,7 +42,10 @@ class SubQueue(object):
     def _sync_evaluator(self):
         while True:
             submissions = models.Submission.objects.filter(
-                state=models.Submission.STATE_RUNNING
+                state__in=[
+                    models.Submission.STATE_NEW,
+                    models.Submission.STATE_RUNNING,
+                ]
             ).order_by("-id")
 
             for submission in submissions:
@@ -63,7 +66,7 @@ class SubQueue(object):
     def _evaluate_submission(self, sub):
         log.info("Evaluate submission #%s", sub.id)
         sub.evaluator_job_id = SubmissionScheduler.evaluator.evaluate(sub)
-        sub.state = sub.STATE_RUNNING
+        sub.state = sub.STATE_NEW
         sub.changeReason = "Evaluator id"
         sub.save()
 

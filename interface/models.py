@@ -143,7 +143,9 @@ class Submission(models.Model):
     stderr = models.TextField(max_length=32768, default="", blank=True)
     review_message = models.TextField(max_length=4096, default="", blank=True)
     state = models.CharField(
-        max_length=32, choices=list(STATE_CHOICES.items()), default=STATE_NEW
+        max_length=32,
+        choices=list(STATE_CHOICES.items()),
+        default=STATE_QUEUED,
     )
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
