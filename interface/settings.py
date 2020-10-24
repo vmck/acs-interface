@@ -154,8 +154,10 @@ MANAGER_TAG = os.environ.get("MANAGER_TAG", "master")
 
 SUBMISSIONS_PER_PAGE = 20
 
+# If above 2.5MB (DATA_UPLOAD_MAX_MEMORY_SIZE) the request will fail
+# triggering a SuspiciousOperation (RequestDataTooBig)
 FILE_UPLOAD_MAX_MEMORY_SIZE = int(
-    os.environ.get("FILE_UPLOAD_MAX_MEMORY_SIZE", 2621440),  # 2.5 MB
+    os.environ.get("FILE_UPLOAD_MAX_MEMORY_SIZE", 2097152),  # 2 MB
 )
 
 FILE_UPLOAD_HANDLERS = ["interface.uploadhandler.RestrictedFileUploadHandler"]

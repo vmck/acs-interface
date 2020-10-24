@@ -227,7 +227,7 @@ def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
 
     buff = BytesIO()
     zip_archive = zipfile.ZipFile(buff, mode="w")
-    zip_archive.writestr("test.c", "aaaa" * 2 ** 20)
+    zip_archive.writestr("test.c", "a" * 2 ** 21 + "a")
 
     upload = SimpleUploadedFile(
         FILEPATH.name,
