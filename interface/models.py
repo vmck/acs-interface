@@ -73,7 +73,7 @@ class Assignment(models.Model):
         return {
             "penalty_weights": [],
             "holiday_start": [],
-            "holday_finish": [],
+            "holiday_finish": [],
         }
 
     def get_default_vm_info():
