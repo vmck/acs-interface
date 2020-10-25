@@ -11,11 +11,12 @@ from django.conf import settings
 from django.db.models.signals import pre_save
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
 from interface import signals
-from interface.utils import cached_get_file
 from interface.backend.submission.submission_scheduler import (
     SubmissionScheduler,
 )
@@ -68,8 +69,40 @@ class Assignment(models.Model):
         default=LANG_C,
     )
 
+    def get_default_penalty_info():
+        return {
+            "penalty_weights": [],
+            "holiday_start": [],
+            "holday_finish": [],
+        }
+
+    def get_default_vm_info():
+        return {"nr_cpus": 1, "memory": 512}
+
+    image_path = models.CharField(max_length=256, blank=False, default="NA")
+    penalty_info = models.JSONField(default=get_default_penalty_info)
+    vm_options = models.JSONField(default=get_default_vm_info)
+
     history = HistoricalRecords()
     hidden_score = models.BooleanField(default=True)
+
+    def clean(self):
+        penalty_weights = self.penalty_info["penalty_weights"]
+        if not isinstance(penalty_weights, list) or not all(
+            isinstance(x, (float, int)) for x in penalty_weights
+        ):
+            raise ValidationError(
+                "Penalty weights should be a list of integer/floats"
+            )
+
+        if (
+            len(penalty_weights)
+            != (self.deadline_hard - self.deadline_soft).days
+        ):
+            raise ValidationError(
+                "Number of penalty weights should be == days from soft "
+                "to hard deadline"
+            )
 
     @property
     def full_code(self):
@@ -186,10 +219,6 @@ class Submission(models.Model):
 
     def get_artifact_url(self):
         return self.assignment.url_for("artifact.zip")
-
-    def get_config_ini(self):
-        url = self.assignment.url_for("config.ini")
-        return cached_get_file(url)
 
     def __str__(self):
         return f"#{self.pk} by {self.user}"

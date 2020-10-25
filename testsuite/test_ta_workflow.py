@@ -177,6 +177,13 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         "deadline_hard_1": date.time(),
         "min_time_between_uploads": 30,
         "language": "c",
+        "image_path": "image.qcow2",
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "penalty_info": '{\
+            "penalty_weights": [],\
+            "holiday_start": [],\
+            "holday_finish": []\
+        }',
         "value": "Save",
     }
     response = client.post(
@@ -224,6 +231,13 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
         "deadline_hard_1": date.time(),
         "min_time_between_uploads": 30,
         "language": "c",
+        "image_path": "image.qcow2",
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "penalty_info": '{\
+            "penalty_weights": [],\
+            "holiday_start": [],\
+            "holday_finish": []\
+        }',
         "value": "Save",
     }
     response = client.post(
@@ -262,6 +276,13 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
         "deadline_hard_1": assignment.deadline_hard.time(),
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
+        "image_path": "image.qcow2",
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "penalty_info": '{\
+            "penalty_weights": [],\
+            "holiday_start": [],\
+            "holday_finish": []\
+        }',
         "value": "Save",
     }
 
@@ -303,17 +324,25 @@ def test_soft_deadline_change_trigger_recompute(
 
     client.login(username=ta.username, password="pw")
 
-    deadline_soft = datetime.now() - timedelta(days=365)
+    deadline_soft = datetime.now() - timedelta(days=7)
+    deadline_hard = datetime.now()
     assignment_change_params = {
         "course": assignment.course.pk,
         "name": "a_change",
         "max_score": 50,
         "deadline_soft_0": deadline_soft.date(),
         "deadline_soft_1": deadline_soft.time(),
-        "deadline_hard_0": assignment.deadline_hard.date(),
-        "deadline_hard_1": assignment.deadline_hard.time(),
+        "deadline_hard_0": deadline_hard.date(),
+        "deadline_hard_1": deadline_hard.time(),
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
+        "image_path": "image.qcow2",
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "penalty_info": '{\
+            "penalty_weights": [1, 1, 1, 1, 1, 1, 1],\
+            "holiday_start": [],\
+            "holday_finish": []\
+        }',
         "value": "Save",
     }
 
@@ -359,6 +388,13 @@ def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
         "deadline_hard_1": assignment.deadline_hard.time(),
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
+        "image_path": "image.qcow2",
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "penalty_info": '{\
+            "penalty_weights": [],\
+            "holiday_start": [],\
+            "holday_finish": []\
+        }',
         "value": "Save",
     }
 

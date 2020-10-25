@@ -35,7 +35,17 @@
     "deadline_hard": "2019-12-31T22:00:00Z",
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
-    "language": "c"
+    "language": "c",
+    "image_path": "image.qcow2",
+    "penalty_info": {
+	    "penalty_weights": [1, 1, 1, 1, 1, 1, 1],
+	    "holiday_start": [],
+	    "holiday_finish": []
+    },
+    "vm_options": {
+	"nr_cpus": 1,
+	"memory": 512
+    }
   }
 },
 {
@@ -50,7 +60,17 @@
     "deadline_hard": "2050-10-10T22:00:00Z",
     "repo_url": "https://github.com/vmck/assignment",
     "repo_path": "pc-00",
-    "language": "c"
+    "language": "c",
+    "image_path": "image.qcow2",
+    "penalty_info": {
+	    "penalty_weights": [1, 1, 1, 1, 1, 1, 1],
+	    "holiday_start": [],
+	    "holiday_finish": []
+    },
+    "vm_options": {
+	"nr_cpus": 1,
+	"memory": 512
+    }
   }
 }
 
