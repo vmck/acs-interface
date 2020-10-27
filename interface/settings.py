@@ -147,7 +147,7 @@ ACS_INTERFACE_ADDRESS = os.environ.get(
     "localhost:8100",
 )
 
-MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 100))
+MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 200))
 MANAGER_MHZ = int(os.environ.get("MANAGER_MHZ", 30))
 MANAGER_TAG = os.environ.get("MANAGER_TAG", "master")
 

@@ -6,10 +6,9 @@ fi
 
 # set the necessary envs if they are not present
 if [ ! -f .env ]; then
-    cp ./examples/.env .
-
-    # disable profiling if testing
-    sed -i "/PROFILE=/c\PROFILE=False"
+    sudo -Hu vagrant cp ./examples/.env .
 fi
 
-exec sudo -Hu vagrant pipenv run pytest
+sudo -Hu vagrant sed -i "/PROFILE=True/c\PROFILE=False" .env
+
+sudo -Hu vagrant pipenv run pytest
