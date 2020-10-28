@@ -47,7 +47,7 @@ class SubQueue(object):
                     models.Submission.STATE_RUNNING,
                 ]
             ).order_by("-id")
-            log.info("Check submissions %s", len(submission))
+            log.info("Check submissions %s", len(submissions))
 
             for submission in submissions:
                 submission.update_state()

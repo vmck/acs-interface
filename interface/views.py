@@ -106,7 +106,7 @@ def upload(request, course_pk, assignment_pk):
 
 @login_required
 def download(request, pk):
-    submission = get_object_or_404(Submission, pk=pk)
+    submission = get_object_or_404(Submission, pk=pk).select_related("user")
 
     if (
         submission.user != request.user
@@ -197,7 +197,11 @@ def recompute_score(request, pk):
 
 @login_required
 def submission_list(request):
-    submissions = Submission.objects.all().order_by("-id")
+    submissions = (
+        Submission.objects.all()
+        .order_by("-id")
+        .select_related("user", "assignment")
+    )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
@@ -217,7 +221,7 @@ def submission_list(request):
 
 @login_required
 def submission_result(request, pk):
-    sub = get_object_or_404(Submission, pk=pk)
+    sub = get_object_or_404(Submission, pk=pk).select_related("user")
     fortune_msg = subprocess.check_output("/usr/games/fortune").decode("utf-8")
 
     return render(
@@ -283,7 +287,7 @@ def assignment_users_list(request, course_pk, assignment_pk):
     submissions = (
         assignment.submission_set.order_by("user", "-timestamp")
         .distinct("user")
-        .select_related("user")
+        .select_related("user", "assignment__course")
     )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
@@ -305,7 +309,7 @@ def subs_for_user(request, course_pk, assignment_pk, username):
     submissions = (
         assignment.submission_set.filter(user=user)
         .order_by("-timestamp")
-        .select_related("user")
+        .select_related("assignment__course")
     )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
@@ -321,14 +325,15 @@ def subs_for_user(request, course_pk, assignment_pk, username):
 
 @login_required
 def user_page(request, username):
-    user = get_object_or_404(User, username=username)
     if request.user.username != username:
         log.warning("User attempted to access %s", username)
         raise Http404("You are not allowed to access this page.")
 
     submissions = (
-        Submission.objects.all().filter(user=user).order_by("-timestamp")
-    ).select_related("user")
+        Submission.objects.all()
+        .filter(user=request.user)
+        .order_by("-timestamp")
+    ).select_related("user", "assignment__course")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
