@@ -282,7 +282,7 @@ def assignment_users_list(request, course_pk, assignment_pk):
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
     submissions = assignment.submission_set.order_by(
         "user", "-timestamp"
-    ).distinct("user")
+    ).distinct("user").select_related("user")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
@@ -302,7 +302,7 @@ def subs_for_user(request, course_pk, assignment_pk, username):
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
     submissions = assignment.submission_set.filter(user=user).order_by(
         "-timestamp"
-    )
+    ).select_related("user")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
@@ -324,7 +324,7 @@ def user_page(request, username):
 
     submissions = (
         Submission.objects.all().filter(user=user).order_by("-timestamp")
-    )
+    ).select_related("user")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
