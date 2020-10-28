@@ -106,7 +106,7 @@ def upload(request, course_pk, assignment_pk):
 
 @login_required
 def download(request, pk):
-    submission = get_object_or_404(Submission, pk=pk).select_related("user")
+    submission = get_object_or_404(Submission, pk=pk)
 
     if (
         submission.user != request.user
@@ -131,7 +131,9 @@ def download(request, pk):
 @login_required
 def homepage(request):
     return render(
-        request, "interface/homepage.html", {"courses": Course.objects.all()}
+        request,
+        "interface/homepage.html",
+        {"courses": Course.objects.all().prefetch_related("assignment_set")},
     )
 
 
@@ -200,7 +202,8 @@ def submission_list(request):
     submissions = (
         Submission.objects.all()
         .order_by("-id")
-        .select_related("user", "assignment")
+        .select_related("user", "assignment", "assignment__course")
+        .prefetch_related("assignment__course__teaching_assistants")
     )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
@@ -212,16 +215,13 @@ def submission_list(request):
         "interface/submission_list.html",
         {
             "submissions": page_submissions,
-            "homepage_url": redirect(homepage).url,
-            "sub_base_url": redirect(submission_list).url,
-            "logout_url": redirect(logout_view).url,
         },
     )
 
 
 @login_required
 def submission_result(request, pk):
-    sub = get_object_or_404(Submission, pk=pk).select_related("user")
+    sub = get_object_or_404(Submission, pk=pk)
     fortune_msg = subprocess.check_output("/usr/games/fortune").decode("utf-8")
 
     return render(
@@ -288,6 +288,7 @@ def assignment_users_list(request, course_pk, assignment_pk):
         assignment.submission_set.order_by("user", "-timestamp")
         .distinct("user")
         .select_related("user", "assignment__course")
+        .prefetch_related("assignment__course__teaching_assistants")
     )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)

@@ -1,3 +1,6 @@
+[scripts]
+runserver = "./manage.py runserver 10.66.60.1:8000"
+
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
