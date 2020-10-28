@@ -280,9 +280,11 @@ def alive(request):
 def assignment_users_list(request, course_pk, assignment_pk):
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
-    submissions = assignment.submission_set.order_by(
-        "user", "-timestamp"
-    ).distinct("user").select_related("user")
+    submissions = (
+        assignment.submission_set.order_by("user", "-timestamp")
+        .distinct("user")
+        .select_related("user")
+    )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
@@ -300,9 +302,11 @@ def subs_for_user(request, course_pk, assignment_pk, username):
     user = User.objects.get(username=username)
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
-    submissions = assignment.submission_set.filter(user=user).order_by(
-        "-timestamp"
-    ).select_related("user")
+    submissions = (
+        assignment.submission_set.filter(user=user)
+        .order_by("-timestamp")
+        .select_related("user")
+    )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
     page = request.GET.get("page", "1")
