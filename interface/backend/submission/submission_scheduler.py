@@ -51,8 +51,11 @@ class SubQueue(object):
             log.info("Check submissions %s", len(submissions))
 
             for submission in submissions:
-                submission.update_state()
-                log.info("Check submission #%s status", submission.id)
+                try:
+                    submission.update_state()
+                    log.info("Check submission #%s status", submission.id)
+                except Exception as e:
+                    log.error("Exception %s for #%s", e, submission.id)
 
             time.sleep(settings.CHECK_INTERVAL_SUBS)
 
