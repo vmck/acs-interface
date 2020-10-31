@@ -37,6 +37,7 @@ class SubQueue(object):
         while True:
             self.sem.acquire()
             _, sub = self.queue.get()
+            log.info("Take submission #%s for evaluation", sub.id)
             self._evaluate_submission(sub)
 
     def _sync_evaluator(self):
@@ -61,7 +62,8 @@ class SubQueue(object):
         sub.save()
         self.queue.put((sub.timestamp, sub))
 
-    def done_eval(self):
+    def done_eval(self, sub):
+        log.info("Submission #%s done evaluation", self.id)
         self.sem.release()
 
     def _evaluate_submission(self, sub):
@@ -97,8 +99,8 @@ class SubmissionScheduler(object):
     def add_submission(self, sub):
         self.general_queue.add_sub(sub)
 
-    def done_evaluation(self):
-        self.general_queue.done_eval()
+    def done_evaluation(self, sub):
+        self.general_queue.done_eval(sub)
 
     def show(self):
         print("General assignments")
