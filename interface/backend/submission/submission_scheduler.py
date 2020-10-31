@@ -1,11 +1,10 @@
 import time
 import logging
 from queue import PriorityQueue
-from threading import BoundedSemaphore, Thread
+from threading import BoundedSemaphore, Thread, Lock
 
 from django.conf import settings
 
-from interface import models
 from interface.backend.submission.evaluator.vmck import VMCK
 
 log = logging.getLogger(__name__)
@@ -17,15 +16,8 @@ class SubQueue(object):
         self.max_machines = free_machines
         self.sem = BoundedSemaphore(free_machines)
 
-        """ In case we crashed take all the submissions that were not sent
-        and add them in the queue
-        """
-        submissions = models.Submission.objects.filter(
-            state=models.Submission.STATE_QUEUED
-        ).order_by("timestamp")
-
-        for sub in submissions:
-            self.queue.put((sub.timestamp, sub))
+        self.subs_lock = Lock()
+        self.subs = set()
 
         self.sync = Thread(target=self._sync_evaluator, daemon=True)
         self.consumer = Thread(target=self._run_submission, daemon=True)
@@ -38,19 +30,18 @@ class SubQueue(object):
             self.sem.acquire()
             _, sub = self.queue.get()
             log.info("Take submission #%s for evaluation", sub.id)
+            with self.subs_lock:
+                self.subs.add(sub)
             self._evaluate_submission(sub)
 
     def _sync_evaluator(self):
         while True:
-            submissions = models.Submission.objects.filter(
-                state__in=[
-                    models.Submission.STATE_NEW,
-                    models.Submission.STATE_RUNNING,
-                ]
-            ).order_by("-id")
-            log.info("Check submissions %s", len(submissions))
+            with self.subs_lock:
+                copy_submissions = set(self.subs)
 
-            for submission in submissions:
+            log.info("Check submissions %s", len(copy_submissions))
+
+            for submission in copy_submissions:
                 try:
                     submission.update_state()
                     log.info("Check submission #%s status", submission.id)
@@ -67,6 +58,11 @@ class SubQueue(object):
 
     def done_eval(self, sub):
         log.info("Submission #%s done evaluation", sub.id)
+        with self.subs_lock:
+            try:
+                self.subs.remove(sub)
+            except Exception as e:
+                log.info("Exception %s for sub #%s", e, sub.id)
         self.sem.release()
 
     def _evaluate_submission(self, sub):
