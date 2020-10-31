@@ -206,7 +206,7 @@ class Submission(models.Model):
         if state != self.state:
             self.state = state
             self.changeReason = f"Update state to {state}"
-            self.save(update_fields=["state", "history"])
+            self.save(update_fields=["state"])
 
             if self.state in [self.STATE_DONE, self.STATE_ERROR]:
                 SubmissionScheduler.get_instance().done_evaluation(self)
