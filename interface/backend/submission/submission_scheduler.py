@@ -2,7 +2,6 @@ import time
 import logging
 from queue import PriorityQueue
 from threading import BoundedSemaphore, Thread, Lock
-from copy import deepcopy
 
 from django.conf import settings
 
@@ -38,7 +37,7 @@ class SubQueue(object):
     def _sync_evaluator(self):
         while True:
             with self.subs_lock:
-                copy_submissions = deepcopy(self.subs)
+                copy_submissions = set(self.subs)
 
             log.info("Check submissions %s", len(copy_submissions))
 
