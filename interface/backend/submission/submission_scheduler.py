@@ -1,11 +1,11 @@
 import time
 import logging
 from queue import PriorityQueue
-from threading import BoundedSemaphore, Thread
+from threading import BoundedSemaphore, Thread, Lock
+from copy import deepcopy
 
 from django.conf import settings
 
-from interface import models
 from interface.backend.submission.evaluator.vmck import VMCK
 
 log = logging.getLogger(__name__)
@@ -17,15 +17,8 @@ class SubQueue(object):
         self.max_machines = free_machines
         self.sem = BoundedSemaphore(free_machines)
 
-        """ In case we crashed take all the submissions that were not sent
-        and add them in the queue
-        """
-        submissions = models.Submission.objects.filter(
-            state=models.Submission.STATE_QUEUED
-        ).order_by("timestamp")
-
-        for sub in submissions:
-            self.queue.put((sub.timestamp, sub))
+        self.subs_lock = Lock()
+        self.subs = set()
 
         self.sync = Thread(target=self._sync_evaluator, daemon=True)
         self.consumer = Thread(target=self._run_submission, daemon=True)
@@ -37,19 +30,19 @@ class SubQueue(object):
         while True:
             self.sem.acquire()
             _, sub = self.queue.get()
+            with self.subs_lock:
+                self.subs.add(sub)
             self._evaluate_submission(sub)
 
     def _sync_evaluator(self):
         while True:
-            submissions = models.Submission.objects.filter(
-                state__in=[
-                    models.Submission.STATE_NEW,
-                    models.Submission.STATE_RUNNING,
-                ]
-            ).order_by("-id")
-            log.info("Check submissions %s", len(submissions))
 
-            for submission in submissions:
+            with self.subs_lock:
+                copy_submissions = deepcopy(self.subs)
+
+            log.info("Check submissions %s", len(copy_submissions))
+
+            for submission in copy_submissions:
                 submission.update_state()
                 log.info("Check submission #%s status", submission.id)
 
@@ -61,7 +54,9 @@ class SubQueue(object):
         sub.save()
         self.queue.put((sub.timestamp, sub))
 
-    def done_eval(self):
+    def done_eval(self, sub):
+        with self.subs_lock:
+            self.subs.remove(sub)
         self.sem.release()
 
     def _evaluate_submission(self, sub):
@@ -97,8 +92,8 @@ class SubmissionScheduler(object):
     def add_submission(self, sub):
         self.general_queue.add_sub(sub)
 
-    def done_evaluation(self):
-        self.general_queue.done_eval()
+    def done_evaluation(self, sub):
+        self.general_queue.done_eval(sub)
 
     def show(self):
         print("General assignments")
