@@ -260,4 +260,5 @@ class Submission(models.Model):
     def __hash__(self):
         return hash(self.pk)
 
+
 pre_save.connect(signals.update_total_score, sender=Submission)
