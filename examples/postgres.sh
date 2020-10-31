@@ -1,10 +1,13 @@
 #!/bin/bash
 
-cd "$( dirname "${BASH_SOURCE[0]}" )"/..
+cd "$( dirname "${BASH_SOURCE[0]}" )"/.. || exit 1
 
-docker run --rm -p 5432:5432 --name database --detach \
-  --volume $(pwd)/data/database/postgres/data:/var/lib/postgresql/data \
-  --env "POSTGRES_DB=interface" \
+docker run \
+  -p ${POSTGRES_PORT}:5432 \
+  --name database \
+  --detach \
+  --restart always \
+  --env "POSTGRES_DB=${POSTGRES_DB}" \
   --env "POSTGRES_USER=${POSTGRES_USER}" \
   --env "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" \
   postgres:12.0-alpine

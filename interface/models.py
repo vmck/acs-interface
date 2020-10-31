@@ -11,11 +11,12 @@ from django.conf import settings
 from django.db.models.signals import pre_save
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
 from interface import signals
-from interface.utils import cached_get_file
 from interface.backend.submission.submission_scheduler import (
     SubmissionScheduler,
 )
@@ -63,11 +64,45 @@ class Assignment(models.Model):
     repo_branch = models.CharField(max_length=256, blank=True)
     repo_path = models.CharField(max_length=256, blank=True)
     language = models.CharField(
-        max_length=32, choices=list(LANG_CHOICES.items()), default=LANG_C,
+        max_length=32,
+        choices=list(LANG_CHOICES.items()),
+        default=LANG_C,
     )
+
+    def get_default_penalty_info():
+        return {
+            "penalty_weights": [],
+            "holiday_start": [],
+            "holday_finish": [],
+        }
+
+    def get_default_vm_info():
+        return {"nr_cpus": 1, "memory": 512}
+
+    image_path = models.CharField(max_length=256, blank=False, default="NA")
+    penalty_info = models.JSONField(default=get_default_penalty_info)
+    vm_options = models.JSONField(default=get_default_vm_info)
 
     history = HistoricalRecords()
     hidden_score = models.BooleanField(default=True)
+
+    def clean(self):
+        penalty_weights = self.penalty_info["penalty_weights"]
+        if not isinstance(penalty_weights, list) or not all(
+            isinstance(x, (float, int)) for x in penalty_weights
+        ):
+            raise ValidationError(
+                "Penalty weights should be a list of integer/floats"
+            )
+
+        if (
+            len(penalty_weights)
+            != (self.deadline_hard - self.deadline_soft).days
+        ):
+            raise ValidationError(
+                "Number of penalty weights should be == days from soft "
+                "to hard deadline"
+            )
 
     @property
     def full_code(self):
@@ -95,9 +130,14 @@ class Assignment(models.Model):
         path = f"{self.repo_path}/" if self.repo_path else ""
         return urljoin(url_base, f"{branch}/{path}{filename}")
 
+    def refresh_submission_penalty(self):
+        for submission in self.submission_set.all():
+            submission.penalty = None
+            submission.save()
+
 
 class Submission(models.Model):
-    """ Model for a homework submission
+    """Model for a homework submission
 
     Attributes:
     username -- the user id provided by the LDAP
@@ -116,6 +156,7 @@ class Submission(models.Model):
     STATE_RUNNING = "running"
     STATE_DONE = "done"
     STATE_QUEUED = "queued"
+    STATE_ERROR = "error"
 
     STATE_CHOICES = OrderedDict(
         [
@@ -123,6 +164,7 @@ class Submission(models.Model):
             (STATE_RUNNING, "Running"),
             (STATE_DONE, "Done"),
             (STATE_QUEUED, "Queue"),
+            (STATE_ERROR, "Error"),
         ]
     )
 
@@ -134,7 +176,9 @@ class Submission(models.Model):
     stderr = models.TextField(max_length=32768, default="", blank=True)
     review_message = models.TextField(max_length=4096, default="", blank=True)
     state = models.CharField(
-        max_length=32, choices=list(STATE_CHOICES.items()), default=STATE_NEW
+        max_length=32,
+        choices=list(STATE_CHOICES.items()),
+        default=STATE_QUEUED,
     )
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
@@ -152,18 +196,20 @@ class Submission(models.Model):
     history = HistoricalRecords()
 
     def update_state(self):
-        if self.state == self.STATE_DONE or self.evaluator_job_id is None:
+        if (
+            self.state in [self.STATE_DONE, self.STATE_ERROR]
+            or self.evaluator_job_id is None
+        ):
             return
 
         state = SubmissionScheduler.evaluator.update(self)
         if state != self.state:
             self.state = state
-
-            if state == Submission.STATE_DONE:
-                SubmissionScheduler.get_instance().done_evaluation()
-
             self.changeReason = f"Update state to {state}"
-            self.save()
+            self.save(update_fields=["state"])
+
+            if self.state in [self.STATE_DONE, self.STATE_ERROR]:
+                SubmissionScheduler.get_instance().done_evaluation(self)
 
     def download(self, buff):
         storage.download_buffer(f"{self.pk}.zip", buff)
@@ -173,10 +219,6 @@ class Submission(models.Model):
 
     def get_artifact_url(self):
         return self.assignment.url_for("artifact.zip")
-
-    def get_config_ini(self):
-        url = self.assignment.url_for("config.ini")
-        return cached_get_file(url)
 
     def __str__(self):
         return f"#{self.pk} by {self.user}"
@@ -205,12 +247,15 @@ class Submission(models.Model):
         """
         if not message:
             return False
+        try:
+            decoded_message = jwt.decode(
+                message, settings.SECRET_KEY, algorithms=["HS256"]
+            )
 
-        decoded_message = jwt.decode(
-            message, settings.SECRET_KEY, algorithms=["HS256"]
-        )
-
-        return decoded_message["data"] == str(self.id)
+            return decoded_message["data"] == str(self.id)
+        except jwt.DecodeError:
+            log.debug("Invalid JWT token: %s", message)
+            return False
 
 
 pre_save.connect(signals.update_total_score, sender=Submission)

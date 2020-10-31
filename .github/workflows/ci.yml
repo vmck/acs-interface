@@ -1,0 +1,64 @@
+name: CI
+on: [push, pull_request]
+jobs:
+    PyTest:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v2
+            with:
+              fetch-depth: 0
+
+          - name: Provision System
+            run: ./ci/provision-system.sh
+            shell: bash
+
+          - name: Provision Cluster
+            run: ./ci/provision-cluster.sh
+            shell: bash
+
+          - name: Provision VMCK
+            run: ./ci/provision-vmck.sh
+            shell: bash
+
+          - name: Provision ACS-Interface
+            run: ./ci/provision-acs-interface.sh
+            shell: bash
+
+          - name: PyTest
+            run: ./ci/test-pytest.sh
+            shell: bash
+
+          - name: Codecov
+            run: ./ci/code-coverage.sh
+            shell: bash
+            env:
+              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    Publish:
+        needs: Pytest
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v2
+            with:
+              fetch-depth: 0
+
+          - name: Login to DockerHub
+            uses: docker/login-action@v1
+            with:
+              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+          - name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v1
+
+          - name: Get Current Branch Name
+            uses: nelonoel/branch-name@v1
+
+          - name: Build and push
+            uses: docker/build-push-action@v2
+            with:
+              push: true
+              tags: ${{ github.repository }}:${{ env.BRANCH_NAME }}
+

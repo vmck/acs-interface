@@ -1,12 +1,15 @@
-from datetime import datetime, timezone
 import pytest
+import threading
+from datetime import datetime, timezone
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+
 
 from django.test import SimpleTestCase
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.admin.sites import AdminSite
 
-from interface.models import Course, Submission
+from interface.models import Course, Submission, Assignment
 from interface.admin import CourseAdmin, AssignmentAdmin
 
 
@@ -19,7 +22,10 @@ def base_db_setup():
     course_admin._add_new_ta(ta)
 
     super_user = User.objects.create_user(
-        "root", password="pw", is_superuser=True, is_staff=True,
+        "root",
+        password="pw",
+        is_superuser=True,
+        is_staff=True,
     )
 
     course = Course.objects.create(name="PC")
@@ -33,6 +39,12 @@ def base_db_setup():
         deadline_hard=datetime(2050, 1, 1, tzinfo=timezone.utc),
         repo_url="https://github.com/vmck/assignment",
         repo_path="pc-00",
+        image_path="image.qcow2",
+        penalty_info={
+            "penalty_weights": [1, 1, 1, 1, 1, 1, 1],
+            "holiday_start": [],
+            "holday_finish": [],
+        },
     )
 
     return (super_user, ta, user, course, assignment)
@@ -74,3 +86,33 @@ def mock_admin_assignment(monkeypatch):
         "download_all_submissions",
         download_all_submissions_stub,
     )
+
+
+@pytest.yield_fixture
+def mock_config(monkeypatch):
+    ADDR = "10.66.60.1"
+    PORT = 5000
+
+    class Server:
+        def __init__(self):
+            self.server = HTTPServer(
+                (ADDR, PORT),
+                SimpleHTTPRequestHandler,
+            )
+            self.thread = threading.Thread(target=self.server.serve_forever)
+
+        def __enter__(self):
+            self.thread.start()
+
+        def __exit__(self, *args):
+            self.server.shutdown()
+            self.server.server_close()
+            self.thread.join()
+
+    def url_for(self, filename):
+        return f"http://{ADDR}:{PORT}/testsuite/{filename}"
+
+    monkeypatch.setattr(Assignment, "url_for", url_for)
+
+    with Server() as server:
+        yield server

@@ -1,6 +1,5 @@
 import time
 import math
-import configparser
 import decimal
 import re
 import logging
@@ -20,22 +19,17 @@ def str_to_time(time_str, format_str=DATE_FORMAT):
 
 
 def get_penalty_info(submission):
-    config_data = submission.get_config_ini()
+    penalty_info = submission.assignment.penalty_info
 
-    config = configparser.ConfigParser()
-    config.read_string(config_data.text)
-
-    penalty_info = dict(config["PENALTY"])
-
-    penalty = [int(x) for x in penalty_info["penaltyweights"].split(",")]
-    holiday_s = [x for x in penalty_info.get("holidaystart", "").split(",")]
-    holiday_f = [x for x in penalty_info.get("holidayfinish", "").split(",")]
+    penalty = penalty_info.get("penalty_weights", [])
+    holiday_s = penalty_info.get("holiday_start", [])
+    holiday_f = penalty_info.get("holiday_finish", [])
 
     return (penalty, holiday_s, holiday_f)
 
 
 def compute_penalty(
-    upload_time, deadline, penalty, holiday_start=[""], holiday_finish=[""]
+    upload_time, deadline, penalty, holiday_start=None, holiday_finish=None
 ):
     """A generic function to compute penalty
     Args:
@@ -46,14 +40,13 @@ def compute_penalty(
     Note: time interval between deadline and upload time (seconds)
     is time.mktime(upload_time) - time.mktime(deadline)
     """
-    if holiday_start[0] == "":
-        holiday_start = []
-
-    if holiday_finish[0] == "":
-        holiday_finish = []
-
     # XXX refactor such that instead of holiday_start and holiday_finish
     # only one list (of intervals) is used
+
+    if holiday_start is None:
+        holiday_start = []
+    if holiday_finish is None:
+        holiday_finish = []
 
     sec_upload_time = str_to_time(upload_time)
     sec_deadline = str_to_time(deadline)
@@ -87,7 +80,9 @@ def compute_penalty(
 
 def compute_review_score(submission):
     marks = re.findall(
-        r"^([+-]\d+\.*\d*):", submission.review_message, re.MULTILINE,
+        r"^([+-]\d+\.*\d*):",
+        submission.review_message,
+        re.MULTILINE,
     )
     log.debug("Marks found: " + str(marks))
 

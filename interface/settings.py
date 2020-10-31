@@ -2,20 +2,18 @@ import os
 from pathlib import Path
 
 import ldap
+import sentry_sdk
 from django_auth_ldap.config import LDAPSearch
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from interface.utils import is_true
 
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
 
 BASE_DIR = Path(__file__).parent.parent
+DEBUG = is_true(os.environ.get("DEBUG"))
+PROFILE = is_true(os.environ.get("PROFILE"))
 
 BLOCK_SIZE = 32 * 1024
-
-MEDIA_ROOT = "interface/templates/interface/media"
-MEDIA_URL = "/media/"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -28,7 +26,9 @@ INSTALLED_APPS = [
     "interface",
 ]
 
+
 MIDDLEWARE = [
+    "django.middleware.gzip.GZipMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -39,6 +39,13 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
+
+if PROFILE:
+    INSTALLED_APPS.append("silk")
+    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
+
+SILKY_PYTHON_PROFILER = PROFILE
+SILKY_PYTHON_PROFILER_BINARY = PROFILE
 
 ROOT_URLCONF = "interface.urls"
 LOGIN_URL = "/"
@@ -117,12 +124,13 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "interface/static")
+STATICFILES_DIRS = [
+    BASE_DIR / "interface" / "templates" / "interface" / "media",
+]
 
 SECRET_KEY = "changeme"
 
 EVALUATOR_BACKEND = os.environ.get("EVALUATOR_BACKEND", "docker")
-
-DEBUG = is_true(os.environ.get("DEBUG"))
 
 _hostname = os.environ.get("HOSTNAME")
 if _hostname:
@@ -136,17 +144,20 @@ MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "123456789")
 MINIO_BUCKET = os.environ.get("MINIO_BUCKET", "test")
 
 ACS_INTERFACE_ADDRESS = os.environ.get(
-    "ACS_INTERFACE_ADDRESS", "localhost:8100",
+    "ACS_INTERFACE_ADDRESS",
+    "localhost:8100",
 )
 
-MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 50))
+MANAGER_MEMORY = int(os.environ.get("MANAGER_MEMORY", 200))
 MANAGER_MHZ = int(os.environ.get("MANAGER_MHZ", 30))
 MANAGER_TAG = os.environ.get("MANAGER_TAG", "master")
 
 SUBMISSIONS_PER_PAGE = 20
 
+# If above 2.5MB (DATA_UPLOAD_MAX_MEMORY_SIZE) the request will fail
+# triggering a SuspiciousOperation (RequestDataTooBig)
 FILE_UPLOAD_MAX_MEMORY_SIZE = int(
-    os.environ.get("FILE_UPLOAD_MAX_MEMORY_SIZE", 2621440),  # 2.5 MB
+    os.environ.get("FILE_UPLOAD_MAX_MEMORY_SIZE", 2097152),  # 2 MB
 )
 
 FILE_UPLOAD_HANDLERS = ["interface.uploadhandler.RestrictedFileUploadHandler"]

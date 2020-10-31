@@ -8,12 +8,10 @@ from cachetools import cached, TTLCache
 vocabulary_64 = string.ascii_letters + string.digits + ".+"
 
 
-def is_number(string):
-    try:
-        int(string)
-        return True
-    except ValueError:
-        return False
+def encode(message):
+    encoded_message = base64.encodebytes(bytes(message, encoding="latin-1"))
+
+    return str(encoded_message, encoding="latin-1")
 
 
 def decode(message):

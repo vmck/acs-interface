@@ -13,7 +13,7 @@ RUN pipenv install --system --deploy --ignore-pipfile
 
 COPY manage.py runinterface Readme.md ./
 ADD interface ./interface
-RUN ./manage.py collectstatic --no-input
+RUN export PROFILE=True && ./manage.py collectstatic --no-input
 
 VOLUME /opt/interface/data
 EXPOSE 8100

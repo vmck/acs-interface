@@ -1,10 +1,14 @@
 #!/bin/bash -ex
 
-cd /vagrant
+if [ -z "$CI" ]; then
+    cd /vagrant
+fi
 
 # set the necessary envs if they are not present
 if [ ! -f .env ]; then
-    cp ./examples/.env .
+    sudo -Hu vagrant cp ./examples/.env .
 fi
 
-exec pipenv run pytest --cov-report=xml --cov=interface --liveserver 10.66.60.1:8000 testsuite
+sudo -Hu vagrant sed -i "/PROFILE=True/c\PROFILE=False" .env
+
+sudo -Hu vagrant pipenv run pytest

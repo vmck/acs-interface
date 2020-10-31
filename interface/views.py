@@ -49,7 +49,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
 
             if not user:
-                log.info(f"Login failure for {username}")
+                log.info("Login failure for %s", username)
             else:
                 login(request, user)
                 return redirect(homepage)
@@ -81,7 +81,8 @@ def upload(request, course_pk, assignment_pk):
 
             except TooManySubmissionsError as e:
                 messages.error(
-                    request, f"Please wait {e.wait_t}s between submissions",
+                    request,
+                    f"Please wait {e.wait_t}s between submissions",
                 )
 
             except (CorruptZipFile, ValueError):
@@ -91,7 +92,11 @@ def upload(request, course_pk, assignment_pk):
                 messages.error(request, "File is not a valid zip archive")
 
             else:
-                return redirect(users_list, course_pk, assignment_pk)
+                return redirect(
+                    assignment_users_list,
+                    course_pk,
+                    assignment_pk,
+                )
 
     else:
         form = UploadFileForm()
@@ -117,14 +122,18 @@ def download(request, pk):
     log_action("Download submission", request.user, submission)
 
     return FileResponse(
-        buff, as_attachment=True, filename=f"{submission.pk}.zip",
+        buff,
+        as_attachment=True,
+        filename=f"{submission.pk}.zip",
     )
 
 
 @login_required
 def homepage(request):
     return render(
-        request, "interface/homepage.html", {"courses": Course.objects.all()}
+        request,
+        "interface/homepage.html",
+        {"courses": Course.objects.all().prefetch_related("assignment_set")},
     )
 
 
@@ -190,21 +199,22 @@ def recompute_score(request, pk):
 
 @login_required
 def submission_list(request):
-    submissions = Submission.objects.all().order_by("-id")
+    submissions = (
+        Submission.objects.all()
+        .order_by("-id")
+        .select_related("user", "assignment", "assignment__course")
+        .prefetch_related("assignment__course__teaching_assistants")
+    )
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
-
     page = request.GET.get("page", "1")
-    subs = paginator.get_page(page)
+    page_submissions = paginator.get_page(page)
 
     return render(
         request,
         "interface/submission_list.html",
         {
-            "subs": subs,
-            "homepage_url": redirect(homepage).url,
-            "sub_base_url": redirect(submission_list).url,
-            "logout_url": redirect(logout_view).url,
+            "submissions": page_submissions,
         },
     )
 
@@ -212,7 +222,7 @@ def submission_list(request):
 @login_required
 def submission_result(request, pk):
     sub = get_object_or_404(Submission, pk=pk)
-    fortune_msg = subprocess.check_output("fortune").decode("utf-8")
+    fortune_msg = subprocess.check_output("/usr/games/fortune").decode("utf-8")
 
     return render(
         request,
@@ -229,14 +239,15 @@ def submission_result(request, pk):
 
 @csrf_exempt
 def done(request, pk):
-    log.debug(f"URL: {request.get_full_path()}")
+    log.debug("URL: %s", request.get_full_path())
     log.debug(pprint.pformat(request.body))
 
     options = json.loads(request.body, strict=False) if request.body else {}
 
     submission = get_object_or_404(models.Submission, pk=pk)
 
-    assert submission.verify_jwt(request.GET.get("token"))
+    if not submission.verify_jwt(request.GET.get("token")):
+        return JsonResponse({"error": "Invalid JWT token"}, status=400)
 
     stdout = utils.decode(options["stdout"])
     exit_code = int(options["exit_code"])
@@ -252,11 +263,10 @@ def done(request, pk):
     submission.score = decimal.Decimal(points)
     submission.total_score = calculate_total_score(submission)
     submission.stdout = stdout
-    submission.update_state()
 
-    log.debug(f"Submission #{submission.pk}:")
-    log.debug(f"Stdout:\n{submission.stdout}")
-    log.debug(f"Exit code:\n{exit_code}")
+    log.debug("Submission #%s:", submission.pk)
+    log.debug("Stdout:\n%s", submission.stdout)
+    log.debug("Exit code:\n%s", exit_code)
 
     submission.changeReason = "Evaluation"
     submission.save()
@@ -271,25 +281,24 @@ def alive(request):
 
 
 @login_required
-def users_list(request, course_pk, assignment_pk):
+def assignment_users_list(request, course_pk, assignment_pk):
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
-    submissions = assignment.submission_set.all()
-    list_of_users = []
-    for subm in submissions:
-        list_of_users.append(subm.user)
-    list_of_users = set(list_of_users)
-    final_sub_list = []
-    for user in list_of_users:
-        submissions_list_aux = submissions.filter(user=user)
-        submissions_list_aux = submissions_list_aux.order_by("-timestamp")
-        subm = submissions_list_aux.first()
-        final_sub_list.append(subm)
+    submissions = (
+        assignment.submission_set.order_by("user", "-timestamp")
+        .distinct("user")
+        .select_related("user", "assignment__course")
+        .prefetch_related("assignment__course__teaching_assistants")
+    )
+
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
 
     return render(
         request,
         "interface/users_list.html",
-        {"assignment": assignment, "submissions": final_sub_list},
+        {"assignment": assignment, "submissions": page_submissions},
     )
 
 
@@ -298,29 +307,41 @@ def subs_for_user(request, course_pk, assignment_pk, username):
     user = User.objects.get(username=username)
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
-    submissions = assignment.submission_set.filter(user=user).order_by(
-        "-timestamp"
+    submissions = (
+        assignment.submission_set.filter(user=user)
+        .order_by("-timestamp")
+        .select_related("assignment__course")
     )
+
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
 
     return render(
         request,
         "interface/subs_for_user.html",
-        {"assignment": assignment, "submissions": submissions},
+        {"assignment": assignment, "submissions": page_submissions},
     )
 
 
 @login_required
 def user_page(request, username):
-    user = get_object_or_404(User, username=username)
     if request.user.username != username:
-        log.warning(f"User attempted to access {username}")
+        log.warning("User attempted to access %s", username)
         raise Http404("You are not allowed to access this page.")
+
     submissions = (
-        Submission.objects.all().filter(user=user).order_by("-timestamp")
-    )
+        Submission.objects.all()
+        .filter(user=request.user)
+        .order_by("-timestamp")
+    ).select_related("user", "assignment__course")
+
+    paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
+    page = request.GET.get("page", "1")
+    page_submissions = paginator.get_page(page)
 
     return render(
-        request, "interface/user_page.html", {"submissions": submissions}
+        request, "interface/user_page.html", {"submissions": page_submissions}
     )
 
 
@@ -339,7 +360,8 @@ def reveal(request, course_pk, assignment_pk):
     log_action("Reveal score", request.user, assignment)
     return redirect(
         request.META.get(
-            "HTTP_REFERER", f"/assignment/{course.pk}/{assignment.pk}",
+            "HTTP_REFERER",
+            f"/assignment/{course.pk}/{assignment.pk}",
         )
     )
 

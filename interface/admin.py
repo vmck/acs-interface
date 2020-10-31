@@ -139,7 +139,9 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
 
         big_buff.seek(0)
         return FileResponse(
-            big_buff, as_attachment=True, filename="Submissions.zip",
+            big_buff,
+            as_attachment=True,
+            filename="Submissions.zip",
         )
 
     @log_action_admin("Run moss check")
@@ -166,7 +168,8 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         assignment = queryset[0]
 
         return self.zip_submissions(
-            request, get_last_submissions_of_every_user(assignment),
+            request,
+            get_last_submissions_of_every_user(assignment),
         )
 
     download_review_submissions.short_description = (
@@ -187,6 +190,12 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     download_all_submissions.short_description = (
         "Download all submissions for review"
     )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if "deadline_soft" not in form.changed_data:
+            return
+        obj.refresh_submission_penalty()
 
 
 @admin.register(Submission)

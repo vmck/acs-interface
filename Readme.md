@@ -1,8 +1,9 @@
 # V2 vmchecker
 Rewrite of the [original vmchecker](https://vmchecker.cs.pub.ro/). This repo is
-for the student portal. It runs at https://v2.vmchecker.cs.pub.ro/.
+for the student portal. It runs at https://v2.vmchecker.grid.pub.ro/.
 
-[![Build Status](https://frisbee.vmchecker.cs.pub.ro/api/badges/vmck/acs-interface/status.svg)](https://frisbee.vmchecker.cs.pub.ro/vmck/acs-interface)
+![CI](https://github.com/vmck/acs-interface/workflows/CI/badge.svg)
+![Lint](https://github.com/vmck/acs-interface/workflows/Lint/badge.svg)
 [![codecov](https://codecov.io/gh/vmck/acs-interface/branch/master/graph/badge.svg)](https://codecov.io/gh/vmck/acs-interface)
 
 ## Development
@@ -29,9 +30,16 @@ MINIO_ACCESS_KEY=1234
 MINIO_SECRET_KEY=123456789
 VMCK_API_URL=http://10.66.60.1:10000/v0/
 DEBUG=True
+PROFILE=True
 HOSTNAME=*
-ACS_INTERFACE_ADDRESS=http://10.66.60.1:8000
-MANAGER_TAG=0.3.2
+ACS_INTERFACE_ADDRESS=http://10.66.60.1:8000/
+MANAGER_TAG=0.4.1
+POSTGRES_USER=user
+POSTGRES_PASSWORD=1234
+POSTGRES_DB=interface
+POSTGRES_ADDRESS=127.0.0.1
+POSTGRES_PORT=5432
+
 ```
 
 Now run:
@@ -46,7 +54,7 @@ Next, log you into the Vagrant virtual machine, and start Django:
 ```shell
 vagrant ssh
 cd /vagrant
-pipenv run ./manage.py runserver 10.66.60.1:8000
+pipenv run runserver
 ```
 
 Django's port is forwarded to http://localhost:8000. A default `admin` user is
@@ -81,6 +89,7 @@ Run:
 
 ```shell
 pipenv run ./examples/minio.sh
+pipenv run ./examples/postgres.sh
 pipenv run ./manage.py migrate
 pipenv run ./manage.py loaddata ci/fixtures.json
 pipenv run ./manage.py runserver

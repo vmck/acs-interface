@@ -5,7 +5,6 @@
     {% for course in courses %}
       <h3>{{ course.name }}</h3>
       <ul>
-      </ul>
       {% for assignment in course.assignment_set.all %}
         <li>
           {{ assignment.name }}:
