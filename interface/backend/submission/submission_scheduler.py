@@ -66,7 +66,7 @@ class SubQueue(object):
         self.queue.put((sub.timestamp, sub))
 
     def done_eval(self, sub):
-        log.info("Submission #%s done evaluation", self.id)
+        log.info("Submission #%s done evaluation", sub.id)
         self.sem.release()
 
     def _evaluate_submission(self, sub):
