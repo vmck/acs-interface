@@ -209,7 +209,7 @@ class Submission(models.Model):
             self.save()
 
             if self.state in [self.STATE_DONE, self.STATE_ERROR]:
-                SubmissionScheduler.get_instance().done_evaluation()
+                SubmissionScheduler.get_instance().done_evaluation(self)
 
     def download(self, buff):
         storage.download_buffer(f"{self.pk}.zip", buff)
