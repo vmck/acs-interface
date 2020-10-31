@@ -59,7 +59,10 @@ class SubQueue(object):
     def done_eval(self, sub):
         log.info("Submission #%s done evaluation", sub.id)
         with self.subs_lock:
-            self.subs.remove(sub)
+            try:
+                self.subs.remove(sub)
+            except Exception as e:
+                log.info("Exception %s for sub #%s", e, sub.id)
         self.sem.release()
 
     def _evaluate_submission(self, sub):

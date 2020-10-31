@@ -257,8 +257,5 @@ class Submission(models.Model):
             log.debug("Invalid JWT token: %s", message)
             return False
 
-    def __hash__(self):
-        return hash(self.pk)
-
 
 pre_save.connect(signals.update_total_score, sender=Submission)
