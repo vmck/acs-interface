@@ -1,9 +1,13 @@
+from typing import Union, Callable
+
 from django.utils import timezone
 
-from interface.models import ActionLog
+from interface.models import ActionLog, User, Course, Assignment, Submission
 
 
-def log_action(msg, usr, obj):
+def log_action(
+    msg: str, usr: User, obj: Union[Course, Assignment, Submission]
+):
     ActionLog.objects.create(
         timestamp=timezone.now(),
         user=usr,
@@ -12,8 +16,8 @@ def log_action(msg, usr, obj):
     )
 
 
-def log_action_admin(msg):
-    def inner(func):
+def log_action_admin(msg: str):
+    def inner(func: Callable[any, any]):
         def wrapper(*args, **kwargs):
             res = func(*args, **kwargs)
 

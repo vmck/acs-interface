@@ -1,20 +1,25 @@
 import glob
 import logging
+from typing import List
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
 import mosspy
 from django.conf import settings
+from django.http import HttpRequest
 from django.contrib import messages
 
 from interface.backend.minio_api import MissingFile
+from interface.models import Submission, Assignment
 
 
 log = logging.getLogger(__name__)
 
 
-def moss_check(submissions, assignment, request):
+def moss_check(
+    submissions: List[Submission], assignment: Assignment, request: HttpRequest
+) -> str:
     moss = mosspy.Moss(
         settings.MOSS_USER_ID,
         assignment.get_language_display(),

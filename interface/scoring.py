@@ -5,6 +5,8 @@ import re
 import logging
 import datetime
 
+from interface.models import Submission
+
 DATE_FORMAT = "%Y.%m.%d %H:%M:%S"
 
 log_level = logging.DEBUG
@@ -12,13 +14,13 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def str_to_time(time_str, format_str=DATE_FORMAT):
+def str_to_time(time_str: str, format_str=DATE_FORMAT) -> float:
     """Interprets time_str as a time value specified by format_str and
     returns that time object"""
     return time.mktime(time.strptime(time_str, format_str))
 
 
-def get_penalty_info(submission):
+def get_penalty_info(submission: Submission):
     penalty_info = submission.assignment.penalty_info
 
     penalty = penalty_info.get("penalty_weights", [])
@@ -29,8 +31,12 @@ def get_penalty_info(submission):
 
 
 def compute_penalty(
-    upload_time, deadline, penalty, holiday_start=None, holiday_finish=None
-):
+    upload_time: str,
+    deadline: str,
+    penalty: str,
+    holiday_start=None,
+    holiday_finish=None,
+) -> float:
     """A generic function to compute penalty
     Args:
         penalty - for every day after the deadline the penalty
@@ -78,7 +84,7 @@ def compute_penalty(
     return penalty_points
 
 
-def compute_review_score(submission):
+def compute_review_score(submission: Submission) -> float:
     marks = re.findall(
         r"^([+-]\d+\.*\d*):",
         submission.review_message,
@@ -89,7 +95,7 @@ def compute_review_score(submission):
     return sum([decimal.Decimal(mark) for mark in marks])
 
 
-def calculate_total_score(submission):
+def calculate_total_score(submission: Submission) -> float:
     score = submission.score if submission.score else 0
     submission.review_score = compute_review_score(submission)
 

@@ -5,9 +5,10 @@ import pprint
 import logging
 import decimal
 import subprocess
+from typing import Union
 from zipfile import BadZipFile
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -36,7 +37,7 @@ from interface.codeview import extract_file, tree_view
 log = logging.getLogger(__name__)
 
 
-def login_view(request):
+def login_view(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         return redirect(homepage)
 
@@ -59,13 +60,15 @@ def login_view(request):
     return render(request, "interface/login.html", {"form": form})
 
 
-def logout_view(request):
+def logout_view(request: HttpRequest) -> HttpResponseRedirect:
     logout(request)
     return redirect(login_view)
 
 
 @login_required
-def upload(request, course_pk, assignment_pk):
+def upload(
+    request: HttpRequest, course_pk: str, assignment_pk: str
+) -> Union[HttpResponse, HttpResponseRedirect]:
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
 
@@ -105,7 +108,7 @@ def upload(request, course_pk, assignment_pk):
 
 
 @login_required
-def download(request, pk):
+def download(request: HttpRequest, pk: int) -> FileResponse:
     submission = get_object_or_404(Submission, pk=pk)
 
     if (
@@ -129,7 +132,7 @@ def download(request, pk):
 
 
 @login_required
-def homepage(request):
+def homepage(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "interface/homepage.html",
@@ -140,7 +143,9 @@ def homepage(request):
 @login_required
 @staff_member_required
 @require_POST
-def review(request, pk):
+def review(
+    request: HttpRequest, pk: int
+) -> Union[HttpResponse, HttpResponseRedirect]:
     submission = get_object_or_404(models.Submission, pk=pk)
 
     if (
@@ -160,7 +165,9 @@ def review(request, pk):
 
 @login_required
 @staff_member_required
-def rerun_submission(request, pk):
+def rerun_submission(
+    request: HttpRequest, pk: int
+) -> Union[HttpResponse, HttpResponseRedirect]:
     submission = get_object_or_404(Submission, pk=pk)
 
     if (
@@ -179,7 +186,9 @@ def rerun_submission(request, pk):
 
 @login_required
 @staff_member_required
-def recompute_score(request, pk):
+def recompute_score(
+    request: HttpRequest, pk: int
+) -> Union[HttpResponse, HttpResponseRedirect]:
     submission = get_object_or_404(models.Submission, pk=pk)
 
     if (
@@ -198,7 +207,7 @@ def recompute_score(request, pk):
 
 
 @login_required
-def submission_list(request):
+def submission_list(request: HttpRequest) -> HttpResponse:
     submissions = (
         Submission.objects.all()
         .order_by("-id")
@@ -220,7 +229,7 @@ def submission_list(request):
 
 
 @login_required
-def submission_result(request, pk):
+def submission_result(request: HttpRequest, pk: int) -> HttpResponse:
     sub = get_object_or_404(Submission, pk=pk)
     fortune_msg = subprocess.check_output("/usr/games/fortune").decode("utf-8")
 
@@ -238,7 +247,7 @@ def submission_result(request, pk):
 
 
 @csrf_exempt
-def done(request, pk):
+def done(request: HttpRequest, pk: int) -> JsonResponse:
     log.debug("URL: %s", request.get_full_path())
     log.debug(pprint.pformat(request.body))
 
@@ -274,14 +283,16 @@ def done(request, pk):
     return JsonResponse({})
 
 
-def alive(request):
+def alive(request: HttpRequest) -> JsonResponse:
     """Consul http check"""
 
     return JsonResponse({"alive": True})
 
 
 @login_required
-def assignment_users_list(request, course_pk, assignment_pk):
+def assignment_users_list(
+    request: HttpRequest, course_pk: str, assignment_pk: str
+) -> HttpResponse:
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
     submissions = (
@@ -303,7 +314,9 @@ def assignment_users_list(request, course_pk, assignment_pk):
 
 
 @login_required
-def subs_for_user(request, course_pk, assignment_pk, username):
+def subs_for_user(
+    request: HttpRequest, course_pk: str, assignment_pk: str, username: str
+) -> HttpResponse:
     user = User.objects.get(username=username)
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
@@ -325,7 +338,7 @@ def subs_for_user(request, course_pk, assignment_pk, username):
 
 
 @login_required
-def user_page(request, username):
+def user_page(request: HttpRequest, username: str) -> HttpResponse:
     if request.user.username != username:
         log.warning("User attempted to access %s", username)
         raise Http404("You are not allowed to access this page.")
@@ -347,7 +360,9 @@ def user_page(request, username):
 
 @login_required
 @staff_member_required
-def reveal(request, course_pk, assignment_pk):
+def reveal(
+    request: HttpRequest, course_pk: str, assignment_pk: str
+) -> Union[HttpResponse, HttpResponseRedirect]:
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
 
@@ -368,7 +383,7 @@ def reveal(request, course_pk, assignment_pk):
 
 @login_required
 @staff_member_required
-def code_view(request, pk, filename):
+def code_view(request: HttpRequest, pk: int, filename: str) -> HttpResponse:
     submission = get_object_or_404(Submission, pk=pk)
     all_tas = submission.assignment.course.teaching_assistants.all()
 

@@ -4,15 +4,17 @@ from zipfile import ZipFile
 
 import simple_history
 from django.db import transaction
-from django.http import FileResponse
+from django.http import FileResponse, HttpRequest
 from django.contrib import admin, messages
 from django.contrib.auth.models import Permission
+from django.forms import ModelForm
+from django.db.models.query import QuerySet
 
 from interface.moss import moss_check
 from interface.actions_logger import log_action_admin
 from interface.backend.minio_api import MissingFile
 from interface.utils import get_last_submissions_of_every_user
-from interface.models import Course, Assignment, Submission, ActionLog
+from interface.models import Course, Assignment, Submission, ActionLog, User
 
 
 log = logging.getLogger(__name__)
@@ -28,10 +30,10 @@ class ActionLogAdmin(admin.ModelAdmin):
     list_display_links = None
     actions = None
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request: HttpRequest) -> bool:
         return False
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request: HttpRequest, obj=None) -> bool:
         return False
 
 
@@ -45,7 +47,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
         "delete_assignment",
     ]
 
-    def _add_new_ta(self, user):
+    def _add_new_ta(self, user: User):
         ta_permissions = Permission.objects.filter(
             codename__in=CourseAdmin._ta_permissions
         )
@@ -55,7 +57,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
             user.user_permissions.set(ta_permissions)
             user.save()
 
-    def _remove_ta(self, user, course):
+    def _remove_ta(self, user: User, course: Course):
         tas_courses = (
             Course.objects.all()
             .exclude(pk=course.pk)
@@ -66,14 +68,16 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
             user.user_permissions.set([])
             user.save()
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
         qs = super(CourseAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
 
         return qs.filter(teaching_assistants=request.user)
 
-    def save_model(self, request, obj, form, change):
+    def save_model(
+        self, request: HttpRequest, obj: Course, form: ModelForm, change: any
+    ):
         # New course was added
         # need to save it to have access to member vars
         super().save_model(request, obj, form, change)
