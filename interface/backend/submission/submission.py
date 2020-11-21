@@ -3,9 +3,11 @@ from copy import deepcopy
 from zipfile import ZipFile
 
 from django.db import transaction
+from django.contrib.auth import User
 from django.utils import timezone
 
 import interface.backend.minio_api as storage
+from interface.models import Assignment
 
 
 log = logging.getLogger(__name__)
@@ -15,9 +17,9 @@ class CorruptZipFile(Exception):
     pass
 
 
-def handle_submission(file, assignment, user):
+def handle_submission(file, assignment: Assignment, user: User):
     log.debug("Submission %s received", file.name)
-
+    print(f"{type(file)}")
     test_file = deepcopy(file)
 
     with ZipFile(test_file) as archive:
