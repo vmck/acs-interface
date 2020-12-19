@@ -1,5 +1,6 @@
 import glob
 import logging
+from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
@@ -25,14 +26,15 @@ def moss_check(submissions, assignment, request):
         tmp = Path(_tmp)
 
         for submission in submissions:
+            buff = BytesIO()
             try:
-                submission.download(tmp / f"{submission.pk}.zip")
+                submission.download(buff)
             except MissingFile:
                 msg = f"File missing for {submission!r}"
                 messages.error(request, msg)
                 log.warning(msg)
 
-            submission_archive = ZipFile(tmp / f"{submission.pk}.zip")
+            submission_archive = ZipFile(buff)
             submission_archive.extractall(
                 tmp / f"{submission.user.username}",
             )
