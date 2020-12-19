@@ -3,7 +3,8 @@ from copy import deepcopy
 from zipfile import ZipFile
 
 from django.db import transaction
-from django.contrib.auth import User
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils import timezone
 
 import interface.backend.minio_api as storage
@@ -17,7 +18,9 @@ class CorruptZipFile(Exception):
     pass
 
 
-def handle_submission(file, assignment: Assignment, user: User):
+def handle_submission(
+    file: InMemoryUploadedFile, assignment: Assignment, user: User
+):
     log.debug("Submission %s received", file.name)
     print(f"{type(file)}")
     test_file = deepcopy(file)

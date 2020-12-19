@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 log.setLevel(log_level)
 
 
-def str_to_time(time_str: str, format_str=DATE_FORMAT) -> float:
+def str_to_time(time_str: str, format_str: str = DATE_FORMAT) -> float:
     """Interprets time_str as a time value specified by format_str and
     returns that time object"""
     return time.mktime(time.strptime(time_str, format_str))

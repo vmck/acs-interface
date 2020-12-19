@@ -17,7 +17,7 @@ def log_action(
 
 
 def log_action_admin(msg: str):
-    def inner(func: Callable[any, any]):
+    def inner(func: Callable[[any], any]):
         def wrapper(*args, **kwargs):
             res = func(*args, **kwargs)
 

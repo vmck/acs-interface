@@ -7,7 +7,7 @@ import requests
 from requests import Response
 from cachetools import cached, TTLCache
 
-from interface.models import Assignment, Submission
+# from interface.models import Assignment, Submission
 
 
 vocabulary_64 = string.ascii_letters + string.digits + ".+"
@@ -41,8 +41,8 @@ def cached_get_file(url: str) -> Response:
 
 
 def get_last_submissions_of_every_user(
-    assignment: Assignment,
-) -> List[Submission]:
+    assignment,
+) -> List[any]:
     submission_set = assignment.submission_set.order_by("timestamp")
 
     submissions = {}
