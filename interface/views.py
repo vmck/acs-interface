@@ -22,7 +22,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from interface import models
 from interface import utils
 from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Course, User
+from interface.models import Submission, Course, User, Assignment
 from interface.backend.submission.submission import (
     handle_submission,
     TooManySubmissionsError,
@@ -130,10 +130,15 @@ def download(request, pk):
 
 @login_required
 def homepage(request):
+    courseID = int(request.GET.get("course", "-1"))
+    assignments = Assignment.objects.filter(id=courseID).prefetch_related(
+        "course"
+    )
+
     return render(
         request,
         "interface/homepage.html",
-        {"courses": Course.objects.all().prefetch_related("assignment_set")},
+        {"courses": Course.objects.all(), "assignments": assignments},
     )
 
 
