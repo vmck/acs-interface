@@ -2,9 +2,8 @@
 
 {% block body_content %}
   <div class="container">
-<<<<<<< HEAD
     <div class="btn-group" style="width: 100%;">
-      <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 100%;">
+      <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 100%;">
         Select course
       </button>
 
@@ -17,12 +16,6 @@
 
     <ul>
       {% for assignment in assignments %}
-=======
-    {% for course in courses %}
-      <h3>{{ course.name }}</h3>
-      <ul>
-      {% for assignment in course.assignment_set.all %}
->>>>>>> Dev (#285)
         <li>
           {{ assignment.name }}:
           {% if assignment.is_active %}

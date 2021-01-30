@@ -131,9 +131,9 @@ def download(request, pk):
 @login_required
 def homepage(request):
     courseID = int(request.GET.get("course", "-1"))
-    assignments = Assignment.objects.filter(id=courseID).prefetch_related(
-        "course"
-    )
+    assignments = Assignment.objects.filter(
+        course__id=courseID, hide=False
+    ).prefetch_related("course")
 
     return render(
         request,
