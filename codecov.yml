@@ -1,0 +1,2 @@
+ignore:
+  - "interface/moss.py" # For the moment we can not automatically test the Moss Checker
