@@ -105,24 +105,6 @@ class Assignment(models.Model):
                 "to hard deadline"
             )
 
-    def clean(self):
-        penalty_weights = self.penalty_info["penalty_weights"]
-        if not isinstance(penalty_weights, list) or not all(
-            isinstance(x, (float, int)) for x in penalty_weights
-        ):
-            raise ValidationError(
-                "Penalty weights should be a list of integer/floats"
-            )
-
-        if (
-            len(penalty_weights)
-            != (self.deadline_hard - self.deadline_soft).days
-        ):
-            raise ValidationError(
-                "Number of penalty weights should be == days from soft "
-                "to hard deadline"
-            )
-
     @property
     def full_code(self):
         return f"{self.course.pk}-{self.pk}"
