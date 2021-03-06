@@ -38,6 +38,8 @@ jobs:
     Publish:
         needs: Pytest
         runs-on: ubuntu-latest
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         steps:
           - name: Checkout Code
             uses: actions/checkout@v2
@@ -61,4 +63,3 @@ jobs:
             with:
               push: true
               tags: ${{ github.repository }}:${{ env.BRANCH_NAME }}
-
