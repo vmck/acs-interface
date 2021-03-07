@@ -11,7 +11,14 @@
         <form id="reviewForm" method="post" action="review">
           {% csrf_token %}
           <div class="form-group">
-            <label for="message-text" class="col-form-label">Review details:</label>
+            <div class="row">
+                <div class="col">
+                  <label for="message-text">Review details:</label>
+                </div>
+                <div class="col">
+                  <a href="https://github.com/vmck/acs-interface/wiki/Features#review-submissions" class="float-right" style="text-decoration: none;">Format syntax</a>
+                </div>
+            </div>
             <textarea class="form-control" name='review-code' id="message-text">{{ submission_review_message }}</textarea>
           </div>
         </form>
