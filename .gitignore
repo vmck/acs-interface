@@ -3,3 +3,4 @@
 /interface/static/
 /.vagrant
 *.pyc
+/.vscode/
