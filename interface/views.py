@@ -325,7 +325,11 @@ def subs_for_user(request, course_pk, assignment_pk, username):
     return render(
         request,
         "interface/subs_for_user.html",
-        {"assignment": assignment, "submissions": page_submissions},
+        {
+            "assignment": assignment,
+            "submissions": page_submissions,
+            "user_assignment": user.username,
+        },
     )
 
 
