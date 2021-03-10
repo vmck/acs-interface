@@ -130,7 +130,6 @@ def download(request, pk):
 
 @login_required
 def homepage(request):
-    user_logged = request.user
     courseID = int(request.GET.get("course", "-1"))
     assignments = Assignment.objects.filter(
         course__id=courseID, hide=False
