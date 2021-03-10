@@ -86,7 +86,7 @@ class Assignment(models.Model):
     history = HistoricalRecords()
     hidden_score = models.BooleanField(default=True)
     hide = models.BooleanField(null=False, default=False)
-    hide_student = models.BooleanField(null=False, default=False)
+    assignment_on = models.BooleanField(null=False, default=False)
 
     def clean(self):
         penalty_weights = self.penalty_info["penalty_weights"]

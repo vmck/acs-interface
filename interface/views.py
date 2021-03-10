@@ -139,8 +139,7 @@ def homepage(request):
     return render(
         request,
         "interface/homepage.html",
-        {"courses": Course.objects.all(), "assignments": assignments, 
-        "user_logged": user_logged},
+        {"courses": Course.objects.all(), "assignments": assignments},
     )
 
 

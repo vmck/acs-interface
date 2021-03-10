@@ -18,7 +18,7 @@
       {% for assignment in assignments %}
         <li>
           {{ assignment.name }}:
-          {% if assignment.is_active %}
+          {% if assignment.is_active and assignment.assignment_on or assignment.is_active and user in assignment.course.teaching_assistants.all %}
             <a href="{% url 'upload' assignment.course.pk assignment.pk %}">Upload</a>,
           {% endif %}
           <a href="{% url 'subs_for_assignment' assignment.course.pk assignment.pk %}">Results</a>
