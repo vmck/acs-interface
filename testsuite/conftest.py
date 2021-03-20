@@ -13,7 +13,7 @@ from interface.models import Course, Submission, Assignment
 from interface.admin import CourseAdmin, AssignmentAdmin
 
 
-@pytest.fixture
+@pytest.fixture()
 def base_db_setup():
     user = User.objects.create_user("user", password="pw")
 
@@ -50,20 +50,22 @@ def base_db_setup():
     return (super_user, ta, user, course, assignment)
 
 
-@pytest.fixture
-def STC():
+@pytest.fixture()
+def stc():
     return SimpleTestCase()
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_evaluate(monkeypatch):
     def evaluate_stub(path):
         pass
 
     monkeypatch.setattr(Submission, "evaluate", evaluate_stub)
 
+    return None
 
-@pytest.fixture
+
+@pytest.fixture()
 def mock_admin_assignment(monkeypatch):
     def run_moss_stub(assignment, request, queryset):
         return JsonResponse({"type": "run_moss"})
@@ -86,6 +88,8 @@ def mock_admin_assignment(monkeypatch):
         "download_all_submissions",
         download_all_submissions_stub,
     )
+
+    return None
 
 
 @pytest.yield_fixture

@@ -29,14 +29,14 @@ def request(method, url, data=None, headers=None):
     req = Request(url, body, headers, method=method)
 
     with urlopen(req) as res:
-        if 200 <= res.status < 300:
-            if res.headers.get("Content-Type") == "application/json":
-                content = res.read()
-                return json.loads(content)
-            else:
-                return None
-        else:
+        if not (200 <= res.status < 300):
             raise RuntimeError(f"POST failed. {url}, {res.status}, {res.msg}")
+
+        if res.headers.get("Content-Type") == "application/json":
+            content = res.read()
+            return json.loads(content)
+        else:
+            return None
 
 
 def main():
@@ -50,7 +50,9 @@ def main():
         data={"Canonicalize": True, "JobHCL": job_hcl},
     )
     request(
-        method="POST", url=f"{NOMAD_URL}/v1/jobs", data={"Job": interface_json}
+        method="POST",
+        url=f"{NOMAD_URL}/v1/jobs",
+        data={"Job": interface_json},
     )
 
 

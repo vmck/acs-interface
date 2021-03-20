@@ -17,7 +17,7 @@ from interface.models import Submission
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_submission(client, live_server, base_db_setup, mock_config):
 
     (_, _, user, course, assignment) = base_db_setup
@@ -80,7 +80,7 @@ def test_submission(client, live_server, base_db_setup, mock_config):
     assert filecmp.cmp(f.name, FILEPATH, shallow=False)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
     (_, _, user, course, assignment) = base_db_setup
 
@@ -105,7 +105,7 @@ def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
     assert message == "Please wait 60s between submissions"
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_download_from_someone_else(client, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
@@ -122,8 +122,8 @@ def test_download_from_someone_else(client, base_db_setup):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
-def test_user_cannot_review(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_cannot_review(client, stc, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -138,14 +138,14 @@ def test_user_cannot_review(client, STC, base_db_setup):
         f"/submission/{submission.pk}/review",
         data={"review-code": review_message},
     )
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         f"/admin/login/?next=/submission/{submission.pk}/review",
     )
 
 
-@pytest.mark.django_db
-def test_user_cannot_recompute_score(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_cannot_recompute_score(client, stc, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -156,14 +156,14 @@ def test_user_cannot_recompute_score(client, STC, base_db_setup):
     )
 
     response = client.post(f"/submission/{submission.pk}/recompute")
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         f"/admin/login/?next=/submission/{submission.pk}/recompute",
     )
 
 
-@pytest.mark.django_db
-def test_user_cannot_rerun(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_cannot_rerun(client, stc, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -174,38 +174,38 @@ def test_user_cannot_rerun(client, STC, base_db_setup):
     )
 
     response = client.post(f"/submission/{submission.pk}/rerun")
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         f"/admin/login/?next=/submission/{submission.pk}/rerun",
     )
 
 
-@pytest.mark.django_db
-def test_user_login(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_login(client, stc, base_db_setup):
     (_, _, user, _, _) = base_db_setup
 
     response = client.post("/", {"username": "user", "password": "pw"})
-    STC.assertRedirects(response, "/homepage/")
+    stc.assertRedirects(response, "/homepage/")
 
 
-@pytest.mark.django_db
-def test_user_logout(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_logout(client, stc, base_db_setup):
     (_, _, user, _, _) = base_db_setup
     client.post("/", {"username": user.username, "password": "pw"})
 
     response = client.post("/logout/")
-    STC.assertRedirects(response, "/")
+    stc.assertRedirects(response, "/")
 
 
-def test_anonymous(client, STC):
+def test_anonymous(client, stc):
     response = client.get("/homepage/")
-    STC.assertRedirects(response, "/?next=/homepage/")
+    stc.assertRedirects(response, "/?next=/homepage/")
 
     response = client.get("/submission/")
-    STC.assertRedirects(response, "/?next=/submission/")
+    stc.assertRedirects(response, "/?next=/submission/")
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_user_cannot_see_another_userpage(client, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
@@ -219,8 +219,8 @@ def test_user_cannot_see_another_userpage(client, base_db_setup):
     assert response.status_code == 404
 
 
-@pytest.mark.django_db
-def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
+@pytest.mark.django_db()
+def test_filesize_limit(client, base_db_setup, mock_evaluate, stc):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -243,11 +243,11 @@ def test_filesize_limit(client, base_db_setup, mock_evaluate, STC):
 
     assert Submission.objects.all().count() == 0
 
-    STC.assertContains(response, "Keep files below")
+    stc.assertContains(response, "Keep files below")
 
 
-@pytest.mark.django_db
-def test_user_cannot_reveal(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_cannot_reveal(client, stc, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -255,14 +255,14 @@ def test_user_cannot_reveal(client, STC, base_db_setup):
     response = client.post(
         f"/assignment/{course.pk}/{assignment.pk}/reveal",
     )
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         f"/admin/login/?next=/assignment/{course.pk}/{assignment.pk}/reveal",
     )
 
 
-@pytest.mark.django_db
-def test_user_cannot_see_another_submission_score(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_cannot_see_another_submission_score(client, stc, base_db_setup):
     (_, _, user, _, assignment) = base_db_setup
     client.login(username=user.username, password="pw")
 
@@ -279,14 +279,14 @@ def test_user_cannot_see_another_submission_score(client, STC, base_db_setup):
     )
 
     assert response.status_code == 200
-    STC.assertTemplateUsed(response, "interface/submission_result.html")
-    STC.assertContains(response, other.username)
-    STC.assertContains(response, "N/A")
-    STC.assertNotContains(response, "TOTAL")
+    stc.assertTemplateUsed(response, "interface/submission_result.html")
+    stc.assertContains(response, other.username)
+    stc.assertContains(response, "N/A")
+    stc.assertNotContains(response, "TOTAL")
 
 
-@pytest.mark.django_db
-def test_user_see_revealed_score(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_see_revealed_score(client, stc, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -304,12 +304,12 @@ def test_user_see_revealed_score(client, STC, base_db_setup):
         f"/submission/{submission.pk}",
         follow=True,
     )
-    STC.assertNotContains(response, "N/A")
-    STC.assertContains(response, "Final score")
+    stc.assertNotContains(response, "N/A")
+    stc.assertContains(response, "Final score")
 
 
-@pytest.mark.django_db
-def test_user_code_view(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_user_code_view(client, stc, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -333,9 +333,9 @@ def test_user_code_view(client, STC, base_db_setup):
         follow=True,
     )
 
-    STC.assertTemplateNotUsed(response, "interface/code_view.html")
+    stc.assertTemplateNotUsed(response, "interface/code_view.html")
     assert response.status_code == 200
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         f"/admin/login/?next=/submission/{submission.pk}/test/",
     )
