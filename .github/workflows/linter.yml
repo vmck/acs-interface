@@ -1,5 +1,7 @@
-name: Lint
-on: [push, pull_request]
+name: CI
+
+on: [ push, pull_request ]
+
 jobs:
     Lint:
         runs-on: ubuntu-latest
@@ -9,10 +11,18 @@ jobs:
               with:
                 fetch-depth: 0
 
-            - name: Run Flake8
-              uses: tonybajan/flake8-check-action@v1.0.0
+            - name: Set up Python
+              uses: actions/setup-python@v1
               with:
-                repotoken: ${{ secrets.GITHUB_TOKEN }}
+                python-version: 3.8
+
+            - name: Install Python dependencies
+              shell: bash
+              run: pip install black flake8
+
+            - name: Run Flake8
+              shell: bash
+              run: flake8 .
 
             - name: Run Black
               uses: jpetrucciani/black-check@20.8b1

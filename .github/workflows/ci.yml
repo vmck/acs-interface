@@ -1,7 +1,13 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
 jobs:
-    PyTest:
+    Test:
         runs-on: ubuntu-latest
         steps:
           - name: Checkout Code
