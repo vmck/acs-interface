@@ -18,11 +18,19 @@ jobs:
 
             - name: Install Python dependencies
               shell: bash
-              run: pip install black flake8
+              run: pip install flakehell flake8 flake8-bugbear flake8-django \
+                  flake8-eradicate flake8-comprehensions flake8-return \
+                  flake8-simplify pep8-naming flake8-use-fstring \
+                  flake8-logging-format flake8-pytest-style flake8-pytest \
+                  flake8-fixme flake8-commas flake8-builtins flake8-debugger \
+                  flake8-mutable
 
             - name: Run Flake8
               shell: bash
-              run: flake8 .
+              run: |
+                flakehell --version
+                flakehell plugins
+                flakehell lint
 
             - name: Run Black
               uses: jpetrucciani/black-check@20.8b1
