@@ -26,7 +26,9 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
     with open(FILEPATH, "rb") as file:
         upload = SimpleUploadedFile(
-            FILEPATH.name, file.read(), content_type="application/zip"
+            FILEPATH.name,
+            file.read(),
+            content_type="application/zip",
         )
         client.post(
             f"/assignment/{course.pk}/{assignment.pk}/upload/",
@@ -66,7 +68,7 @@ def test_submission(client, live_server, base_db_setup, mock_config):
         time.sleep(1)
 
         if time.time() - start >= 210:
-            assert False
+            raise AssertionError()
 
     assert submission.score == 100
     assert submission.total_score == 100
@@ -81,7 +83,8 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
 
 @pytest.mark.django_db()
-def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
+@pytest.mark.usefixtures("_mock_evaluate")
+def test_upload_too_many_times(client, base_db_setup):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")
@@ -89,7 +92,9 @@ def test_upload_too_many_times(client, base_db_setup, mock_evaluate):
     for _ in range(2):
         with open(FILEPATH, "rb") as file:
             upload = SimpleUploadedFile(
-                FILEPATH.name, file.read(), content_type="application/zip"
+                FILEPATH.name,
+                file.read(),
+                content_type="application/zip",
             )
 
             response = client.post(
@@ -220,7 +225,8 @@ def test_user_cannot_see_another_userpage(client, base_db_setup):
 
 
 @pytest.mark.django_db()
-def test_filesize_limit(client, base_db_setup, mock_evaluate, stc):
+@pytest.mark.usefixtures("_mock_evaluate")
+def test_filesize_limit(client, base_db_setup, stc):
     (_, _, user, course, assignment) = base_db_setup
 
     client.login(username=user.username, password="pw")

@@ -5,7 +5,12 @@ from django.core.files.uploadhandler import MemoryFileUploadHandler
 
 class RestrictedFileUploadHandler(MemoryFileUploadHandler):
     def handle_raw_input(
-        self, input_data, META, content_length, boundary, encoding=None
+        self,
+        input_data,
+        META,
+        content_length,
+        boundary,
+        encoding=None,
     ):
         super().handle_raw_input(
             input_data,
@@ -27,6 +32,8 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
                         size=content_length,
                         charset=None,
                         content_type_extra=None,
-                    )
+                    ),
                 },
             )
+
+        return None

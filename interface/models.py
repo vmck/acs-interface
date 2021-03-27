@@ -33,6 +33,9 @@ class ActionLog(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
 
+    def __str__(self):
+        return f"{self.user}: {self.action}"
+
 
 class Course(models.Model):
     name = models.CharField(max_length=256, blank=False)
@@ -51,7 +54,7 @@ class Assignment(models.Model):
     # This is a maping from file format to what moss expects
     # as input when choosing a language
     LANG_CHOICES = OrderedDict(
-        [(LANG_C, "c"), (LANG_PYTHON, "python"), (LANG_JAVA, "java")]
+        [(LANG_C, "c"), (LANG_PYTHON, "python"), (LANG_JAVA, "java")],
     )
 
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
@@ -69,6 +72,20 @@ class Assignment(models.Model):
         default=LANG_C,
     )
 
+    image_path = models.CharField(max_length=256, blank=False, default="NA")
+    penalty_info = models.JSONField(
+        default=Assignment.get_default_penalty_info
+    )
+    vm_options = models.JSONField(default=Assignment.get_default_vm_info)
+
+    history = HistoricalRecords()
+    hidden_score = models.BooleanField(default=True)
+    hide = models.BooleanField(null=False, default=False)
+
+    def __str__(self):
+        return f"{self.full_code} {self.name}"
+
+    @staticmethod
     def get_default_penalty_info():
         return {
             "penalty_weights": [],
@@ -76,16 +93,9 @@ class Assignment(models.Model):
             "holday_finish": [],
         }
 
+    @staticmethod
     def get_default_vm_info():
         return {"nr_cpus": 1, "memory": 512}
-
-    image_path = models.CharField(max_length=256, blank=False, default="NA")
-    penalty_info = models.JSONField(default=get_default_penalty_info)
-    vm_options = models.JSONField(default=get_default_vm_info)
-
-    history = HistoricalRecords()
-    hidden_score = models.BooleanField(default=True)
-    hide = models.BooleanField(null=False, default=False)
 
     def clean(self):
         penalty_weights = self.penalty_info["penalty_weights"]
@@ -93,7 +103,7 @@ class Assignment(models.Model):
             isinstance(x, (float, int)) for x in penalty_weights
         ):
             raise ValidationError(
-                "Penalty weights should be a list of integer/floats"
+                "Penalty weights should be a list of integer/floats",
             )
 
         if (
@@ -102,7 +112,7 @@ class Assignment(models.Model):
         ):
             raise ValidationError(
                 "Number of penalty weights should be == days from soft "
-                "to hard deadline"
+                "to hard deadline",
             )
 
     @property
@@ -116,17 +126,15 @@ class Assignment(models.Model):
 
         return diff.total_seconds() > 0
 
-    def __str__(self):
-        return f"{self.full_code} {self.name}"
-
     def url_for(self, filename):
         m = re.match(
             r"https://github.com/(?P<org>[^/]+)/(?P<repo>[^/]+)/?$",
             self.repo_url,
         )
-        url_base = "https://raw.githubusercontent.com/" "{0}/{1}/".format(
-            *list(m.groups())
-        )
+
+        org, repo = m.groups()
+
+        url_base = f"https://raw.githubusercontent.com/{org}/{repo}/"
         branch = self.repo_branch or "master"
         path = f"{self.repo_path}/" if self.repo_path else ""
         return urljoin(url_base, f"{branch}/{path}{filename}")
@@ -166,11 +174,13 @@ class Submission(models.Model):
             (STATE_DONE, "Done"),
             (STATE_QUEUED, "Queue"),
             (STATE_ERROR, "Error"),
-        ]
+        ],
     )
 
     assignment = models.ForeignKey(
-        Assignment, on_delete=models.CASCADE, null=True
+        Assignment,
+        on_delete=models.CASCADE,
+        null=True,
     )
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
     stdout = models.TextField(max_length=32768, default="", blank=True)
@@ -184,10 +194,14 @@ class Submission(models.Model):
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
     review_score = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True
+        max_digits=5,
+        decimal_places=2,
+        null=True,
     )
     total_score = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True
+        max_digits=5,
+        decimal_places=2,
+        null=True,
     )
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     penalty = models.DecimalField(max_digits=5, decimal_places=2, null=True)
@@ -195,6 +209,9 @@ class Submission(models.Model):
     evaluator_job_id = models.IntegerField(null=True)
 
     history = HistoricalRecords()
+
+    def __str__(self):
+        return f"#{self.pk} by {self.user}"
 
     def update_state(self):
         if (
@@ -221,9 +238,6 @@ class Submission(models.Model):
     def get_artifact_url(self):
         return self.assignment.url_for("artifact.zip")
 
-    def __str__(self):
-        return f"#{self.pk} by {self.user}"
-
     @property
     def state_label(self):
         return self.STATE_CHOICES[self.state]
@@ -239,7 +253,9 @@ class Submission(models.Model):
         when it calls back with the result
         """
         return jwt.encode(
-            {"data": str(self.pk)}, settings.SECRET_KEY, algorithm="HS256"
+            {"data": str(self.pk)},
+            settings.SECRET_KEY,
+            algorithm="HS256",
         )
 
     def verify_jwt(self, message):
@@ -250,7 +266,9 @@ class Submission(models.Model):
             return False
         try:
             decoded_message = jwt.decode(
-                message, settings.SECRET_KEY, algorithms=["HS256"]
+                message,
+                settings.SECRET_KEY,
+                algorithms=["HS256"],
             )
 
             return decoded_message["data"] == str(self.id)

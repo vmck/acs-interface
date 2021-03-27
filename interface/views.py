@@ -28,7 +28,7 @@ from interface.backend.submission.submission import (
     TooManySubmissionsError,
     CorruptZipFile,
 )
-from .scoring import calculate_total_score
+from interface.scoring import calculate_total_score
 from interface.actions_logger import log_action
 from interface.codeview import extract_file, tree_view
 
@@ -130,9 +130,10 @@ def download(request, pk):
 
 @login_required
 def homepage(request):
-    courseID = int(request.GET.get("course", "-1"))
+    course_id = int(request.GET.get("course", "-1"))
     assignments = Assignment.objects.filter(
-        course__id=courseID, hide=False
+        course__id=course_id,
+        hide=False,
     ).prefetch_related("course")
 
     return render(
@@ -350,7 +351,9 @@ def user_page(request, username):
     page_submissions = paginator.get_page(page)
 
     return render(
-        request, "interface/user_page.html", {"submissions": page_submissions}
+        request,
+        "interface/user_page.html",
+        {"submissions": page_submissions},
     )
 
 
@@ -371,7 +374,7 @@ def reveal(request, course_pk, assignment_pk):
         request.META.get(
             "HTTP_REFERER",
             f"/assignment/{course.pk}/{assignment.pk}",
-        )
+        ),
     )
 
 

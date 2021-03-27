@@ -45,8 +45,8 @@ class SubQueue(object):
                 try:
                     submission.update_state()
                     log.info("Check submission #%s status", submission.id)
-                except Exception as e:
-                    log.error("Exception %s for #%s", e, submission.id)
+                except Exception:
+                    log.exception("Exception for #%s", submission.id)
 
             time.sleep(settings.CHECK_INTERVAL_SUBS)
 
@@ -61,8 +61,8 @@ class SubQueue(object):
         with self.subs_lock:
             try:
                 self.subs.remove(sub)
-            except Exception as e:
-                log.info("Exception %s for sub #%s", e, sub.id)
+            except Exception:
+                log.exception("Exception for sub #%s", sub.id)
         self.sem.release()
 
     def _evaluate_submission(self, sub):

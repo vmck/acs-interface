@@ -310,7 +310,9 @@ def test_ta_edit_assignment(stc, client, base_db_setup):
 
 @pytest.mark.django_db()
 def test_soft_deadline_change_trigger_recompute(
-    client, base_db_setup, mock_config
+    client,
+    base_db_setup,
+    mock_config,
 ):
     (_, ta, user, course, assignment) = base_db_setup
 
@@ -506,7 +508,7 @@ def test_ta_check_possible_courses(client, base_db_setup):
         map(
             lambda x: x[1][0]["label"],
             response.context["widget"]["optgroups"],
-        )
+        ),
     )
 
     # Default value
@@ -651,7 +653,7 @@ def test_ta_cannot_review_submission(client, stc, base_db_setup):
         follow=True,
     )
 
-    response.status_code == 403
+    assert response.status_code == 403
 
 
 @pytest.mark.django_db()
@@ -769,7 +771,8 @@ def test_ta_cannot_recompute_score(stc, client, base_db_setup):
 
 
 @pytest.mark.django_db()
-def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
+@pytest.mark.usefixtures("_mock_admin_assignment")
+def test_ta_download_last_sub(client, base_db_setup):
     """
     Check if users can download the last submission for review
     if they are teaching assistants
@@ -793,7 +796,8 @@ def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
 
 
 @pytest.mark.django_db()
-def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
+@pytest.mark.usefixtures("_mock_admin_assignment")
+def test_ta_download_all_subs(client, base_db_setup):
     """
     Check if users can download all the submissions for review
     if they are teaching assistants
@@ -814,7 +818,8 @@ def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
 
 
 @pytest.mark.django_db()
-def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
+@pytest.mark.usefixtures("_mock_admin_assignment")
+def test_ta_run_moss(client, base_db_setup):
     """
     Check if users can run moss if they are teaching assistants
     """
@@ -863,7 +868,7 @@ def test_ta_reveal(client, stc, base_db_setup):
     stc.assertRedirects(response, f"/assignment/{course.pk}/{assignment.pk}")
 
     if not assignment.hidden_score:
-        assert False
+        raise AssertionError()
 
 
 @pytest.mark.django_db()

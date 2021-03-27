@@ -5,9 +5,9 @@ class Evaluator(ABC):
     @staticmethod
     @abstractmethod
     def evaluate(submission):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @staticmethod
     @abstractmethod
     def update(submission):
-        raise NotImplemented()
+        raise NotImplementedError()

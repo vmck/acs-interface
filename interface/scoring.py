@@ -29,7 +29,11 @@ def get_penalty_info(submission):
 
 
 def compute_penalty(
-    upload_time, deadline, penalty, holiday_start=None, holiday_finish=None
+    upload_time,
+    deadline,
+    penalty,
+    holiday_start=None,
+    holiday_finish=None,
 ):
     """A generic function to compute penalty
     Args:
@@ -40,8 +44,6 @@ def compute_penalty(
     Note: time interval between deadline and upload time (seconds)
     is time.mktime(upload_time) - time.mktime(deadline)
     """
-    # XXX refactor such that instead of holiday_start and holiday_finish
-    # only one list (of intervals) is used
 
     if holiday_start is None:
         holiday_start = []
@@ -53,18 +55,17 @@ def compute_penalty(
     interval = sec_upload_time - sec_deadline
     penalty_points = 0
 
-    if interval > 0:
-        # compute the interval representing the intersection between
-        # (deadline, upload_time) and (holiday_start[i], holiday_finish[i])
+    # compute the interval representing the intersection between
+    # the <deadline, upload_time> and <holiday_start[i], holiday_finish[i]>
+    if interval > 0 and holiday_start != []:
+        for i in range(len(holiday_start)):
+            sec_start = str_to_time(holiday_start[i])
+            sec_finish = str_to_time(holiday_finish[i])
+            maxim = max(sec_start, sec_deadline)
+            minim = min(sec_finish, sec_upload_time)
 
-        if holiday_start != []:
-            for i in range(len(holiday_start)):
-                sec_start = str_to_time(holiday_start[i])
-                sec_finish = str_to_time(holiday_finish[i])
-                maxim = max(sec_start, sec_deadline)
-                minim = min(sec_finish, sec_upload_time)
-                if minim > maxim:
-                    interval -= minim - maxim
+            if minim > maxim:
+                interval -= minim - maxim
 
     # only if the number of days late is positive (deadline exceeded)
     if interval > 0:
@@ -84,7 +85,7 @@ def compute_review_score(submission):
         submission.review_message,
         re.MULTILINE,
     )
-    log.debug("Marks found: " + str(marks))
+    log.debug("Marks found: %s", str(marks))
 
     return sum([decimal.Decimal(mark) for mark in marks])
 

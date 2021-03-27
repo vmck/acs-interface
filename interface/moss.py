@@ -45,7 +45,7 @@ def moss_check(submissions, assignment, request):
                     / (
                         f"{submission.user.username}"
                         f"/**/*.{submission.assignment.language}"
-                    )
+                    ),
                 ),
                 recursive=True,
             )

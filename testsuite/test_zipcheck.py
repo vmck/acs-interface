@@ -6,7 +6,8 @@ from interface.models import Submission
 
 
 @pytest.mark.django_db()
-def test_zip_bad_zipfile(client, base_db_setup, mock_evaluate):
+@pytest.mark.usefixtures("_mock_evaluate")
+def test_zip_bad_zipfile(client, base_db_setup):
     filepath = settings.BASE_DIR / "testsuite" / "not_a_zip.zip"
     (_, _, _, course, assignment) = base_db_setup
 
@@ -14,7 +15,9 @@ def test_zip_bad_zipfile(client, base_db_setup, mock_evaluate):
 
     with open(filepath, "rb") as file:
         upload = SimpleUploadedFile(
-            filepath.name, file.read(), content_type="application/zip"
+            filepath.name,
+            file.read(),
+            content_type="application/zip",
         )
 
         response = client.post(
@@ -33,7 +36,8 @@ def test_zip_bad_zipfile(client, base_db_setup, mock_evaluate):
 
 
 @pytest.mark.django_db()
-def test_zip_corrupt_zipfile(client, base_db_setup, mock_evaluate):
+@pytest.mark.usefixtures("_mock_evaluate")
+def test_zip_corrupt_zipfile(client, base_db_setup):
     filepath = settings.BASE_DIR / "testsuite" / "corrupt.zip"
     (_, _, _, course, assignment) = base_db_setup
 
@@ -41,7 +45,9 @@ def test_zip_corrupt_zipfile(client, base_db_setup, mock_evaluate):
 
     with open(filepath, "rb") as file:
         upload = SimpleUploadedFile(
-            filepath.name, file.read(), content_type="application/zip"
+            filepath.name,
+            file.read(),
+            content_type="application/zip",
         )
 
         response = client.post(

@@ -47,7 +47,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     def _add_new_ta(self, user):
         ta_permissions = Permission.objects.filter(
-            codename__in=CourseAdmin._ta_permissions
+            codename__in=CourseAdmin._ta_permissions,
         )
 
         if not user.is_staff:
@@ -109,7 +109,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         if not request.user.is_superuser:
             qs = form.base_fields["course"].queryset
             form.base_fields["course"].queryset = qs.filter(
-                teaching_assistants=request.user
+                teaching_assistants=request.user,
             )
 
         return form
@@ -163,7 +163,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, "Only one assignment can be selected")
-            return
+            return None
 
         assignment = queryset[0]
 
@@ -180,7 +180,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     def download_all_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, "Only one assignment can be selected")
-            return
+            return None
 
         assignment = queryset[0]
         submission_set = assignment.submission_set.order_by("timestamp")
