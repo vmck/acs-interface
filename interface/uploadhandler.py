@@ -7,7 +7,7 @@ class RestrictedFileUploadHandler(MemoryFileUploadHandler):
     def handle_raw_input(
         self,
         input_data,
-        META,
+        META,  # noqa: N803
         content_length,
         boundary,
         encoding=None,

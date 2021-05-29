@@ -1,5 +1,5 @@
 [tool.black]
-line-length = 79
+line-length = 100
 target-version = ['py37']
 exclude = "interface/migrations/*"
 
@@ -12,7 +12,7 @@ addopts = "--cov-report=xml --cov=interface --liveserver 10.66.60.1:8000"
 [tool.flakehell]
 exclude = ["interface/migrations/*"]
 format = "grouped"
-max_line_length = 80
+max_line_length = 100
 show_source = true
 
 [tool.flakehell.plugins]
@@ -33,6 +33,6 @@ show_source = true
 "flake8-use-fstring" = ["+*"]
 "mccabe" = ["+*"]
 "pep8-naming" = ["+*"]
-"pycodestyle" = ["+*"]
+"pycodestyle" = ["+*", "-W503"]
 "pyflakes" = ["+*"]
 "pylint" = ["+F*", "+E*", "-E0611", "-E1101", "-E0401", "-E1102", "-E1123"]

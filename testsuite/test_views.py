@@ -56,9 +56,7 @@ def test_submission_list(client, stc, base_db_setup):
 
     stc.assertTemplateUsed(response, "interface/submission_list.html")
     assert response.context["submissions"]
-    assert (
-        len(response.context["submissions"]) == settings.SUBMISSIONS_PER_PAGE
-    )
+    assert len(response.context["submissions"]) == settings.SUBMISSIONS_PER_PAGE
 
 
 @pytest.mark.django_db()

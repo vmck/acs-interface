@@ -178,7 +178,7 @@ def test_ta_add_new_assignment(stc, client, base_db_setup):
         "min_time_between_uploads": 30,
         "language": "c",
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -232,7 +232,7 @@ def test_ta_cannot_add_new_assignment(stc, client, base_db_setup):
         "min_time_between_uploads": 30,
         "language": "c",
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -249,10 +249,7 @@ def test_ta_cannot_add_new_assignment(stc, client, base_db_setup):
     assert len(errors) == 1
 
     msg_error = errors[0][0]
-    expected_error = (
-        "Select a valid choice. That choice is not "
-        "one of the available choices."
-    )
+    expected_error = "Select a valid choice. That choice is not " "one of the available choices."
     assert msg_error == expected_error
 
 
@@ -277,7 +274,7 @@ def test_ta_edit_assignment(stc, client, base_db_setup):
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -339,7 +336,7 @@ def test_soft_deadline_change_trigger_recompute(
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [1, 1, 1, 1, 1, 1, 1],\
             "holiday_start": [],\
@@ -391,7 +388,7 @@ def test_ta_cannot_edit_assignment(stc, client, base_db_setup):
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -412,9 +409,7 @@ def test_ta_cannot_edit_assignment(stc, client, base_db_setup):
     message = message_list[0].message
 
     # Carefull at the quoation marks
-    expected_prefix = (
-        f"""assignment with ID “{assignment.pk}” doesn’t exist."""
-    )
+    expected_prefix = f"""assignment with ID “{assignment.pk}” doesn’t exist."""
     assert message.startswith(expected_prefix)
 
 
@@ -472,9 +467,7 @@ def test_ta_cannot_remove_assignment(client, stc, base_db_setup):
     message = message_list[0].message
 
     # Carefull at the quoation marks
-    expected_prefix = (
-        f"""assignment with ID “{assignment.pk}” doesn’t exist."""
-    )
+    expected_prefix = f"""assignment with ID “{assignment.pk}” doesn’t exist."""
     assert message.startswith(expected_prefix)
 
 

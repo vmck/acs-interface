@@ -44,10 +44,7 @@ def test_submission(client, live_server, base_db_setup, mock_config):
 
     # There is a delay before the general queue's threads starts so, depending
     # on the system, the submission might be in the queue or already sent
-    assert (
-        submission.state == submission.STATE_NEW
-        or submission.state == submission.STATE_QUEUED
-    )
+    assert submission.state == submission.STATE_NEW or submission.state == submission.STATE_QUEUED
     assert submission.archive_size > 0
 
     # As the reason mentioned above, the submission might have been already

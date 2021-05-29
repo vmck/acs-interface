@@ -74,9 +74,13 @@ class Assignment(models.Model):
 
     image_path = models.CharField(max_length=256, blank=False, default="NA")
     penalty_info = models.JSONField(
-        default=Assignment.get_default_penalty_info
+        default={
+            "penalty_weights": [],
+            "holiday_start": [],
+            "holday_finish": [],
+        },
     )
-    vm_options = models.JSONField(default=Assignment.get_default_vm_info)
+    vm_options = models.JSONField(default={"nr_cpus": 1, "memory": 512})
 
     history = HistoricalRecords()
     hidden_score = models.BooleanField(default=True)
@@ -84,18 +88,6 @@ class Assignment(models.Model):
 
     def __str__(self):
         return f"{self.full_code} {self.name}"
-
-    @staticmethod
-    def get_default_penalty_info():
-        return {
-            "penalty_weights": [],
-            "holiday_start": [],
-            "holday_finish": [],
-        }
-
-    @staticmethod
-    def get_default_vm_info():
-        return {"nr_cpus": 1, "memory": 512}
 
     def clean(self):
         penalty_weights = self.penalty_info["penalty_weights"]
@@ -106,13 +98,9 @@ class Assignment(models.Model):
                 "Penalty weights should be a list of integer/floats",
             )
 
-        if (
-            len(penalty_weights)
-            != (self.deadline_hard - self.deadline_soft).days
-        ):
+        if len(penalty_weights) != (self.deadline_hard - self.deadline_soft).days:
             raise ValidationError(
-                "Number of penalty weights should be == days from soft "
-                "to hard deadline",
+                "Number of penalty weights should be == days from soft " "to hard deadline",
             )
 
     @property
@@ -214,10 +202,7 @@ class Submission(models.Model):
         return f"#{self.pk} by {self.user}"
 
     def update_state(self):
-        if (
-            self.state in [self.STATE_DONE, self.STATE_ERROR]
-            or self.evaluator_job_id is None
-        ):
+        if self.state in [self.STATE_DONE, self.STATE_ERROR] or self.evaluator_job_id is None:
             return
 
         state = SubmissionScheduler.evaluator.update(self)

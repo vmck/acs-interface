@@ -41,17 +41,13 @@ def moss_check(submissions, assignment, request):
 
             read_files = glob.glob(
                 str(
-                    tmp
-                    / (
-                        f"{submission.user.username}"
-                        f"/**/*.{submission.assignment.language}"
-                    ),
+                    tmp / (f"{submission.user.username}" f"/**/*.{submission.assignment.language}"),
                 ),
                 recursive=True,
             )
 
             for f in read_files:
-                user_dir = f[len(str(tmp)) :]
+                user_dir = f[len(str(tmp)) :]  # noqa: E203
                 new_filename = (
                     user_dir.split("/")[1]
                     + f"/{submission.user.username}_"
