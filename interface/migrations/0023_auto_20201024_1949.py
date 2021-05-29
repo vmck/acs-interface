@@ -19,12 +19,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='assignment',
             name='penalty_info',
-            field=models.JSONField(default=interface.models.Assignment.get_default_penalty_info),
+            field=models.JSONField(default=interface.models.get_default_penalty_info),
         ),
         migrations.AddField(
             model_name='assignment',
             name='vm_options',
-            field=models.JSONField(default=interface.models.Assignment.get_default_vm_info),
+            field=models.JSONField(default=interface.models.get_default_vm_info),
         ),
         migrations.AddField(
             model_name='historicalassignment',
@@ -34,12 +34,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalassignment',
             name='penalty_info',
-            field=models.JSONField(default=interface.models.Assignment.get_default_penalty_info),
+            field=models.JSONField(default=interface.models.get_default_penalty_info),
         ),
         migrations.AddField(
             model_name='historicalassignment',
             name='vm_options',
-            field=models.JSONField(default=interface.models.Assignment.get_default_vm_info),
+            field=models.JSONField(default=interface.models.get_default_vm_info),
         ),
         migrations.AlterField(
             model_name='historicalsubmission',
