@@ -27,7 +27,7 @@ jobs:
 
             - name: Run Flake8
               shell: bash
-              run: |
+              run:
                 flakehell plugins
                 flakehell lint
 
