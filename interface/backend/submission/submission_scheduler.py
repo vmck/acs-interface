@@ -10,7 +10,7 @@ from interface.backend.submission.evaluator.vmck import VMCK
 log = logging.getLogger(__name__)
 
 
-class SubQueue(object):
+class SubQueue:
     def __init__(self, free_machines=1):
         self.queue = PriorityQueue()
         self.max_machines = free_machines
@@ -76,7 +76,7 @@ class SubQueue(object):
         return f"Queue [{self.queue}] and elements: {self.queue.queue}"
 
 
-class SubmissionScheduler(object):
+class SubmissionScheduler:
     _instance = None
     evaluator = VMCK
 

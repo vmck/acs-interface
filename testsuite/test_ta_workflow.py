@@ -14,7 +14,7 @@ FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"
 
 
-class MockObject(object):
+class MockObject:
     pass
 
 
