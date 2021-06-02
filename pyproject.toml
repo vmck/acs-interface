@@ -1,5 +1,5 @@
 [tool.black]
-line-length = 79
+line-length = 100
 target-version = ['py37']
 exclude = "interface/migrations/*"
 
@@ -8,3 +8,31 @@ DJANGO_SETTINGS_MODULE = "interface.settings"
 log_level = "DEBUG"
 testpaths = ["testsuite"]
 addopts = "--cov-report=xml --cov=interface --liveserver 10.66.60.1:8000"
+
+[tool.flakehell]
+exclude = ["interface/migrations/*"]
+format = "grouped"
+max_line_length = 100
+show_source = true
+
+[tool.flakehell.plugins]
+"flake8-bugbear" = ["+*"]
+"flake8-builtins" = ["+*"]
+"flake8-comprehensions" = ["+*"]
+"flake8-commas" = ["+*"]
+"flake8-debugger" = ["+*"]
+"flake8-django" = ["+*", "-DJ10", "-DJ11"]
+"flake8-eradicate" = ["+*"]
+"flake8-fixme" = ["+*"]
+"flake8-logging-format" = ["+*"]
+"flake8-mutable" = ["+*"]
+"flake8-pytest-style" = ["+*", "-PT009"]
+"flake8_printf_formatting" = ["+*"]
+"flake8-return" = ["+*", "-R504"]
+"flake8_simplify" = ["+*"]
+"flake8-use-fstring" = ["+*"]
+"mccabe" = ["+*"]
+"pep8-naming" = ["+*"]
+"pycodestyle" = ["+*", "-W503"]
+"pyflakes" = ["+*"]
+"pylint" = ["+F*", "+E*", "-E0611", "-E1101", "-E0401", "-E1102", "-E1123"]

@@ -59,7 +59,9 @@ def download(filename, path):
 
 def get_link(filename):
     return _client.presigned_get_object(
-        settings.MINIO_BUCKET, filename, expires=timedelta(hours=1)
+        settings.MINIO_BUCKET,
+        filename,
+        expires=timedelta(hours=1),
     )
 
 

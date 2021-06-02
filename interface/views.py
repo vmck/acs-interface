@@ -28,7 +28,7 @@ from interface.backend.submission.submission import (
     TooManySubmissionsError,
     CorruptZipFile,
 )
-from .scoring import calculate_total_score
+from interface.scoring import calculate_total_score
 from interface.actions_logger import log_action
 from interface.codeview import extract_file, tree_view
 
@@ -110,8 +110,7 @@ def download(request, pk):
 
     if (
         submission.user != request.user
-        and request.user
-        not in submission.assignment.course.teaching_assistants.all()
+        and request.user not in submission.assignment.course.teaching_assistants.all()
     ):
         return HttpResponse(status=403)
 
@@ -130,9 +129,10 @@ def download(request, pk):
 
 @login_required
 def homepage(request):
-    courseID = int(request.GET.get("course", "-1"))
+    course_id = int(request.GET.get("course", "-1"))
     assignments = Assignment.objects.filter(
-        course__id=courseID, hide=False
+        course__id=course_id,
+        hide=False,
     ).prefetch_related("course")
 
     return render(
@@ -148,10 +148,7 @@ def homepage(request):
 def review(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
-    if (
-        request.user
-        not in submission.assignment.course.teaching_assistants.all()
-    ):
+    if request.user not in submission.assignment.course.teaching_assistants.all():
         return HttpResponse(status=403)
 
     submission.review_message = request.POST["review-code"]
@@ -168,10 +165,7 @@ def review(request, pk):
 def rerun_submission(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
 
-    if (
-        request.user
-        not in submission.assignment.course.teaching_assistants.all()
-    ):
+    if request.user not in submission.assignment.course.teaching_assistants.all():
         return HttpResponse(status=403)
 
     submission.state = Submission.STATE_NEW
@@ -187,10 +181,7 @@ def rerun_submission(request, pk):
 def recompute_score(request, pk):
     submission = get_object_or_404(models.Submission, pk=pk)
 
-    if (
-        request.user
-        not in submission.assignment.course.teaching_assistants.all()
-    ):
+    if request.user not in submission.assignment.course.teaching_assistants.all():
         return HttpResponse(status=403)
 
     # Clear the penalty so it's calculated again
@@ -340,9 +331,7 @@ def user_page(request, username):
         raise Http404("You are not allowed to access this page.")
 
     submissions = (
-        Submission.objects.all()
-        .filter(user=request.user)
-        .order_by("-timestamp")
+        Submission.objects.all().filter(user=request.user).order_by("-timestamp")
     ).select_related("user", "assignment__course")
 
     paginator = Paginator(submissions, settings.SUBMISSIONS_PER_PAGE)
@@ -350,7 +339,9 @@ def user_page(request, username):
     page_submissions = paginator.get_page(page)
 
     return render(
-        request, "interface/user_page.html", {"submissions": page_submissions}
+        request,
+        "interface/user_page.html",
+        {"submissions": page_submissions},
     )
 
 
@@ -371,7 +362,7 @@ def reveal(request, course_pk, assignment_pk):
         request.META.get(
             "HTTP_REFERER",
             f"/assignment/{course.pk}/{assignment.pk}",
-        )
+        ),
     )
 
 

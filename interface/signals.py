@@ -1,4 +1,4 @@
-from .scoring import calculate_total_score
+from interface.scoring import calculate_total_score
 
 
 def update_total_score(sender, instance, **kwargs):

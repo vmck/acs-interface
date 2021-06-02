@@ -10,7 +10,7 @@ from interface.backend.submission.evaluator.vmck import VMCK
 log = logging.getLogger(__name__)
 
 
-class SubQueue(object):
+class SubQueue:
     def __init__(self, free_machines=1):
         self.queue = PriorityQueue()
         self.max_machines = free_machines
@@ -45,8 +45,8 @@ class SubQueue(object):
                 try:
                     submission.update_state()
                     log.info("Check submission #%s status", submission.id)
-                except Exception as e:
-                    log.error("Exception %s for #%s", e, submission.id)
+                except Exception:
+                    log.exception("Exception for #%s", submission.id)
 
             time.sleep(settings.CHECK_INTERVAL_SUBS)
 
@@ -61,8 +61,8 @@ class SubQueue(object):
         with self.subs_lock:
             try:
                 self.subs.remove(sub)
-            except Exception as e:
-                log.info("Exception %s for sub #%s", e, sub.id)
+            except Exception:
+                log.exception("Exception for sub #%s", sub.id)
         self.sem.release()
 
     def _evaluate_submission(self, sub):
@@ -76,7 +76,7 @@ class SubQueue(object):
         return f"Queue [{self.queue}] and elements: {self.queue.queue}"
 
 
-class SubmissionScheduler(object):
+class SubmissionScheduler:
     _instance = None
     evaluator = VMCK
 

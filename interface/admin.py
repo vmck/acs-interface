@@ -47,7 +47,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
 
     def _add_new_ta(self, user):
         ta_permissions = Permission.objects.filter(
-            codename__in=CourseAdmin._ta_permissions
+            codename__in=CourseAdmin._ta_permissions,
         )
 
         if not user.is_staff:
@@ -56,11 +56,7 @@ class CourseAdmin(simple_history.admin.SimpleHistoryAdmin):
             user.save()
 
     def _remove_ta(self, user, course):
-        tas_courses = (
-            Course.objects.all()
-            .exclude(pk=course.pk)
-            .filter(teaching_assistants=user)
-        )
+        tas_courses = Course.objects.all().exclude(pk=course.pk).filter(teaching_assistants=user)
         if not tas_courses:
             user.is_staff = False
             user.user_permissions.set([])
@@ -109,7 +105,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
         if not request.user.is_superuser:
             qs = form.base_fields["course"].queryset
             form.base_fields["course"].queryset = qs.filter(
-                teaching_assistants=request.user
+                teaching_assistants=request.user,
             )
 
         return form
@@ -132,9 +128,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
                     messages.error(request, msg)
                     log.warning(msg)
                 else:
-                    buff.name = (
-                        f"{submission.user.username}" f"-{submission.pk}.zip"
-                    )
+                    buff.name = f"{submission.user.username}" f"-{submission.pk}.zip"
                     zip_archive.writestr(buff.name, buff.getvalue())
 
         big_buff.seek(0)
@@ -163,7 +157,7 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
     def download_review_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, "Only one assignment can be selected")
-            return
+            return None
 
         assignment = queryset[0]
 
@@ -172,24 +166,20 @@ class AssignmentAdmin(simple_history.admin.SimpleHistoryAdmin):
             get_last_submissions_of_every_user(assignment),
         )
 
-    download_review_submissions.short_description = (
-        "Download last submissions for review"
-    )
+    download_review_submissions.short_description = "Download last submissions for review"
 
     @log_action_admin("Download all submissions")
     def download_all_submissions(self, request, queryset):
         if queryset.count() != 1:
             messages.error(request, "Only one assignment can be selected")
-            return
+            return None
 
         assignment = queryset[0]
         submission_set = assignment.submission_set.order_by("timestamp")
 
         return self.zip_submissions(request, submission_set)
 
-    download_all_submissions.short_description = (
-        "Download all submissions for review"
-    )
+    download_all_submissions.short_description = "Download all submissions for review"
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)

@@ -13,7 +13,7 @@ from interface.models import Course, Submission, Assignment
 from interface.admin import CourseAdmin, AssignmentAdmin
 
 
-@pytest.fixture
+@pytest.fixture()
 def base_db_setup():
     user = User.objects.create_user("user", password="pw")
 
@@ -50,21 +50,23 @@ def base_db_setup():
     return (super_user, ta, user, course, assignment)
 
 
-@pytest.fixture
-def STC():
+@pytest.fixture()
+def stc():
     return SimpleTestCase()
 
 
-@pytest.fixture
-def mock_evaluate(monkeypatch):
+@pytest.fixture()
+def _mock_evaluate(monkeypatch):
     def evaluate_stub(path):
         pass
 
     monkeypatch.setattr(Submission, "evaluate", evaluate_stub)
 
+    return
 
-@pytest.fixture
-def mock_admin_assignment(monkeypatch):
+
+@pytest.fixture()
+def _mock_admin_assignment(monkeypatch):
     def run_moss_stub(assignment, request, queryset):
         return JsonResponse({"type": "run_moss"})
 
@@ -87,16 +89,18 @@ def mock_admin_assignment(monkeypatch):
         download_all_submissions_stub,
     )
 
+    return
 
-@pytest.yield_fixture
+
+@pytest.fixture()
 def mock_config(monkeypatch):
-    ADDR = "10.66.60.1"
-    PORT = 5000
+    addr = "10.66.60.1"
+    port = 5000
 
     class Server:
         def __init__(self):
             self.server = HTTPServer(
-                (ADDR, PORT),
+                (addr, port),
                 SimpleHTTPRequestHandler,
             )
             self.thread = threading.Thread(target=self.server.serve_forever)
@@ -110,7 +114,7 @@ def mock_config(monkeypatch):
             self.thread.join()
 
     def url_for(self, filename):
-        return f"http://{ADDR}:{PORT}/testsuite/{filename}"
+        return f"http://{addr}:{port}/testsuite/{filename}"
 
     monkeypatch.setattr(Assignment, "url_for", url_for)
 

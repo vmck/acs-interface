@@ -14,12 +14,12 @@ FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"
 
 
-class MockObject(object):
+class MockObject:
     pass
 
 
-@pytest.mark.django_db
-def test_ta_add_new_ta(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_add_new_ta(client, stc, base_db_setup):
     """
     Create one teaching assistant, 5 courses and 3 assignments for
     each course.
@@ -31,7 +31,7 @@ def test_ta_add_new_ta(client, STC, base_db_setup):
 
     client.login(username=user.username, password="pw")
     response = client.get("/admin/")
-    STC.assertRedirects(response, "/admin/login/?next=/admin/")
+    stc.assertRedirects(response, "/admin/login/?next=/admin/")
 
     request = MockObject()
     request.user = super_user
@@ -60,7 +60,7 @@ def test_ta_add_new_ta(client, STC, base_db_setup):
     assert len(response.context["results"]) == 1
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_ta_view_assignment(client, base_db_setup):
     """
     Test if the teaching assistant can view the already existing assignment
@@ -75,8 +75,8 @@ def test_ta_view_assignment(client, base_db_setup):
     assert len(response.context["results"]) == 1
 
 
-@pytest.mark.django_db
-def test_ta_cannot_view_assignment(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_view_assignment(stc, client, base_db_setup):
     """
     Test if users can not view an assignment where they are not
     a teaching assistant
@@ -103,7 +103,7 @@ def test_ta_cannot_view_assignment(STC, client, base_db_setup):
     assert len(response.context["results"]) == 1
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_ta_view_submissions(client, base_db_setup):
     """
     Test if the teaching assistant can view already existing submissions
@@ -125,7 +125,7 @@ def test_ta_view_submissions(client, base_db_setup):
     assert len(response.context["results"]) == expected_submissions
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_ta_cannot_view_submissions(client, base_db_setup):
     """
     Test if the users can not views submissions from the courses
@@ -157,8 +157,8 @@ def test_ta_cannot_view_submissions(client, base_db_setup):
     assert len(response.context["results"]) == 0
 
 
-@pytest.mark.django_db
-def test_ta_add_new_assignment(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_add_new_assignment(stc, client, base_db_setup):
     """
     Test if the teaching assistant can view new added assignments
     """
@@ -178,7 +178,7 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         "min_time_between_uploads": 30,
         "language": "c",
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -191,7 +191,7 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
         data=assignment_params,
     )
 
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         "/admin/interface/assignment/",
     )
@@ -200,8 +200,8 @@ def test_ta_add_new_assignment(STC, client, base_db_setup):
     assert len(response.context["results"]) == 2
 
 
-@pytest.mark.django_db
-def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_add_new_assignment(stc, client, base_db_setup):
     """
     Test if the users can not add new assignment at the courses they are
     not teaching assistants
@@ -232,7 +232,7 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
         "min_time_between_uploads": 30,
         "language": "c",
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -249,15 +249,12 @@ def test_ta_cannot_add_new_assignment(STC, client, base_db_setup):
     assert len(errors) == 1
 
     msg_error = errors[0][0]
-    expected_error = (
-        "Select a valid choice. That choice is not "
-        "one of the available choices."
-    )
+    expected_error = "Select a valid choice. That choice is not " "one of the available choices."
     assert msg_error == expected_error
 
 
-@pytest.mark.django_db
-def test_ta_edit_assignment(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_edit_assignment(stc, client, base_db_setup):
     """
     Test if the teaching assistant can edit an assignment
     """
@@ -277,7 +274,7 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -291,7 +288,7 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
         data=assignment_change_params,
     )
 
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         "/admin/interface/assignment/",
     )
@@ -308,9 +305,11 @@ def test_ta_edit_assignment(STC, client, base_db_setup):
     assert new_assignment == assignment
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_soft_deadline_change_trigger_recompute(
-    client, base_db_setup, mock_config
+    client,
+    base_db_setup,
+    mock_config,
 ):
     (_, ta, user, course, assignment) = base_db_setup
 
@@ -337,7 +336,7 @@ def test_soft_deadline_change_trigger_recompute(
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [1, 1, 1, 1, 1, 1, 1],\
             "holiday_start": [],\
@@ -357,8 +356,8 @@ def test_soft_deadline_change_trigger_recompute(
     assert submission.total_score == 93
 
 
-@pytest.mark.django_db
-def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_edit_assignment(stc, client, base_db_setup):
     """
     Test if users can not edit an assignment where they are not
     a teaching assistant
@@ -389,7 +388,7 @@ def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
         "min_time_between_uploads": assignment.min_time_between_uploads,
         "language": assignment.language,
         "image_path": "image.qcow2",
-        "vm_options": '{"nr_cpus": 1, "memory": 512}',
+        "vm_options": '{"nr_cpus": 1, "memory": 512}',  # noqa: FS003
         "penalty_info": '{\
             "penalty_weights": [],\
             "holiday_start": [],\
@@ -410,14 +409,12 @@ def test_ta_cannot_edit_assignment(STC, client, base_db_setup):
     message = message_list[0].message
 
     # Carefull at the quoation marks
-    expected_prefix = (
-        f"""assignment with ID “{assignment.pk}” doesn’t exist."""
-    )
+    expected_prefix = f"""assignment with ID “{assignment.pk}” doesn’t exist."""
     assert message.startswith(expected_prefix)
 
 
-@pytest.mark.django_db
-def test_ta_remove_assignment(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_remove_assignment(client, stc, base_db_setup):
     """
     Test if the teaching assistant can remove an assignment
     """
@@ -430,7 +427,7 @@ def test_ta_remove_assignment(client, STC, base_db_setup):
         data={"post": "yes"},
     )
 
-    STC.assertRedirects(
+    stc.assertRedirects(
         response,
         "/admin/interface/assignment/",
     )
@@ -438,8 +435,8 @@ def test_ta_remove_assignment(client, STC, base_db_setup):
     assert len(response.context["results"]) == 0
 
 
-@pytest.mark.django_db
-def test_ta_cannot_remove_assignment(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_remove_assignment(client, stc, base_db_setup):
     """
     Test if users can not edit an assignment where they are not
     a teaching assistant
@@ -470,13 +467,11 @@ def test_ta_cannot_remove_assignment(client, STC, base_db_setup):
     message = message_list[0].message
 
     # Carefull at the quoation marks
-    expected_prefix = (
-        f"""assignment with ID “{assignment.pk}” doesn’t exist."""
-    )
+    expected_prefix = f"""assignment with ID “{assignment.pk}” doesn’t exist."""
     assert message.startswith(expected_prefix)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_ta_check_possible_courses(client, base_db_setup):
     """
     Check if users can make assignments only for the courses
@@ -506,7 +501,7 @@ def test_ta_check_possible_courses(client, base_db_setup):
         map(
             lambda x: x[1][0]["label"],
             response.context["widget"]["optgroups"],
-        )
+        ),
     )
 
     # Default value
@@ -514,8 +509,8 @@ def test_ta_check_possible_courses(client, base_db_setup):
     assert found_courses == course_names_ta
 
 
-@pytest.mark.django_db
-def test_ta_download_submission(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_download_submission(client, stc, base_db_setup):
     """
     Test if the teaching assistant can download submission
     """
@@ -536,7 +531,7 @@ def test_ta_download_submission(client, STC, base_db_setup):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_ta_cannot_download_submission(client, base_db_setup):
     """
     Test if a teaching assistant can not download submission
@@ -567,8 +562,8 @@ def test_ta_cannot_download_submission(client, base_db_setup):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
-def test_ta_review_submission(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_review_submission(client, stc, base_db_setup):
     """
     Test if the teaching assistant can add review to submission
     """
@@ -590,7 +585,7 @@ def test_ta_review_submission(client, STC, base_db_setup):
         follow=True,
     )
 
-    STC.assertRedirects(response, "/homepage/")
+    stc.assertRedirects(response, "/homepage/")
 
     all_subs = assignment.submission_set.all()
     assert len(all_subs) == 1
@@ -607,7 +602,7 @@ def test_ta_review_submission(client, STC, base_db_setup):
         follow=True,
     )
 
-    STC.assertRedirects(response, "/homepage/")
+    stc.assertRedirects(response, "/homepage/")
 
     all_subs = assignment.submission_set.all()
     assert len(all_subs) == 1
@@ -617,8 +612,8 @@ def test_ta_review_submission(client, STC, base_db_setup):
     assert changed_sub.total_score == 80
 
 
-@pytest.mark.django_db
-def test_ta_cannot_review_submission(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_review_submission(client, stc, base_db_setup):
     """
     Check if users can not review submission from a different
     course where they are not teaching assistants
@@ -651,11 +646,11 @@ def test_ta_cannot_review_submission(client, STC, base_db_setup):
         follow=True,
     )
 
-    response.status_code == 403
+    assert response.status_code == 403
 
 
-@pytest.mark.django_db
-def test_ta_rerun_submission(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_rerun_submission(stc, client, base_db_setup):
     """
     Test if a teaching assistant can rerun a submission
     """
@@ -676,8 +671,8 @@ def test_ta_rerun_submission(STC, client, base_db_setup):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
-def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_rerun_submission(stc, client, base_db_setup):
     """
     Check if users can not rerun a submission that is from a
     different course and they are not teaching assistants there
@@ -710,8 +705,8 @@ def test_ta_cannot_rerun_submission(STC, client, base_db_setup):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
-def test_ta_recompute_score(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_recompute_score(stc, client, base_db_setup):
     """
     Test if a teaching assistant can recompute the score of a
     submission if the checker changed
@@ -733,8 +728,8 @@ def test_ta_recompute_score(STC, client, base_db_setup):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
-def test_ta_cannot_recompute_score(STC, client, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_cannot_recompute_score(stc, client, base_db_setup):
     """
     Check if users can not recompute score for the submissions
     that are from a course where they are not teaching assistants
@@ -768,8 +763,9 @@ def test_ta_cannot_recompute_score(STC, client, base_db_setup):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
-def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("_mock_admin_assignment")
+def test_ta_download_last_sub(client, base_db_setup):
     """
     Check if users can download the last submission for review
     if they are teaching assistants
@@ -792,8 +788,9 @@ def test_ta_download_last_sub(client, base_db_setup, mock_admin_assignment):
     assert response.json()["type"] == "download_review_submissions"
 
 
-@pytest.mark.django_db
-def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("_mock_admin_assignment")
+def test_ta_download_all_subs(client, base_db_setup):
     """
     Check if users can download all the submissions for review
     if they are teaching assistants
@@ -813,8 +810,9 @@ def test_ta_download_all_subs(client, base_db_setup, mock_admin_assignment):
     assert response.json()["type"] == "download_all_submissions"
 
 
-@pytest.mark.django_db
-def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("_mock_admin_assignment")
+def test_ta_run_moss(client, base_db_setup):
     """
     Check if users can run moss if they are teaching assistants
     """
@@ -833,8 +831,8 @@ def test_ta_run_moss(client, base_db_setup, mock_admin_assignment):
     assert response.json()["type"] == "run_moss"
 
 
-@pytest.mark.django_db
-def test_ta_login(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_login(client, stc, base_db_setup):
     (_, ta, _, _, _) = base_db_setup
     client.post("/", {"username": ta.username, "password": "pw"})
 
@@ -843,31 +841,31 @@ def test_ta_login(client, STC, base_db_setup):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
-def test_ta_logout(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_logout(client, stc, base_db_setup):
     (_, ta, _, _, _) = base_db_setup
     client.post("/", {"username": ta.username, "password": "pw"})
 
     response = client.post("/logout/")
-    STC.assertRedirects(response, "/")
+    stc.assertRedirects(response, "/")
 
 
-@pytest.mark.django_db
-def test_ta_reveal(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_reveal(client, stc, base_db_setup):
     (_, ta, user, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password="pw")
 
     response = client.get(f"/assignment/{course.pk}/{assignment.pk}/reveal")
 
-    STC.assertRedirects(response, f"/assignment/{course.pk}/{assignment.pk}")
+    stc.assertRedirects(response, f"/assignment/{course.pk}/{assignment.pk}")
 
     if not assignment.hidden_score:
-        assert False
+        raise AssertionError()
 
 
-@pytest.mark.django_db
-def test_ta_see_revealed_score(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_see_revealed_score(client, stc, base_db_setup):
     (_, ta, user, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password="pw")
@@ -876,11 +874,11 @@ def test_ta_see_revealed_score(client, STC, base_db_setup):
     assignment.save()
 
     response = client.get(f"/assignment/{course.pk}/{assignment.pk}")
-    STC.assertNotContains(response, "N/A")
+    stc.assertNotContains(response, "N/A")
 
 
-@pytest.mark.django_db
-def test_ta_code_view(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_code_view(client, stc, base_db_setup):
     (_, ta, _, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password="pw")
@@ -905,11 +903,11 @@ def test_ta_code_view(client, STC, base_db_setup):
     )
 
     assert response.status_code == 200
-    STC.assertNotContains(response, "N/A")
+    stc.assertNotContains(response, "N/A")
 
 
-@pytest.mark.django_db
-def test_ta_code_view_file_missing(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_code_view_file_missing(client, stc, base_db_setup):
     (_, ta, _, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password="pw")
@@ -934,11 +932,11 @@ def test_ta_code_view_file_missing(client, STC, base_db_setup):
     )
 
     assert response.status_code == 200
-    STC.assertContains(response, "The file is missing!")
+    stc.assertContains(response, "The file is missing!")
 
 
-@pytest.mark.django_db
-def test_ta_code_view_archive_missing(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_code_view_archive_missing(client, stc, base_db_setup):
     (_, ta, user, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password="pw")
@@ -956,11 +954,11 @@ def test_ta_code_view_archive_missing(client, STC, base_db_setup):
     )
 
     assert response.status_code == 200
-    STC.assertContains(response, "The archive is missing!")
+    stc.assertContains(response, "The archive is missing!")
 
 
-@pytest.mark.django_db
-def test_ta_tree_view(client, STC, base_db_setup):
+@pytest.mark.django_db()
+def test_ta_tree_view(client, stc, base_db_setup):
     (_, ta, _, course, assignment) = base_db_setup
 
     client.login(username=ta.username, password="pw")
@@ -984,6 +982,6 @@ def test_ta_tree_view(client, STC, base_db_setup):
     )
 
     assert response.status_code == 200
-    STC.assertContains(response, "dir1")
-    STC.assertContains(response, "file1")
-    STC.assertContains(response, "file2")
+    stc.assertContains(response, "dir1")
+    stc.assertContains(response, "file1")
+    stc.assertContains(response, "file2")

@@ -12,6 +12,7 @@ log.setLevel(log_level)
 
 
 class VMCK(Evaluator):
+    @staticmethod
     def evaluate(submission):
         callback = (
             f"submission/{submission.pk}/done?"
@@ -48,24 +49,29 @@ class VMCK(Evaluator):
         log.debug("Callback: %s", options["env"]["VMCK_CALLBACK_URL"])
 
         response = requests.post(
-            urljoin(settings.VMCK_API_URL, "jobs"), json=options
+            urljoin(settings.VMCK_API_URL, "jobs"),
+            json=options,
         )
 
         log.debug(
-            "Submission's #%s VMCK response:\n%s", submission.pk, response
+            "Submission's #%s VMCK response:\n%s",
+            submission.pk,
+            response,
         )
 
         return response.json()["id"]
 
+    @staticmethod
     def update(submission):
         response = requests.get(
             urljoin(
-                settings.VMCK_API_URL, f"jobs/{submission.evaluator_job_id}"
-            )
+                settings.VMCK_API_URL,
+                f"jobs/{submission.evaluator_job_id}",
+            ),
         )
         try:
             json_response = response.json()
             return json_response["state"]
-        except Exception as e:
-            log.debug(f"JSON conversion error: {e}")
+        except Exception:
+            log.exception("JSON conversion error")
             return "error"

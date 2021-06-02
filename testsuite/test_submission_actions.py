@@ -5,7 +5,7 @@ import pytest
 from interface.models import Submission, ActionLog
 
 
-pytestmark = [pytest.mark.django_db]
+pytestmark = [pytest.mark.django_db()]
 
 
 def create_submission(assignment):

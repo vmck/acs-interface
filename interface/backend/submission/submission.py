@@ -30,7 +30,7 @@ def handle_submission(file, assignment, user):
         assignment row to prevent simultaneous uploads (race condition).
         """
         entries = assignment.submission_set.filter(user=user).order_by(
-            "-timestamp"
+            "-timestamp",
         )
 
         entry = entries.first()
@@ -40,7 +40,7 @@ def handle_submission(file, assignment, user):
             if delta_t.seconds < assignment.min_time_between_uploads:
                 log.debug("Submission can be made after #%s seconds", delta_t)
                 raise TooManySubmissionsError(
-                    assignment.min_time_between_uploads
+                    assignment.min_time_between_uploads,
                 )
 
         submission = assignment.submission_set.create(
@@ -54,8 +54,9 @@ def handle_submission(file, assignment, user):
 
     submission.evaluate()
     log.debug(
-        f"Submission #{submission.pk} was sent to VMCK "
-        f"as #{submission.evaluator_job_id}"
+        "Submission #%s was sent to VMCK as #%s",
+        submission.pk,
+        submission.evaluator_job_id,
     )
 
 

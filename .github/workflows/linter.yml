@@ -1,5 +1,7 @@
 name: Lint
-on: [push, pull_request]
+
+on: [ push, pull_request ]
+
 jobs:
     Lint:
         runs-on: ubuntu-latest
@@ -9,10 +11,25 @@ jobs:
               with:
                 fetch-depth: 0
 
-            - name: Run Flake8
-              uses: tonybajan/flake8-check-action@v1.0.0
+            - name: Set up Python
+              uses: actions/setup-python@v1
               with:
-                repotoken: ${{ secrets.GITHUB_TOKEN }}
+                python-version: 3.8
+
+            - name: Install Python dependencies
+              shell: bash
+              run: pip3 install flakehell flake8==3.9.0 flake8-bugbear flake8-django \
+                  flake8-eradicate flake8-comprehensions flake8-return \
+                  flake8-simplify pep8-naming flake8-use-fstring \
+                  flake8-logging-format flake8-pytest-style flake8-mutable \
+                  flake8-fixme flake8-commas flake8-builtins flake8-debugger \
+                  flake8_printf_formatting pylint pyflakes pycodestyle
+
+            - name: Run Flake8
+              shell: bash
+              run: |
+                flakehell --version
+                flakehell lint
 
             - name: Run Black
               uses: jpetrucciani/black-check@20.8b1
