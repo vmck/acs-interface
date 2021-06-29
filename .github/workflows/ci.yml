@@ -30,16 +30,7 @@ jobs:
 
           - name: Provision ACS-Interface
             shell: bash
-            run: |
-              python3 --version
-              python --version
-              which python
-              which python3
-              pipenv run python --version
-              pipenv run python3 --version
-              pipenv run which python
-              pipenv run which python3
-              ./ci/provision-acs-interface.sh
+            run: ./ci/provision-acs-interface.sh
 
           - name: PyTest
             shell: bash
