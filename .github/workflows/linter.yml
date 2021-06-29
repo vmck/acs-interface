@@ -22,7 +22,7 @@ jobs:
 
             - name: Install Dependencies
               shell: bash
-              run: ./ci/provision-system.sh
+              run: pipenv install --dev --ignore-pipfile
 
             - name: Run Flake8
               shell: bash
