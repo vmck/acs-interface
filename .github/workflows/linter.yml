@@ -22,7 +22,7 @@ jobs:
 
             - name: Install Dependencies
               shell: bash
-              run: sudo -Hu vagrant pipenv install --dev --ignore-pipfile
+              run: sudo pipenv install --dev --ignore-pipfile
 
             - name: Run Flake8
               shell: bash
