@@ -8,11 +8,11 @@ fi
 
 which python
 pipenv run which python
-sudo -Hu pipenv run which python
+sudo -Hu vagrant pipenv run which python
 
 echo $PATH
 pipenv run echo $PATH
-sudo -Hu pipenv run echo $PATH
+sudo -Hu vagrant pipenv run echo $PATH
 
 sudo -Hu vagrant pipenv install --dev --ignore-pipfile
 sudo -Hu vagrant mkdir -p data
