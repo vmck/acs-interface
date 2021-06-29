@@ -14,9 +14,13 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v1
               with:
-                python-version: 3.7.10
+                python-version: 3.8.10
 
             - name: Provision System
+              shell: bash
+              run: ./ci/provision-system.sh
+
+            - name: Install Dependencies
               shell: bash
               run: ./ci/provision-system.sh
 
