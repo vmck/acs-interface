@@ -8,7 +8,8 @@ else
     sudo -Hu vagrant cp ./examples/.env .
 fi
 
-sudo -Hu vagrant pipenv install --dev --ignore-pipfile 2> /dev/null
+# In case the pyenv installs the correct version of python we need to input a `y`
+yes | sudo -Hu vagrant pipenv install --dev --ignore-pipfile 2> /dev/null
 sudo -Hu vagrant mkdir -p data
 
 container=$(docker ps -f name=minio -aq)

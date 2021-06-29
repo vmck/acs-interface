@@ -16,6 +16,10 @@ jobs:
               with:
                 python-version: 3.7.10
 
+            - name: Install Dependencies
+              shell: bash
+              run: pip3 install --dev
+
             - name: Run Flake8
               shell: bash
               run: flakehell lint

@@ -1,10 +1,12 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "339072da84b56621df79fafb4cb47cd36b47ebc61794f858c551d129541041d9"
+            "sha256": "393f7608752565aba5e9c32b1d6ab2b51804340f23dd16eb283a157eea0c67e2"
         },
         "pipfile-spec": 6,
-        "requires": {},
+        "requires": {
+            "python_version": "3.7.10"
+        },
         "sources": [
             {
                 "name": "pypi",
@@ -531,14 +533,6 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
             "version": "==5.5"
-        },
-        "dataclasses": {
-            "hashes": [
-                "sha256:0201d89fa866f68c8ebd9d08ee6ff50c0b255f8ec63a71c16fda7af82bb887bf",
-                "sha256:8479067f342acf957dc82ec415d355ab5edb7e7646b90dc6e2fd1d96ad084c97"
-            ],
-            "markers": "python_version < '3.7'",
-            "version": "==0.8"
         },
         "entrypoints": {
             "hashes": [
