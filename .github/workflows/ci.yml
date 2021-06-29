@@ -35,10 +35,10 @@ jobs:
               python --version
               which python
               which python3
-              pipenv shell python --version
-              pipenv shell python3 --version
-              pipenv shell which python
-              pipenv shell which python3
+              pipenv run python --version
+              pipenv run python3 --version
+              pipenv run which python
+              pipenv run which python3
               ./ci/provision-acs-interface.sh
 
           - name: PyTest
