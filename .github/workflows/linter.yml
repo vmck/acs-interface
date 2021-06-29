@@ -16,11 +16,9 @@ jobs:
               with:
                 python-version: 3.7.10
 
-            - name: Install Dependencies
+            - name: Provision System
               shell: bash
-              run: |
-                pip3 install pipenv
-                pipenv install --dev --ignore-pipfile
+              run: ./ci/provision-system.sh
 
             - name: Run Flake8
               shell: bash

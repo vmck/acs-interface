@@ -17,27 +17,27 @@ jobs:
               python-version: 3.7.10
 
           - name: Provision System
-            run: ./ci/provision-system.sh
             shell: bash
+            run: ./ci/provision-system.sh
 
           - name: Provision Cluster
-            run: ./ci/provision-cluster.sh
             shell: bash
+            run: ./ci/provision-cluster.sh
 
           - name: Provision VMCK
-            run: ./ci/provision-vmck.sh
             shell: bash
+            run: ./ci/provision-vmck.sh
 
           - name: Provision ACS-Interface
-            run: ./ci/provision-acs-interface.sh
             shell: bash
+            run: ./ci/provision-acs-interface.sh
 
           - name: PyTest
-            run: ./ci/test-pytest.sh
             shell: bash
+            run: ./ci/test-pytest.sh
 
           - name: Codecov
-            run: ./ci/code-coverage.sh
             shell: bash
+            run: ./ci/code-coverage.sh
             env:
               CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
