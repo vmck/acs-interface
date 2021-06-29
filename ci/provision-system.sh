@@ -16,4 +16,4 @@ fi
 sudo usermod -aG docker vagrant
 sudo usermod -aG docker root
 
-sudo pip3 install pipenv
+sudo -Hu vagrant pip3 install pipenv
