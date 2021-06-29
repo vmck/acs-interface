@@ -20,7 +20,7 @@ jobs:
               shell: bash
               run: |
                 pip3 install pipenv
-                pipenv install --dev
+                pipenv install --dev --ignore-pipfile
 
             - name: Run Flake8
               shell: bash
