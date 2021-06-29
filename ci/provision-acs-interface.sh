@@ -4,6 +4,8 @@ if [ -z "$CI" ]; then
     cd /vagrant
 else
     sudo -Hu vagrant cp ./examples/.env .
+    rm /usr/bin/python
+    ln -s /opt/hostedtoolcache/Python/3.8.10/x64/bin/python /usr/bin/python
 fi
 
 sudo -Hu vagrant pipenv install --dev --ignore-pipfile
