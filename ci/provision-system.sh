@@ -7,6 +7,7 @@ sudo apt-get install -yqq python3-pip libsasl2-dev python-dev \
 if [ -z "$CI" ]; then
     sudo apt-get install -yqq docker.io git
     sudo -Hu vagrant curl https://pyenv.run | bash
+    /home/vagrant/.pyenv/bin/pyenv install 3.7.10
 else
     sudo useradd -m vagrant
     sudo usermod -aG sudo vagrant
