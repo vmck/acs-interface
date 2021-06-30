@@ -2,29 +2,28 @@
 
 if [ -z "$CI" ]; then
     cd /vagrant
-    SUDO="sudo -Hu vagrant"
 else
-    sudo -Hu vagrant cp ./examples/.env .
+    cp ./examples/.env .
 fi
 
-$SUDO pipenv install --dev --ignore-pipfile
+pipenv install --dev --ignore-pipfile
 sudo -Hu vagrant mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
 if [ -z "$container" ]; then (
-    $SUDO pipenv run examples/minio.sh
+    pipenv run examples/minio.sh
 ) fi
 
 container=$(docker ps -f name=database -aq)
 if [ -z "$container" ]; then (
-    $SUDO pipenv run examples/postgres.sh
+    pipenv run examples/postgres.sh
 ) fi
 
 sleep 2
 
-$SUDO pipenv run ./manage.py migrate
-$SUDO pipenv run ./manage.py storage_setup
-$SUDO pipenv run ./manage.py collectstatic --noinput
-$SUDO pipenv run ./manage.py loaddata ci/fixtures.json
+pipenv run ./manage.py migrate
+pipenv run ./manage.py storage_setup
+pipenv run ./manage.py collectstatic --noinput
+pipenv run ./manage.py loaddata ci/fixtures.json
 
 echo "✔ acs-interface installed successfully"

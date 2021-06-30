@@ -11,9 +11,9 @@ Vagrant.configure("2") do |config|
   config.smb.functional = false
 
   config.vm.provision "shell", path: "ci/provision-system.sh", binary: true
-  config.vm.provision "shell", path: "ci/provision-cluster.sh", binary: true
-  config.vm.provision "shell", path: "ci/provision-vmck.sh", binary: true
-  config.vm.provision "shell", path: "ci/provision-acs-interface.sh", binary: true
+  config.vm.provision "shell", path: "ci/provision-cluster.sh", binary: true, privileged: false
+  config.vm.provision "shell", path: "ci/provision-vmck.sh", binary: true, privileged: false
+  config.vm.provision "shell", path: "ci/provision-acs-interface.sh", binary: true, privileged: false
 
   config.vm.provider :vmck do |vmck|
     vmck.image_path = 'imgbuild-cluster.qcow2.tar.gz'
