@@ -8,7 +8,7 @@ else
 fi
 
 $SUDO pipenv install --dev --ignore-pipfile
-$SUDO mkdir -p data
+sudo -Hu vagrant mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
 if [ -z "$container" ]; then (
