@@ -6,18 +6,8 @@ else
     sudo -Hu vagrant cp ./examples/.env .
 fi
 
-which python
-sudo which python
-sudo -Hu vagrant which python
-pipenv run which python
-
-echo $PATH
-sudo bash -c 'echo $PATH'
-sudo -EHu vagrant bash -c 'echo $PATH'
-pipenv run echo $PATH
-
-sudo -Hu vagrant pipenv install --dev --ignore-pipfile
-sudo -Hu vagrant mkdir -p data
+sudo -EHu vagrant pipenv install --dev --ignore-pipfile
+sudo -EHu vagrant mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
 if [ -z "$container" ]; then (
@@ -31,9 +21,9 @@ if [ -z "$container" ]; then (
 
 sleep 2
 
-sudo -Hu vagrant pipenv run ./manage.py migrate
-sudo -Hu vagrant pipenv run ./manage.py storage_setup
-sudo -Hu vagrant pipenv run ./manage.py collectstatic --noinput
-sudo -Hu vagrant pipenv run ./manage.py loaddata ci/fixtures.json
+sudo -EHu vagrant pipenv run ./manage.py migrate
+sudo -EHu vagrant pipenv run ./manage.py storage_setup
+sudo -EHu vagrant pipenv run ./manage.py collectstatic --noinput
+sudo -EHu vagrant pipenv run ./manage.py loaddata ci/fixtures.json
 
 echo "✔ acs-interface installed successfully"
