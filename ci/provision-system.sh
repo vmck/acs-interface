@@ -8,7 +8,7 @@ if [ -z "$CI" ]; then
     sudo usermod -aG sudo vagrant
     sudo apt-get install -yqq docker.io git
     curl https://pyenv.run | sudo -Hu vagrant bash
-    /home/vagrant/.pyenv/bin/pyenv install 3.8.10
+    sudo -Hu vagrant /home/vagrant/.pyenv/bin/pyenv install 3.8.10
 else
     sudo useradd -m vagrant
     sudo usermod -aG sudo vagrant
