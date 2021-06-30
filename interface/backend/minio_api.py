@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from minio import Minio
-from minio.error import ResponseError
+from minio.error import InvalidResponseError
 from minio.error import NoSuchKey
 from django.conf import settings
 
@@ -74,5 +74,5 @@ def exists(filename):
     try:
         _client.stat_object(settings.MINIO_BUCKET, filename)
         return True
-    except ResponseError:
+    except InvalidResponseError:
         return False
