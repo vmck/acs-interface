@@ -2,6 +2,7 @@
 
 if [ -z "$CI" ]; then
     cd /vagrant
+    SUDO="sudo -Hu vagrant"
 fi
 
 # set the necessary envs if they are not present
@@ -11,4 +12,4 @@ fi
 
 sudo -Hu vagrant sed -i "/PROFILE=True/c\PROFILE=False" .env
 
-sudo -Hu vagrant pipenv run pytest
+$SUDO pipenv run pytest
