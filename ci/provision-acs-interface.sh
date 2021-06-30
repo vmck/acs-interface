@@ -7,12 +7,14 @@ else
 fi
 
 which python
+sudo which python
+sudo -Hu vagrant which python
 pipenv run which python
-sudo -Hu vagrant pipenv run which python
 
 echo $PATH
+sudo echo $PATH
+sudo -Hu vagrant echo $PATH
 pipenv run echo $PATH
-sudo -Hu vagrant pipenv run echo $PATH
 
 sudo -Hu vagrant pipenv install --dev --ignore-pipfile
 sudo -Hu vagrant mkdir -p data
