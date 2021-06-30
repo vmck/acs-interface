@@ -12,6 +12,7 @@ else
     sudo useradd -m vagrant
     sudo usermod -aG sudo vagrant
     sudo chown -R vagrant:vagrant .
+    sudo chmod a+rwx .
 fi
 sudo usermod -aG docker vagrant
 sudo usermod -aG docker root
