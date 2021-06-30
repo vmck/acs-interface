@@ -12,7 +12,11 @@ fi
     cd /opt
     git clone https://github.com/vmck/vmck
     popd
-    nomad job run ./ci/vmck.nomad
+    if [ -z "$CI" ]; then
+      nomad job run /vagrant/ci/vmck.nomad
+    else
+      nomad job run ./ci/vmck.nomad
+    fi
 )
 
 echo "✔ vmck installed successfully"
