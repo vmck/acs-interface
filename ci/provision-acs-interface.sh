@@ -6,6 +6,8 @@ else
     sudo -Hu vagrant cp ./examples/.env .
 fi
 
+sudo -E bash -c "echo \$PATH"
+
 sudo -EHu vagrant pipenv install --dev --ignore-pipfile
 sudo -EHu vagrant mkdir -p data
 
