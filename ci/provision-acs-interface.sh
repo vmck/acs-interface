@@ -13,7 +13,7 @@ pipenv run which python
 
 echo $PATH
 sudo bash -c 'echo $PATH'
-sudo -Hu vagrant echo $PATH
+sudo -EHu vagrant bash -c 'echo $PATH'
 pipenv run echo $PATH
 
 sudo -Hu vagrant pipenv install --dev --ignore-pipfile
