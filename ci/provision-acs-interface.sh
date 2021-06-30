@@ -12,7 +12,7 @@ sudo -Hu vagrant which python
 pipenv run which python
 
 echo $PATH
-sudo echo $PATH
+sudo bash -c 'echo $PATH'
 sudo -Hu vagrant echo $PATH
 pipenv run echo $PATH
 
