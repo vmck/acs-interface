@@ -12,12 +12,12 @@ sudo -Hu vagrant mkdir -p data
 
 container=$(docker ps -f name=minio -aq)
 if [ -z "$container" ]; then (
-    pipenv run examples/minio.sh
+    $SUDO pipenv run examples/minio.sh
 ) fi
 
 container=$(docker ps -f name=database -aq)
 if [ -z "$container" ]; then (
-    pipenv run examples/postgres.sh
+    $SUDO pipenv run examples/postgres.sh
 ) fi
 
 sleep 2
