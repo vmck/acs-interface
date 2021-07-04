@@ -14,10 +14,7 @@ log.setLevel(log_level)
 class VMCK(Evaluator):
     @staticmethod
     def evaluate(submission):
-        callback = (
-            f"submission/{submission.pk}/done?"
-            f"token={str(submission.generate_jwt(), encoding='latin1')}"
-        )
+        callback = f"submission/{submission.pk}/done?token={submission.generate_jwt()}"
 
         options = {}
         vm_options = submission.assignment.vm_options
