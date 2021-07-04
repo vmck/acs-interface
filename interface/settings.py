@@ -174,7 +174,18 @@ TOTAL_MACHINES = int(os.environ.get("TOTAL_MACHINES", 4))
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] [{asctime}] - {module}: {message}",
+            "style": "{",
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        }
+    },
     "loggers": {
         "django": {
             "handlers": ["console"],
