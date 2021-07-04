@@ -1,12 +1,9 @@
+import io
 from datetime import timedelta
 
-from minio import Minio
-from minio.error import InvalidResponseError
-from minio.error import MinioException
 from django.conf import settings
-
-import io
-
+from minio import Minio
+from minio.error import InvalidResponseError, MinioException
 
 _client = Minio(
     settings.MINIO_ADDRESS,

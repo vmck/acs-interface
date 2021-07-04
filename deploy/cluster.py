@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from urllib.request import Request, urlopen
-from pathlib import Path
 import json
 import os
+from pathlib import Path
+from urllib.request import Request, urlopen
 
 NOMAD_URL = os.environ.get("NOMAD_URL", "http://10.66.60.1:4646")
 

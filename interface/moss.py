@@ -2,15 +2,14 @@ import glob
 import logging
 from io import BytesIO
 from pathlib import Path
-from zipfile import ZipFile
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
 import mosspy
 from django.conf import settings
 from django.contrib import messages
 
 from interface.backend.minio_api import MissingFile
-
 
 log = logging.getLogger(__name__)
 

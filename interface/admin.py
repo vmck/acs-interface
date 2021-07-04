@@ -3,17 +3,16 @@ import logging
 from zipfile import ZipFile
 
 import simple_history
-from django.db import transaction
-from django.http import FileResponse
 from django.contrib import admin, messages
 from django.contrib.auth.models import Permission
+from django.db import transaction
+from django.http import FileResponse
 
-from interface.moss import moss_check
 from interface.actions_logger import log_action_admin
 from interface.backend.minio_api import MissingFile
+from interface.models import ActionLog, Assignment, Course, Submission
+from interface.moss import moss_check
 from interface.utils import get_last_submissions_of_every_user
-from interface.models import Course, Assignment, Submission, ActionLog
-
 
 log = logging.getLogger(__name__)
 

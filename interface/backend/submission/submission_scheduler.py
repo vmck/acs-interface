@@ -1,7 +1,7 @@
-import time
 import logging
+import time
 from queue import PriorityQueue
-from threading import BoundedSemaphore, Thread, Lock
+from threading import BoundedSemaphore, Lock, Thread
 
 from django.conf import settings
 

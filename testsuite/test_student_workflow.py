@@ -1,8 +1,7 @@
-import time
 import filecmp
+import time
 import zipfile
 from io import BytesIO
-
 from tempfile import NamedTemporaryFile
 
 import pytest
@@ -12,7 +11,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 import interface.backend.minio_api as storage
 from interface.models import Submission
-
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 

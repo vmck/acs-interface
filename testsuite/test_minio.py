@@ -1,12 +1,11 @@
-import io
 import filecmp
+import io
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from django.conf import settings
 
 import interface.backend.minio_api as storage
-
 
 filepath = settings.BASE_DIR / "testsuite" / "test.zip"
 

@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
-from interface.wsgi import application
-from interface.settings import STATIC_ROOT, APP_THREAD_COUNT
-
 from waitress import serve
 from whitenoise import WhiteNoise
+
+from interface.settings import APP_THREAD_COUNT, STATIC_ROOT
+from interface.wsgi import application
 
 
 class Command(BaseCommand):

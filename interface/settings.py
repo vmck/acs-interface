@@ -8,7 +8,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from interface.utils import is_true
 
-
 BASE_DIR = Path(__file__).parent.parent
 DEBUG = is_true(os.environ.get("DEBUG"))
 PROFILE = is_true(os.environ.get("PROFILE"))
@@ -178,13 +177,13 @@ LOGGING = {
         "verbose": {
             "format": "[{levelname}] [{asctime}] - {module}: {message}",
             "style": "{",
-        }
+        },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
-        }
+        },
     },
     "loggers": {
         "django": {

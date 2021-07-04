@@ -1,25 +1,22 @@
-import re
-import logging
 import datetime
+import logging
+import re
 from collections import OrderedDict
 from urllib.parse import urljoin
 
 import jwt
-from django.contrib.auth.models import User
-from django.db import models
 from django.conf import settings
-from django.db.models.signals import pre_save
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-
+from django.db import models
+from django.db.models.signals import pre_save
 from simple_history.models import HistoricalRecords
 
 import interface.backend.minio_api as storage
 from interface import signals
-from interface.backend.submission.submission_scheduler import (
-    SubmissionScheduler,
-)
+from interface.backend.submission.submission_scheduler import SubmissionScheduler
 
 log = logging.getLogger(__name__)
 

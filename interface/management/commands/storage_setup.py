@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from interface.settings import MINIO_BUCKET
 
 import interface.backend.minio_api as storage
+from interface.settings import MINIO_BUCKET
 
 
 class Command(BaseCommand):

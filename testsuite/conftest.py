@@ -1,16 +1,15 @@
-import pytest
 import threading
 from datetime import datetime, timezone
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-
-from django.test import SimpleTestCase
-from django.http import JsonResponse
-from django.contrib.auth.models import User
+import pytest
 from django.contrib.admin.sites import AdminSite
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.test import SimpleTestCase
 
-from interface.models import Course, Submission, Assignment
-from interface.admin import CourseAdmin, AssignmentAdmin
+from interface.admin import AssignmentAdmin, CourseAdmin
+from interface.models import Assignment, Course, Submission
 
 
 @pytest.fixture()

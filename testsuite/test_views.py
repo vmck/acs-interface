@@ -1,10 +1,10 @@
-import pytest
 import json
 
+import pytest
 from django.conf import settings
 
-from interface.models import User, Submission
 from interface import utils
+from interface.models import Submission, User
 
 
 def test_login(client, stc):

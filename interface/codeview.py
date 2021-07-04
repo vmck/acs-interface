@@ -2,8 +2,9 @@ import io
 import logging
 from zipfile import ZipFile
 
-from interface.backend.minio_api import MissingFile, download_buffer
 from django.template.defaulttags import register
+
+from interface.backend.minio_api import MissingFile, download_buffer
 
 log = logging.getLogger(__name__)
 

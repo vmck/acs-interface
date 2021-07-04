@@ -1,37 +1,34 @@
-import re
+import decimal
 import io
 import json
-import pprint
 import logging
-import decimal
+import pprint
+import re
 import subprocess
 from zipfile import BadZipFile
 
-from django.http import HttpResponse
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse, FileResponse, Http404
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.admin.views.decorators import staff_member_required
 
-from interface import models
-from interface import utils
-from interface.forms import UploadFileForm, LoginForm
-from interface.models import Submission, Course, User, Assignment
-from interface.backend.submission.submission import (
-    handle_submission,
-    TooManySubmissionsError,
-    CorruptZipFile,
-)
-from interface.scoring import calculate_total_score
+from interface import models, utils
 from interface.actions_logger import log_action
+from interface.backend.submission.submission import (
+    CorruptZipFile,
+    TooManySubmissionsError,
+    handle_submission,
+)
 from interface.codeview import extract_file, tree_view
-
+from interface.forms import LoginForm, UploadFileForm
+from interface.models import Assignment, Course, Submission, User
+from interface.scoring import calculate_total_score
 
 log = logging.getLogger(__name__)
 

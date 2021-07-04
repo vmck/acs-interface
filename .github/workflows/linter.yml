@@ -28,6 +28,10 @@ jobs:
               shell: bash
               run: pipenv run flakehell lint
 
+            - name: Run ISort
+              shell: bash
+              run: pipenv run isort --check .
+
             - name: Run Black
               uses: jpetrucciani/black-check@20.8b1
 

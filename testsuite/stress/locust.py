@@ -2,7 +2,6 @@ from pathlib import Path
 
 from locust import HttpUser, between, task
 
-
 FILEPATH = Path("testsuite") / "test.zip"
 
 
