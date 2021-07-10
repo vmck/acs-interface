@@ -1,12 +1,9 @@
+import io
 from datetime import timedelta
 
-from minio import Minio
-from minio.error import ResponseError
-from minio.error import NoSuchKey
 from django.conf import settings
-
-import io
-
+from minio import Minio
+from minio.error import InvalidResponseError, MinioException
 
 _client = Minio(
     settings.MINIO_ADDRESS,
@@ -41,7 +38,7 @@ def copy(source_file, destination_file):
 def download_buffer(filename, buffer):
     try:
         data = _client.get_object(settings.MINIO_BUCKET, filename)
-    except NoSuchKey:
+    except MinioException:
         raise MissingFile(filename)
     for chunck in data.stream(settings.BLOCK_SIZE):
         buffer.write(chunck)
@@ -50,7 +47,7 @@ def download_buffer(filename, buffer):
 def download(filename, path):
     try:
         data = _client.get_object(settings.MINIO_BUCKET, filename)
-    except NoSuchKey:
+    except MinioException:
         raise MissingFile(filename)
     with open(path, "wb") as file:
         for chunck in data.stream(settings.BLOCK_SIZE):
@@ -74,5 +71,5 @@ def exists(filename):
     try:
         _client.stat_object(settings.MINIO_BUCKET, filename)
         return True
-    except ResponseError:
+    except InvalidResponseError:
         return False

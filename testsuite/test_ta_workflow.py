@@ -1,14 +1,13 @@
-import pytest
-from datetime import datetime, timezone
-from django.contrib.admin.sites import AdminSite
+from datetime import datetime, timedelta, timezone
 
+import pytest
 from django.conf import settings
+from django.contrib.admin.sites import AdminSite
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from interface.admin import CourseAdmin
 from interface.backend import minio_api as storage
 from interface.models import Course, Submission
-from interface.admin import CourseAdmin
-from datetime import timedelta
 
 FILEPATH = settings.BASE_DIR / "testsuite" / "test.zip"
 FILEPATH2 = settings.BASE_DIR / "testsuite" / "bigtest.zip"

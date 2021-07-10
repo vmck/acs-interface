@@ -1,9 +1,9 @@
-import string
-import secrets
 import base64
+import secrets
+import string
 
 import requests
-from cachetools import cached, TTLCache
+from cachetools import TTLCache, cached
 
 vocabulary_64 = string.ascii_letters + string.digits + ".+"
 

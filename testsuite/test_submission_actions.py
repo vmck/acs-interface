@@ -2,8 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from interface.models import Submission, ActionLog
-
+from interface.models import ActionLog, Submission
 
 pytestmark = [pytest.mark.django_db()]
 

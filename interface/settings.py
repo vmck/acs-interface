@@ -8,7 +8,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from interface.utils import is_true
 
-
 BASE_DIR = Path(__file__).parent.parent
 DEBUG = is_true(os.environ.get("DEBUG"))
 PROFILE = is_true(os.environ.get("PROFILE"))
@@ -174,7 +173,18 @@ TOTAL_MACHINES = int(os.environ.get("TOTAL_MACHINES", 4))
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] [{asctime}] - {module}: {message}",  # noqa: FS003
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
     "loggers": {
         "django": {
             "handlers": ["console"],

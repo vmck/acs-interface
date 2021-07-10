@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 100
-target-version = ['py37']
+target-version = ['py38']
 exclude = "interface/migrations/*"
 
 [tool.pytest.ini_options]
@@ -8,6 +8,13 @@ DJANGO_SETTINGS_MODULE = "interface.settings"
 log_level = "DEBUG"
 testpaths = ["testsuite"]
 addopts = "--cov-report=xml --cov=interface --liveserver 10.66.60.1:8000"
+
+[tool.isort]
+skip_glob = ["interface/migrations/*"]
+src_paths = ["interface", "testsuite"]
+profile = "black"
+atomic = true
+line_length = 100
 
 [tool.flakehell]
 exclude = ["interface/migrations/*"]

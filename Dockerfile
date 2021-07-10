@@ -1,4 +1,4 @@
-FROM python:3.7.5-stretch
+FROM python:3.8.10-stretch
 
 RUN set -e \
  && apt-get update -q \

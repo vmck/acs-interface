@@ -1,10 +1,10 @@
-import pytest
 import json
 
+import pytest
 from django.conf import settings
 
-from interface.models import User, Submission
 from interface import utils
+from interface.models import Submission, User
 
 
 def test_login(client, stc):
@@ -87,7 +87,7 @@ def test_submission_done_submit(client, stc, base_db_setup):
         state=Submission.STATE_RUNNING,
         stdout="Runnning",
     )
-    token = str(submission.generate_jwt(), encoding="latin1")
+    token = submission.generate_jwt()
 
     response = client.post(
         f"/submission/{submission.pk}/done?token={token}",

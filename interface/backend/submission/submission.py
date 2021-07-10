@@ -7,7 +7,6 @@ from django.utils import timezone
 
 import interface.backend.minio_api as storage
 
-
 log = logging.getLogger(__name__)
 
 
