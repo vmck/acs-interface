@@ -297,7 +297,7 @@ def assignment_users_list(request, course_pk, assignment_pk):
 
 @login_required
 def subs_for_user(request, course_pk, assignment_pk, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     course = get_object_or_404(Course, pk=course_pk)
     assignment = get_object_or_404(course.assignment_set, pk=assignment_pk)
     submissions = (
