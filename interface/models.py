@@ -88,6 +88,7 @@ class Assignment(models.Model):
     history = HistoricalRecords()
     hidden_score = models.BooleanField(default=True)
     hide = models.BooleanField(null=False, default=False)
+    assignment_on = models.BooleanField(null=False, default=False)
 
     def __str__(self):
         return f"{self.full_code} {self.name}"
